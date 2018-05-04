@@ -10,3 +10,9 @@ else
 default:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
 endif
+
+clean:
+	rm -rfv src/.*.cmd
+	rm -rfv src/*.ko 
+	rm -rfv src/*.mod.* 
+	rm -rfv src/*.o
