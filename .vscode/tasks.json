@@ -37,6 +37,19 @@
       }
     },
     {
+      "label": "Clean",
+      "type": "shell",
+      "command": "make clean",
+      "options": { "cwd": "${workspaceRoot}" },
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      }
+    },
+    {
       "label": "Mount module",
       "type": "shell",
       "command": "sudo insmod test.ko", // use options.cwd property if the Makefile is not in the project root ${workspaceRoot} dir
@@ -61,6 +74,6 @@
         "focus": true,
         "panel": "shared"
       }
-    } // use options.cwd property if the Makefile is not in the project root ${workspaceRoot} dir // start the build without prompting for task selection, use "group": "build" otherwise
+    }
   ]
 }

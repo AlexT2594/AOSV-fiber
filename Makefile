@@ -16,3 +16,6 @@ clean:
 	rm -rfv src/*.ko 
 	rm -rfv src/*.mod.* 
 	rm -rfv src/*.o
+	rm -rfv *.symvers
+	rm -rfv *.order
+	rm -rfv .tmp_versions
