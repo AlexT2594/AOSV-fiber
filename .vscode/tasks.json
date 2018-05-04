@@ -1,0 +1,66 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build",
+      "type": "shell",
+      "command": "make",
+      // use options.cwd property if the Makefile is not in the project root ${workspaceRoot} dir
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      // start the build without prompting for task selection, use "group": "build" otherwise
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      },
+      // arg passing example: in this case is executed make QUIET=0
+      "args": ["QUIET=0"],
+      // Use the standard less compilation problem matcher.
+      "problemMatcher": {
+        "owner": "cpp",
+        "fileLocation": ["absolute"],
+        "pattern": {
+          "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "message": 5
+        }
+      }
+    },
+    {
+      "label": "Mount module",
+      "type": "shell",
+      "command": "sudo insmod test.ko", // use options.cwd property if the Makefile is not in the project root ${workspaceRoot} dir
+      "options": { "cwd": "${workspaceRoot}/src" }, // start the build without prompting for task selection, use "group": "build" otherwise
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Unmount module",
+      "type": "shell",
+      "command": "sudo rmmod test",
+      "options": { "cwd": "${workspaceRoot}/src" },
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      }
+    } // use options.cwd property if the Makefile is not in the project root ${workspaceRoot} dir // start the build without prompting for task selection, use "group": "build" otherwise
+  ]
+}
