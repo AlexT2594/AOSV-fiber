@@ -5,7 +5,7 @@
   "editor.autoIndent": true,
   "html.format.maxPreserveNewLines": 1,
   "C_Cpp.autocomplete": "Default",
-  "files.associations": {
-    "module.h": "c"
-  }
+  "C_Cpp.intelliSenseEngine": "Default",
+  "C_Cpp.intelliSenseEngineFallback": "Disabled",
+  "C_Cpp.errorSquiggles": "Enabled"
 }
