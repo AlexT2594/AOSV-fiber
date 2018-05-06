@@ -35,7 +35,7 @@ static struct file_operations fiber_proc_file_ops = {
 // clang-format on
 
 /*
- * Exposes functions
+ * Exposed functions
  */
 
 /**
