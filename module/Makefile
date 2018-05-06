@@ -6,7 +6,7 @@ ifneq ($(KERNELRELEASE),)
 # line; invoke the kernel build system.
 else
 	KERNELDIR ?= /lib/modules/$(shell uname -r)/build
-	PWD  := $(shell pwd)
+	PWD := $(shell pwd)
 default:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
 endif

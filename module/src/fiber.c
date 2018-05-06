@@ -10,6 +10,11 @@
 
 MODULE_LICENSE("Dual BSD/GPL");
 
+/**
+ * @brief The init function of the module
+ * inspired by https://static.lwn.net/images/pdf/LDD3/ch02.pdf
+ * @return int init_fiber
+ */
 static int __init init_fiber(void) {
     int err = 0;
     // init the char device

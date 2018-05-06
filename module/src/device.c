@@ -42,7 +42,7 @@ static struct file_operations fops = {
 
 /**
  * @brief Init the device
- *
+ * inspired by https://stackoverflow.com/a/5973426
  * @return int
  */
 int init_device(void) {
@@ -100,7 +100,8 @@ void destroy_device(void) {
 
 /**
  * @brief The main ioctl function, dispatcher of all the exposed capabilities of the module - aka
- * syscalls
+ * syscalls.
+ * Inspired by https://static.lwn.net/images/pdf/LDD3/ch06.pdf
  *
  * @param inode
  * @param filp

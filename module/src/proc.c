@@ -40,7 +40,7 @@ static struct file_operations fiber_proc_file_ops = {
 
 /**
  * @brief Init here all the proc files for the module
- *
+ * Inspired by https://static.lwn.net/images/pdf/LDD3/ch04.pdf and updated to new standard
  * @return int
  */
 int init_proc() {
