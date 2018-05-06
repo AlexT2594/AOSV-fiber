@@ -37,16 +37,22 @@ static struct file_operations fiber_proc_file_ops = {
 /*
  * Exposes functions
  */
+
+/**
+ * @brief Init here all the proc files for the module
+ *
+ * @return int
+ */
 int init_proc() {
-    int res = 0;
-    proc_create(PROC_ENTRY, 0, NULL, &fiber_proc_file_ops);
-    if (res < 0) {
-        printk(KERN_ALERT MODULE_NAME ": Registering /proc/" PROC_ENTRY " failed with res %d\n",
-               res);
-    }
-    return res;
+    struct proc_dir_entry *entry = proc_create(PROC_ENTRY, 0, NULL, &fiber_proc_file_ops);
+    if (!entry) { printk(KERN_ALERT MODULE_NAME ": Registering /proc/" PROC_ENTRY " failed"); }
+    return -1;
 }
 
+/**
+ * @brief Destroy all the proc files
+ *
+ */
 void destroy_proc() { remove_proc_entry(PROC_ENTRY, NULL); }
 
 /*

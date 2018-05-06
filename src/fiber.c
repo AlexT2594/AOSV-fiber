@@ -17,7 +17,7 @@ static int __init init_fiber(void) {
     err |= init_device();
     err |= init_proc();
     if (err) {
-        printk(KERN_ALERT MODULE_NAME ": loaded successfully\n");
+        printk(KERN_ALERT MODULE_NAME ": loading error\n");
         return -1; // TODO what return here?
     }
     printk(KERN_INFO MODULE_NAME ": loaded successfully\n");
