@@ -44,9 +44,13 @@ static struct file_operations fiber_proc_file_ops = {
  * @return int
  */
 int init_proc() {
-    struct proc_dir_entry *entry = proc_create(PROC_ENTRY, 0, NULL, &fiber_proc_file_ops);
-    if (!entry) { printk(KERN_ALERT MODULE_NAME ": Registering /proc/" PROC_ENTRY " failed"); }
-    return -1;
+    struct proc_dir_entry *entry;
+    entry = proc_create(PROC_ENTRY, 0, NULL, &fiber_proc_file_ops);
+    if (!entry) {
+        printk(KERN_ALERT MODULE_NAME ": Registering /proc/" PROC_ENTRY " failed");
+        return -1;
+    }
+    return 0;
 }
 
 /**
