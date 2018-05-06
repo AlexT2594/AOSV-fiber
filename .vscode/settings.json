@@ -7,5 +7,13 @@
   "C_Cpp.autocomplete": "Default",
   "C_Cpp.intelliSenseEngine": "Default",
   "C_Cpp.intelliSenseEngineFallback": "Disabled",
-  "C_Cpp.errorSquiggles": "Enabled"
+  "C_Cpp.errorSquiggles": "Disabled",
+  "C_Cpp.clang_format_path": "/usr/bin/clang-format",
+  "C_Cpp.clang_format_style": "file",
+  "files.associations": {
+    "param.h": "c",
+    "module.h": "c",
+    "kernel.h": "c"
+  },
+  "doxdocgen.generic.authorTag": "@author Gabriele Proietti Mattia <gabry.gabry@hotmail.it>\n * @author Alexandru Daniel Tufa <alex.tufa94@gmail.com>"
 }

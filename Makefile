@@ -1,7 +1,7 @@
 # If KERNELRELEASE is defined, we've been invoked from the
 # kernel build system and can use its language.
 ifneq ($(KERNELRELEASE),)
-	obj-m := src/fiber.o
+	include Kbuild # include KBuild for backward compatibility
 # Otherwise we were called directly from the command
 # line; invoke the kernel build system.
 else
@@ -12,10 +12,4 @@ default:
 endif
 
 clean:
-	rm -rfv src/.*.cmd
-	rm -rfv src/*.ko 
-	rm -rfv src/*.mod.* 
-	rm -rfv src/*.o
-	rm -rfv *.symvers
-	rm -rfv *.order
-	rm -rfv .tmp_versions
+	$(MAKE) -C $(KERNELDIR) M=$(PWD) clean
