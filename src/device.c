@@ -20,6 +20,7 @@ static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg);
 /*
  * Global variables withing the file
  */
+static fiber_dev_t fiber_dev;
 static int major;
 static int is_device_open = 0;
 static char msg[BUF_LEN];
@@ -45,22 +46,36 @@ static struct file_operations fops = {
  * @return int
  */
 int init_device(void) {
-    major = register_chrdev(0, DEVICE_NAME, &fops);
+    // request a major and a set of minors
+    int res = alloc_chrdev_region(&(fiber_dev.dev), 0, 1, FIBER_DEVICE_NAME);
+    major = MAJOR(fiber_dev.dev);
 
-    if (major < 0) {
-        printk(KERN_ALERT MODULE_NAME ": Registering char device " DEVICE_NAME " failed with %d\n",
-               major);
-        return major;
+    if (res < 0) {
+        printk(KERN_ALERT MODULE_NAME ": registering char region with major %d failed\n", major);
+        return res;
     }
+    printk(KERN_DEBUG MODULE_NAME ": device created with major %d", major);
 
-    printk(KERN_DEBUG MODULE_NAME ": device " DEVICE_NAME " created with maj %d", major);
+    // register the character device cdev
+    fiber_dev.cdev = cdev_alloc();
+    cdev_init(fiber_dev.cdev, &fops);
+    fiber_dev.cdev->owner = THIS_MODULE;
+    res = cdev_add(fiber_dev.cdev, fiber_dev.dev, 1);
+    if (res < 0) {
+        printk(KERN_ALERT MODULE_NAME ": adding char device with major %d failed\n", major);
+        return res;
+    }
+    printk(KERN_DEBUG MODULE_NAME ": char device added");
 
-    // printk(KERN_INFO "I was assigned major number %d. To talk to\n", major);
-    // printk(KERN_INFO "the driver, create a dev file with\n");
-    // printk(KERN_INFO "'mknod /dev/%s c %d 0'.\n", DEVICE_NAME, major);
-    // printk(KERN_INFO "Try various minor numbers. Try to cat and echo to\n");
-    // printk(KERN_INFO "the device file.\n");
-    // printk(KERN_INFO "Remove the device file and module when done.\n");
+    // create the class and the inode
+    fiber_dev.dev_class = class_create(THIS_MODULE, FIBER_DEVICE_NAME);
+    fiber_dev.device =
+        device_create(fiber_dev.dev_class, NULL, fiber_dev.dev, NULL, FIBER_DEVICE_NAME);
+    if (!IS_ERR(fiber_dev.device)) {
+        printk(KERN_ALERT MODULE_NAME ": /dev/" FIBER_DEVICE_NAME " creation error");
+        return -1;
+    }
+    printk(KERN_DEBUG MODULE_NAME ": /dev/" FIBER_DEVICE_NAME " successfully created");
 
     return SUCCESS;
 }
@@ -69,7 +84,16 @@ int init_device(void) {
  * @brief Destroy the device
  *
  */
-void destroy_device(void) { unregister_chrdev(major, DEVICE_NAME); }
+void destroy_device(void) {
+    // destroy device
+    device_destroy(fiber_dev.dev_class, fiber_dev.dev);
+    // destroy class
+    class_destroy(fiber_dev.dev_class);
+    // destroy the character device
+    cdev_del(fiber_dev.cdev);
+    // dealloc the major region
+    unregister_chrdev_region(fiber_dev.dev, 1);
+}
 
 /*
  * Implementation of static functions

@@ -18,7 +18,7 @@ int init_device(void);
 void destroy_device(void);
 
 #define SUCCESS 0
-#define DEVICE_NAME "fiber"
+#define FIBER_DEVICE_NAME "fiber"
 #define BUF_LEN 80
 
 /*
@@ -49,10 +49,12 @@ void destroy_device(void);
  * @brief The main structure of the fiber char device
  *
  */
-struct fiber_dev {
-    unsigned long fnum;
+typedef struct fiber_dev {
+    dev_t dev;
+    struct class *dev_class;
+    struct device *device;
+    struct cdev *cdev;
     struct semaphore sem;
-    struct cdev cdev;
-};
+} fiber_dev_t;
 
 #endif
