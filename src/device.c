@@ -46,15 +46,14 @@ static struct file_operations fops = {
  * @return int
  */
 int init_device(void) {
-    // request a major and a set of minors
-    int res = alloc_chrdev_region(&(fiber_dev.dev), 0, 1, FIBER_DEVICE_NAME);
-    major = MAJOR(fiber_dev.dev);
-
+    // request a major and a set of minors (only one for us)
+    int res = alloc_chrdev_region(&(fiber_dev.dev), FIBER_DEVICE_MINOR, 1, FIBER_DEVICE_NAME);
     if (res < 0) {
-        printk(KERN_ALERT MODULE_NAME ": registering char region with major %d failed\n", major);
+        printk(KERN_ALERT MODULE_NAME DEVICE_LOG "registering char region failed\n");
         return res;
     }
-    printk(KERN_DEBUG MODULE_NAME ": device created with major %d", major);
+    major = MAJOR(fiber_dev.dev);
+    printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "device created with major %d", major);
 
     // register the character device cdev
     fiber_dev.cdev = cdev_alloc();
@@ -62,20 +61,19 @@ int init_device(void) {
     fiber_dev.cdev->owner = THIS_MODULE;
     res = cdev_add(fiber_dev.cdev, fiber_dev.dev, 1);
     if (res < 0) {
-        printk(KERN_ALERT MODULE_NAME ": adding char device with major %d failed\n", major);
+        printk(KERN_ALERT MODULE_NAME DEVICE_LOG "adding char device with major %d failed\n", major);
         return res;
     }
-    printk(KERN_DEBUG MODULE_NAME ": char device added");
+    printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "char device bound to dev_t");
 
     // create the class and the inode
-    fiber_dev.dev_class = class_create(THIS_MODULE, FIBER_DEVICE_NAME);
-    fiber_dev.device =
-        device_create(fiber_dev.dev_class, NULL, fiber_dev.dev, NULL, FIBER_DEVICE_NAME);
-    if (!IS_ERR(fiber_dev.device)) {
-        printk(KERN_ALERT MODULE_NAME ": /dev/" FIBER_DEVICE_NAME " creation error");
+    fiber_dev.dev_class = class_create(THIS_MODULE, FIBER_CLASS_NAME);
+    fiber_dev.device = device_create(fiber_dev.dev_class, NULL, fiber_dev.dev, NULL, FIBER_DEVICE_NAME);
+    if (!fiber_dev.device) {
+        printk(KERN_ALERT MODULE_NAME DEVICE_LOG "/dev/" FIBER_DEVICE_NAME " creation error");
         return -1;
     }
-    printk(KERN_DEBUG MODULE_NAME ": /dev/" FIBER_DEVICE_NAME " successfully created");
+    printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "/dev/" FIBER_DEVICE_NAME " successfully created");
 
     return SUCCESS;
 }
@@ -93,6 +91,7 @@ void destroy_device(void) {
     cdev_del(fiber_dev.cdev);
     // dealloc the major region
     unregister_chrdev_region(fiber_dev.dev, 1);
+    printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "/dev/" FIBER_DEVICE_NAME " successfully destroyed");
 }
 
 /*
@@ -115,10 +114,8 @@ static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) 
     if (_IOC_TYPE(cmd) != FIBER_IOC_MAGIC) return -ENOTTY;
     if (_IOC_TYPE(cmd) > FIBER_IOC_MAXNR) return -ENOTTY;
     // check addresses before performing operations
-    if (_IOC_DIR(cmd) & _IOC_READ)
-        err = !access_ok(VERIFY_WRITE, (void __user *)arg, _IOC_SIZE(cmd));
-    if (_IOC_DIR(cmd) & _IOC_WRITE)
-        err = !access_ok(VERIFY_READ, (void __user *)arg, _IOC_SIZE(cmd));
+    if (_IOC_DIR(cmd) & _IOC_READ) err = !access_ok(VERIFY_WRITE, (void __user *)arg, _IOC_SIZE(cmd));
+    if (_IOC_DIR(cmd) & _IOC_WRITE) err = !access_ok(VERIFY_READ, (void __user *)arg, _IOC_SIZE(cmd));
     if (err) return -EFAULT;
 
     switch (cmd) {
@@ -227,6 +224,6 @@ static ssize_t device_read(struct file *filp, /* see include/linux/fs.h   */
  * Called when a process writes to dev file: echo "hi" > /dev/hello
  */
 static ssize_t device_write(struct file *filp, const char *buf, size_t len, loff_t *off) {
-    printk(KERN_ALERT "Sorry, this operation isn't supported.\n");
+    printk(KERN_ALERT MODULE_NAME DEVICE_LOG "Sorry, write operation isn't supported.\n");
     return -EINVAL;
 }

@@ -7,4 +7,6 @@
 #include <linux/init.h>
 #include <linux/module.h>
 
+#define FIBER_LOG ": FIBER: "
+
 #endif

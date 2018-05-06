@@ -14,11 +14,14 @@
 #include <linux/semaphore.h>
 #include <linux/uaccess.h>
 
+#define DEVICE_LOG ": DEV: "
+
 int init_device(void);
 void destroy_device(void);
 
-#define SUCCESS 0
+#define FIBER_CLASS_NAME "fbrdrv"
 #define FIBER_DEVICE_NAME "fiber"
+#define FIBER_DEVICE_MINOR 0
 #define BUF_LEN 80
 
 /*

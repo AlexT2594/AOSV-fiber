@@ -47,9 +47,10 @@ int init_proc() {
     struct proc_dir_entry *entry;
     entry = proc_create(PROC_ENTRY, 0, NULL, &fiber_proc_file_ops);
     if (!entry) {
-        printk(KERN_ALERT MODULE_NAME ": Registering /proc/" PROC_ENTRY " failed");
+        printk(KERN_ALERT MODULE_NAME PROC_LOG "registering /proc/" PROC_ENTRY " failed");
         return -1;
     }
+    printk(KERN_DEBUG MODULE_NAME PROC_LOG "registering /proc/" PROC_ENTRY " success");
     return 0;
 }
 
@@ -57,7 +58,10 @@ int init_proc() {
  * @brief Destroy all the proc files
  *
  */
-void destroy_proc() { remove_proc_entry(PROC_ENTRY, NULL); }
+void destroy_proc() {
+    remove_proc_entry(PROC_ENTRY, NULL);
+    printk(KERN_DEBUG MODULE_NAME PROC_LOG "/proc/" PROC_ENTRY " destroyed");
+}
 
 /*
  * Implementation of static functions
@@ -72,9 +76,7 @@ void destroy_proc() { remove_proc_entry(PROC_ENTRY, NULL); }
  * @param file
  * @return int
  */
-static int fiber_proc_open(struct inode *inode, struct file *file) {
-    return seq_open(file, &fiber_proc_ops);
-}
+static int fiber_proc_open(struct inode *inode, struct file *file) { return seq_open(file, &fiber_proc_ops); }
 
 /**
  * @brief Start of the iterator, we may want here to acquire semaphores/spinlocks

@@ -13,22 +13,25 @@ MODULE_LICENSE("Dual BSD/GPL");
 static int __init init_fiber(void) {
     int err = 0;
     // init the char device
-    printk(KERN_INFO MODULE_NAME ": loading module\n");
+    printk(KERN_INFO MODULE_NAME FIBER_LOG "loading module\n");
     err |= init_device();
+    if (err) goto device_err;
     err |= init_proc();
-    if (err) {
-        printk(KERN_ALERT MODULE_NAME ": loading error\n");
-        return -1; // TODO what return here?
-    }
-    printk(KERN_INFO MODULE_NAME ": loaded successfully\n");
+    if (err) goto proc_err;
+    printk(KERN_INFO MODULE_NAME FIBER_LOG "loaded successfully\n");
     return SUCCESS;
+proc_err:
+    destroy_device();
+device_err:
+    printk(KERN_ALERT MODULE_NAME FIBER_LOG "loading error\n");
+    return -1;
 }
 
 static void __exit destroy_fiber(void) {
     // destroy the char device
     destroy_device();
     destroy_proc();
-    printk(KERN_INFO MODULE_NAME ": unloaded successfully\n");
+    printk(KERN_INFO MODULE_NAME FIBER_LOG "unloaded successfully\n");
 }
 
 module_init(init_fiber);
