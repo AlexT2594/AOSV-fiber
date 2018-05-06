@@ -110,6 +110,6 @@ static void fiber_proc_stop(struct seq_file *sfile, void *v) {}
  * @return int
  */
 static int fiber_proc_show(struct seq_file *sfile, void *v) {
-    seq_printf(sfile, "This proc file is working very well!\0");
+    seq_printf(sfile, "This proc file is working very well!\n");
     return 0;
 }

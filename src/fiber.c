@@ -11,9 +11,9 @@
 MODULE_LICENSE("Dual BSD/GPL");
 
 static int __init init_fiber(void) {
+    int err = 0;
     // init the char device
     printk(KERN_INFO MODULE_NAME ": loading module\n");
-    int err = 0;
     err |= init_device();
     err |= init_proc();
     if (err) {
