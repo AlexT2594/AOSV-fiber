@@ -2,6 +2,7 @@
 #define __FIBER_H
 
 #include "../../module/include/ioctlcmd.h"
+#include <errno.h>
 #include <fcntl.h>
 #include <linux/ioctl.h>
 #include <stdio.h>

@@ -21,7 +21,6 @@ static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg);
  * Global variables withing the file
  */
 static fiber_dev_t fiber_dev;
-static int major;
 static int is_device_open = 0;
 static char msg[BUF_LEN];
 static char *msg_ptr;
@@ -32,7 +31,8 @@ static struct file_operations fops = {
     .write = device_write,
     .open = device_open,
     .release = device_release,
-    .unlocked_ioctl = fiber_ioctl
+    .unlocked_ioctl = fiber_ioctl,
+    .compat_ioctl = fiber_ioctl
 };
 // clang-format on
 
@@ -42,39 +42,22 @@ static struct file_operations fops = {
 
 /**
  * @brief Init the device
- * inspired by https://stackoverflow.com/a/5973426
+ * inspired by https://www.linuxjournal.com/article/2920
  * @return int
  */
 int init_device(void) {
-    // request a major and a set of minors (only one for us)
-    int res = alloc_chrdev_region(&(fiber_dev.dev), FIBER_DEVICE_MINOR, 1, FIBER_DEVICE_NAME);
-    if (res < 0) {
-        printk(KERN_ALERT MODULE_NAME DEVICE_LOG "registering char region failed\n");
-        return res;
-    }
-    major = MAJOR(fiber_dev.dev);
-    printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "device created with major %d", major);
-
-    // register the character device cdev
-    fiber_dev.cdev = cdev_alloc();
-    cdev_init(fiber_dev.cdev, &fops);
-    fiber_dev.cdev->owner = THIS_MODULE;
-    res = cdev_add(fiber_dev.cdev, fiber_dev.dev, 1);
-    if (res < 0) {
-        printk(KERN_ALERT MODULE_NAME DEVICE_LOG "adding char device with major %d failed\n", major);
-        return res;
-    }
-    printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "char device bound to dev_t");
-
-    // create the class and the inode
-    fiber_dev.dev_class = class_create(THIS_MODULE, FIBER_CLASS_NAME);
-    fiber_dev.device = device_create(fiber_dev.dev_class, NULL, fiber_dev.dev, NULL, FIBER_DEVICE_NAME);
-    if (!fiber_dev.device) {
+    int ret = 0;
+    fiber_dev.device.minor = MISC_DYNAMIC_MINOR;
+    fiber_dev.device.name = FIBER_DEVICE_NAME;
+    fiber_dev.device.mode = 0666;
+    fiber_dev.device.fops = &fops;
+    // register the device
+    ret = misc_register(&(fiber_dev.device));
+    if (ret < 0) {
         printk(KERN_ALERT MODULE_NAME DEVICE_LOG "/dev/" FIBER_DEVICE_NAME " creation error");
         return -1;
     }
     printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "/dev/" FIBER_DEVICE_NAME " successfully created");
-
     return SUCCESS;
 }
 
@@ -83,14 +66,8 @@ int init_device(void) {
  *
  */
 void destroy_device(void) {
-    // destroy device
-    device_destroy(fiber_dev.dev_class, fiber_dev.dev);
-    // destroy class
-    class_destroy(fiber_dev.dev_class);
-    // destroy the character device
-    cdev_del(fiber_dev.cdev);
-    // dealloc the major region
-    unregister_chrdev_region(fiber_dev.dev, 1);
+    // deregister the device
+    misc_deregister(&(fiber_dev.device));
     printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "/dev/" FIBER_DEVICE_NAME " successfully destroyed");
 }
 
@@ -111,7 +88,7 @@ void destroy_device(void) {
 static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
     int err = 0;
     int retval = 0;
-    printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "Called IOCTL with cmd %d", cmd);
+    printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "Called IOCTL with cmd %d", _IOC_NR(cmd));
     // check correctness of type and command number
     if (_IOC_TYPE(cmd) != FIBER_IOC_MAGIC) return -ENOTTY;
     if (_IOC_TYPE(cmd) > FIBER_IOC_MAXNR) return -ENOTTY;

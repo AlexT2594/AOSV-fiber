@@ -11,6 +11,7 @@
 #include <linux/fs.h>
 #include <linux/ioctl.h>
 #include <linux/kernel.h>
+#include <linux/miscdevice.h>
 #include <linux/module.h>
 #include <linux/semaphore.h>
 #include <linux/uaccess.h>
@@ -20,9 +21,7 @@
 int init_device(void);
 void destroy_device(void);
 
-#define FIBER_CLASS_NAME "fbrdrv"
 #define FIBER_DEVICE_NAME "fiber"
-#define FIBER_DEVICE_MINOR 0
 #define BUF_LEN 80
 
 /**
@@ -30,11 +29,7 @@ void destroy_device(void);
  *
  */
 typedef struct fiber_dev {
-    dev_t dev;
-    struct class *dev_class;
-    struct device *device;
-    struct cdev *cdev;
-    struct semaphore sem;
+    struct miscdevice device;
 } fiber_dev_t;
 
 #endif
