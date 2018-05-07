@@ -111,6 +111,7 @@ void destroy_device(void) {
 static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
     int err = 0;
     int retval = 0;
+    printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "Called IOCTL with cmd %d", cmd);
     // check correctness of type and command number
     if (_IOC_TYPE(cmd) != FIBER_IOC_MAGIC) return -ENOTTY;
     if (_IOC_TYPE(cmd) > FIBER_IOC_MAXNR) return -ENOTTY;

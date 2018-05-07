@@ -6,6 +6,7 @@
 #define __DEVICE_H
 
 #include "common.h"
+#include "ioctlcmd.h"
 #include <linux/cdev.h>
 #include <linux/fs.h>
 #include <linux/ioctl.h>
@@ -23,30 +24,6 @@ void destroy_device(void);
 #define FIBER_DEVICE_NAME "fiber"
 #define FIBER_DEVICE_MINOR 0
 #define BUF_LEN 80
-
-/*
- * IOCTL Section
- * We define the following operations for the module
- * - CONVERTTOFIBER - ConvertThreadToFiber
- * - CREATEFIBER - CreateFiber
- * - SWITCHTOFIBER - SwitchToFiber
- * - FLS_ALLOC - FlsAlloc
- * - FLS_FREE - FlsFree
- * - FLS_GET - FlsGetValue
- * - FLS_SET - FlsSetValue
- */
-#define FIBER_IOC_MAGIC 0xF1
-
-#define FIBER_IOCRESET _IO(FIBER_IOC_MAGIC, 0)
-#define FIBER_IOC_CONVERTTOFIBER _IO(FIBER_IOC_MAGIC, 1)
-#define FIBER_IOC_CREATEFIBER _IO(FIBER_IOC_MAGIC, 2)
-#define FIBER_IOC_SWITCHTOFIBER _IO(FIBER_IOC_MAGIC, 3)
-#define FIBER_IOC_FLS_ALLOC _IOWR(FIBER_IOC_MAGIC, 4, int)
-#define FIBER_IOC_FLS_FREE _IOW(FIBER_IOC_MAGIC, 5, int)
-#define FIBER_IOC_FLS_GET _IOR(FIBER_IOC_MAGIC, 6, int)
-#define FIBER_IOC_FLS_SET _IOW(FIBER_IOC_MAGIC, 7, int)
-
-#define FIBER_IOC_MAXNR 7
 
 /**
  * @brief The main structure of the fiber char device
