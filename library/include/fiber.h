@@ -5,13 +5,19 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <linux/ioctl.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stropts.h>
 #include <sys/stat.h>
+#include <ucontext.h>
 
 #define FIBER_DEV_PATH "/dev/fiber"
 
-int CreateFiber();
+#define STACK_SIZE 16384
+
+int ConvertThreadToFiber();
+
+int create_context();
 
 #endif

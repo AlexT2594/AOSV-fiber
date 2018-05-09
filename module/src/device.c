@@ -16,6 +16,7 @@ static int device_release(struct inode *, struct file *);
 static ssize_t device_read(struct file *, char *, size_t, loff_t *);
 static ssize_t device_write(struct file *, const char *, size_t, loff_t *);
 static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg);
+static DECLARE_WAIT_QUEUE_HEAD(wq);
 
 /*
  * Global variables withing the file
@@ -88,10 +89,11 @@ void destroy_device(void) {
 static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
     int err = 0;
     int retval = 0;
+    int i = 0;
     printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "Called IOCTL with cmd %d", _IOC_NR(cmd));
     // check correctness of type and command number
     if (_IOC_TYPE(cmd) != FIBER_IOC_MAGIC) return -ENOTTY;
-    if (_IOC_TYPE(cmd) > FIBER_IOC_MAXNR) return -ENOTTY;
+    if (_IOC_NR(cmd) > FIBER_IOC_MAXNR) return -ENOTTY;
     // check addresses before performing operations
     if (_IOC_DIR(cmd) & _IOC_READ) err = !access_ok(VERIFY_WRITE, (void __user *)arg, _IOC_SIZE(cmd));
     if (_IOC_DIR(cmd) & _IOC_WRITE) err = !access_ok(VERIFY_READ, (void __user *)arg, _IOC_SIZE(cmd));
@@ -100,11 +102,10 @@ static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) 
     switch (cmd) {
     case FIBER_IOCRESET:
         break;
-    case FIBER_IOC_CONVERTTOFIBER:
-        break;
-    case FIBER_IOC_CREATEFIBER:
-        break;
-    case FIBER_IOC_SWITCHTOFIBER:
+    case FIBER_IOC_CONVERTTHREADTOFIBER:
+        // printk("Info 1 -- %u", info_1->status);
+        printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "Called FIBER_IOC_CONVERTTHREADTOFIBER");
+        return 98; /* EOF */
         break;
     case FIBER_IOC_FLS_ALLOC:
         // call __get_user for getting the passed data structure
@@ -202,7 +203,4 @@ static ssize_t device_read(struct file *filp, /* see include/linux/fs.h   */
 /*
  * Called when a process writes to dev file: echo "hi" > /dev/hello
  */
-static ssize_t device_write(struct file *filp, const char *buf, size_t len, loff_t *off) {
-    printk(KERN_ALERT MODULE_NAME DEVICE_LOG "Sorry, write operation isn't supported.\n");
-    return -EINVAL;
-}
+static ssize_t device_write(struct file *filp, const char *buf, size_t len, loff_t *off) { return 0; }

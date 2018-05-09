@@ -7,6 +7,7 @@
 
 #include "common.h"
 #include "ioctlcmd.h"
+#include <asm/current.h>
 #include <linux/cdev.h>
 #include <linux/fs.h>
 #include <linux/ioctl.h>

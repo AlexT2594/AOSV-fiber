@@ -2,6 +2,6 @@
 
 int main(int argc, char **argv) {
     printf("Starting fiber test!\n");
-    CreateFiber();
+    ConvertThreadToFiber();
     exit(EXIT_SUCCESS);
 }

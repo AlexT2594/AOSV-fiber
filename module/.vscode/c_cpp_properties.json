@@ -1,37 +1,37 @@
 {
-  "configurations": [
-    {
-      "name": "Linux",
-      "includePath": [
-        "${workspaceFolder}/include",
-        "/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/include",
-        "/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/include-fixed",
-        "/usr/src/linux-4.14.38/include",
-        "/usr/src/linux-4.14.38/arch/x86/include",
-        "/usr/src/linux-4.14.38/tools/arch/x86/include",
-        "/usr/src/linux-4.14.38/tools/perf/arch/x86/include",
-        "/usr/src/linux-4.14.38/tools/objtool/arch/x86/include"
-      ],
-      "defines": [],
-      "intelliSenseMode": "clang-x64",
-      "browse": {
-        "path": [
-          "${workspaceFolder}",
-          "/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/include",
-          "/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/include-fixed",
-          "/usr/src/linux-4.14.38/include",
-          "/usr/src/linux-4.14.38/arch/x86/include",
-          "/usr/src/linux-4.14.38/tools/arch/x86/include",
-          "/usr/src/linux-4.14.38/tools/perf/arch/x86/include",
-          "/usr/src/linux-4.14.38/tools/objtool/arch/x86/include"
-        ],
-        "limitSymbolsToIncludedHeaders": true,
-        "databaseFilename": ""
-      },
-      "compilerPath": "/usr/bin/gcc",
-      "cStandard": "c11",
-      "cppStandard": "c++17"
-    }
-  ],
-  "version": 3
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/include",
+                "/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/include",
+                "/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/include-fixed",
+                "/usr/src/linux-4.14.38/include",
+                "/usr/src/linux-4.14.38/arch/x86/include",
+                "/usr/src/linux-4.14.38/tools/arch/x86/include",
+                "/usr/src/linux-4.14.38/tools/perf/arch/x86/include",
+                "/usr/src/linux-4.14.38/tools/objtool/arch/x86/include"
+            ],
+            "defines": [],
+            "intelliSenseMode": "clang-x64",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}",
+                    "/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/include",
+                    "/usr/lib/gcc/x86_64-pc-linux-gnu/7.3.1/include-fixed",
+                    "/usr/src/linux-4.14.38/include",
+                    "/usr/src/linux-4.14.38/arch/x86/include",
+                    "/usr/src/linux-4.14.38/tools/arch/x86/include",
+                    "/usr/src/linux-4.14.38/tools/perf/arch/x86/include",
+                    "/usr/src/linux-4.14.38/tools/objtool/arch/x86/include"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            },
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
 }
