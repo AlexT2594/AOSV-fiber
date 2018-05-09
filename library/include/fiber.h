@@ -10,13 +10,14 @@
 #include <stdlib.h>
 #include <stropts.h>
 #include <sys/stat.h>
-#include <ucontext.h>
+#include <unistd.h>
 
 #define FIBER_DEV_PATH "/dev/fiber"
 
 #define STACK_SIZE 16384
 
 int ConvertThreadToFiber();
+int CreateFiber(void *(*function)(void *));
 
 int create_context();
 

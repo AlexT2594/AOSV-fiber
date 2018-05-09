@@ -13,7 +13,8 @@
   "files.associations": {
     "param.h": "c",
     "module.h": "c",
-    "kernel.h": "c"
+    "kernel.h": "c",
+    "thread": "cpp"
   },
   "doxdocgen.generic.authorTag": "@author Gabriele Proietti Mattia <gabry.gabry@hotmail.it>\n * @author Alexandru Daniel Tufa <alex.tufa94@gmail.com>"
 }

@@ -27,6 +27,11 @@ static char msg[BUF_LEN];
 static char *msg_ptr;
 
 // clang-format off
+static fibered_processes_list_t fibered_processes_list = {
+    .head = NULL,
+    .tail = NULL,
+    .processes_count = 0
+};
 static struct file_operations fops = {
     .read = device_read,
     .write = device_write,
@@ -89,8 +94,9 @@ void destroy_device(void) {
 static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
     int err = 0;
     int retval = 0;
-    int i = 0;
+    struct pt_regs *regs = task_pt_regs(current);
     printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "Called IOCTL with cmd %d", _IOC_NR(cmd));
+
     // check correctness of type and command number
     if (_IOC_TYPE(cmd) != FIBER_IOC_MAGIC) return -ENOTTY;
     if (_IOC_NR(cmd) > FIBER_IOC_MAXNR) return -ENOTTY;
@@ -103,9 +109,17 @@ static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) 
     case FIBER_IOCRESET:
         break;
     case FIBER_IOC_CONVERTTHREADTOFIBER:
-        // printk("Info 1 -- %u", info_1->status);
-        printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "Called FIBER_IOC_CONVERTTHREADTOFIBER");
-        return 98; /* EOF */
+        printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "Called FIBER_IOC_CONVERTTHREADTOFIBER from pid %d, tgid %d",
+               current->pid, current->tgid);
+        return convert_thread_to_fiber();
+        break;
+    case FIBER_IOC_CREATEFIBER:
+        printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "Called FIBER_IOC_CREATEFIBER from pid %d, tgid %d", current->pid,
+               current->tgid);
+        printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "Passed arg %lu", arg);
+        // set rip to desired function
+        regs->ip = arg;
+        return 0;
         break;
     case FIBER_IOC_FLS_ALLOC:
         // call __get_user for getting the passed data structure
@@ -123,6 +137,70 @@ static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) 
         break;
     }
     return retval;
+}
+
+int convert_thread_to_fiber() {
+    // check if process already created at least a fiber
+    fibered_process_node_t *fibered_process_node = fibered_processes_list.head;
+    fiber_node_t *fiber_node;
+    uint8_t found = 0;
+    while (fibered_process_node != NULL) {
+        if (fibered_process_node->pid == current->tgid) {
+            found = 1;
+            break;
+        }
+        fibered_process_node = fibered_process_node->next;
+    }
+    // process has never created a fiber
+    if (!found) {
+        fibered_process_node = kmalloc(sizeof(fibered_process_node_t), GFP_KERNEL);
+        fibered_process_node->pid = current->tgid;
+        fibered_processes_list.processes_count = 1;
+        fibered_process_node->prev = NULL;
+        fibered_process_node->next = NULL;
+        fibered_process_node->fibers_list = kmalloc(sizeof(fibers_list_t), GFP_KERNEL);
+        fibered_process_node->fibers_list->fibers_count = 0;
+        fibered_process_node->fibers_list->head = NULL;
+        fibered_process_node->fibers_list->tail = NULL;
+        // if head is null we have to init the list
+        if (fibered_processes_list.head == NULL) fibered_processes_list.head = fibered_process_node;
+        // otherwise we append to the list
+        if (fibered_processes_list.tail != NULL) {
+            fibered_processes_list.tail->next = fibered_process_node;
+            fibered_process_node->prev = fibered_processes_list.tail;
+        }
+        fibered_processes_list.tail = fibered_process_node;
+    }
+    printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "tgid is %d", fibered_process_node->pid);
+    // check if thread is already a fiber
+    fiber_node = fibered_process_node->fibers_list->head;
+    found = 0;
+    while (fiber_node != NULL) {
+        if (fiber_node->created_by == current->pid) {
+            found = 1;
+            break;
+        }
+        fiber_node = fiber_node->next;
+    }
+    if (!found) {
+        fiber_node = kmalloc(sizeof(fiber_node_t), GFP_KERNEL);
+        fiber_node->prev = NULL;
+        fiber_node->next = NULL;
+        fiber_node->created_by = current->pid;
+        fibered_process_node->fibers_list->fibers_count++;
+        if (fibered_process_node->fibers_list->head == NULL) fibered_process_node->fibers_list->head = fiber_node;
+        if (fibered_process_node->fibers_list->tail != NULL) {
+            fibered_process_node->fibers_list->tail->next = fiber_node;
+            fiber_node->prev = fibered_process_node->fibers_list->tail;
+        }
+        fibered_process_node->fibers_list->tail = fiber_node;
+    } else
+        return -THREAD_ALREADY_FIBER;
+
+    fiber_node->id = fibered_process_node->fibers_list->fibers_count - 1;
+    fiber_node->state = RUNNING;
+
+    return 0;
 }
 
 /*
