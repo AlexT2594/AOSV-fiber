@@ -1,3 +1,5 @@
+DOCDIR = doc
+
 # If KERNELRELEASE is defined, we've been invoked from the
 # kernel build system and can use its language.
 ifneq ($(KERNELRELEASE),)
@@ -13,3 +15,7 @@ endif
 
 clean:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) clean
+	rm -rfv $(DOCDIR)
+
+doc: 
+	doxygen Doxyfile

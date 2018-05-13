@@ -16,22 +16,17 @@ static int device_release(struct inode *, struct file *);
 static ssize_t device_read(struct file *, char *, size_t, loff_t *);
 static ssize_t device_write(struct file *, const char *, size_t, loff_t *);
 static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg);
-static DECLARE_WAIT_QUEUE_HEAD(wq);
 
 /*
- * Global variables withing the file
+ * Variables
  */
+
 static fiber_dev_t fiber_dev;
 static int is_device_open = 0;
 static char msg[BUF_LEN];
 static char *msg_ptr;
 
 // clang-format off
-static fibered_processes_list_t fibered_processes_list = {
-    .head = NULL,
-    .tail = NULL,
-    .processes_count = 0
-};
 static struct file_operations fops = {
     .read = device_read,
     .write = device_write,
@@ -41,10 +36,6 @@ static struct file_operations fops = {
     .compat_ioctl = fiber_ioctl
 };
 // clang-format on
-
-/*
- * Exposed functions
- */
 
 /**
  * @brief Init the device
@@ -101,21 +92,25 @@ static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) 
     if (_IOC_TYPE(cmd) != FIBER_IOC_MAGIC) return -ENOTTY;
     if (_IOC_NR(cmd) > FIBER_IOC_MAXNR) return -ENOTTY;
     // check addresses before performing operations
-    if (_IOC_DIR(cmd) & _IOC_READ) err = !access_ok(VERIFY_WRITE, (void __user *)arg, _IOC_SIZE(cmd));
-    if (_IOC_DIR(cmd) & _IOC_WRITE) err = !access_ok(VERIFY_READ, (void __user *)arg, _IOC_SIZE(cmd));
+    if (_IOC_DIR(cmd) & _IOC_READ)
+        err = !access_ok(VERIFY_WRITE, (void __user *)arg, _IOC_SIZE(cmd));
+    if (_IOC_DIR(cmd) & _IOC_WRITE)
+        err = !access_ok(VERIFY_READ, (void __user *)arg, _IOC_SIZE(cmd));
     if (err) return -EFAULT;
 
     switch (cmd) {
     case FIBER_IOCRESET:
         break;
     case FIBER_IOC_CONVERTTHREADTOFIBER:
-        printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "Called FIBER_IOC_CONVERTTHREADTOFIBER from pid %d, tgid %d",
+        printk(KERN_DEBUG MODULE_NAME DEVICE_LOG
+               "Called FIBER_IOC_CONVERTTHREADTOFIBER from pid %d, tgid %d",
                current->pid, current->tgid);
         return convert_thread_to_fiber();
         break;
     case FIBER_IOC_CREATEFIBER:
-        printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "Called FIBER_IOC_CREATEFIBER from pid %d, tgid %d", current->pid,
-               current->tgid);
+        printk(KERN_DEBUG MODULE_NAME DEVICE_LOG
+               "Called FIBER_IOC_CREATEFIBER from pid %d, tgid %d",
+               current->pid, current->tgid);
         printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "Passed arg %lu", arg);
         // set rip to desired function
         regs->ip = arg;
@@ -137,70 +132,6 @@ static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) 
         break;
     }
     return retval;
-}
-
-int convert_thread_to_fiber() {
-    // check if process already created at least a fiber
-    fibered_process_node_t *fibered_process_node = fibered_processes_list.head;
-    fiber_node_t *fiber_node;
-    uint8_t found = 0;
-    while (fibered_process_node != NULL) {
-        if (fibered_process_node->pid == current->tgid) {
-            found = 1;
-            break;
-        }
-        fibered_process_node = fibered_process_node->next;
-    }
-    // process has never created a fiber
-    if (!found) {
-        fibered_process_node = kmalloc(sizeof(fibered_process_node_t), GFP_KERNEL);
-        fibered_process_node->pid = current->tgid;
-        fibered_processes_list.processes_count = 1;
-        fibered_process_node->prev = NULL;
-        fibered_process_node->next = NULL;
-        fibered_process_node->fibers_list = kmalloc(sizeof(fibers_list_t), GFP_KERNEL);
-        fibered_process_node->fibers_list->fibers_count = 0;
-        fibered_process_node->fibers_list->head = NULL;
-        fibered_process_node->fibers_list->tail = NULL;
-        // if head is null we have to init the list
-        if (fibered_processes_list.head == NULL) fibered_processes_list.head = fibered_process_node;
-        // otherwise we append to the list
-        if (fibered_processes_list.tail != NULL) {
-            fibered_processes_list.tail->next = fibered_process_node;
-            fibered_process_node->prev = fibered_processes_list.tail;
-        }
-        fibered_processes_list.tail = fibered_process_node;
-    }
-    printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "tgid is %d", fibered_process_node->pid);
-    // check if thread is already a fiber
-    fiber_node = fibered_process_node->fibers_list->head;
-    found = 0;
-    while (fiber_node != NULL) {
-        if (fiber_node->created_by == current->pid) {
-            found = 1;
-            break;
-        }
-        fiber_node = fiber_node->next;
-    }
-    if (!found) {
-        fiber_node = kmalloc(sizeof(fiber_node_t), GFP_KERNEL);
-        fiber_node->prev = NULL;
-        fiber_node->next = NULL;
-        fiber_node->created_by = current->pid;
-        fibered_process_node->fibers_list->fibers_count++;
-        if (fibered_process_node->fibers_list->head == NULL) fibered_process_node->fibers_list->head = fiber_node;
-        if (fibered_process_node->fibers_list->tail != NULL) {
-            fibered_process_node->fibers_list->tail->next = fiber_node;
-            fiber_node->prev = fibered_process_node->fibers_list->tail;
-        }
-        fibered_process_node->fibers_list->tail = fiber_node;
-    } else
-        return -THREAD_ALREADY_FIBER;
-
-    fiber_node->id = fibered_process_node->fibers_list->fibers_count - 1;
-    fiber_node->state = RUNNING;
-
-    return 0;
 }
 
 /*
@@ -281,4 +212,6 @@ static ssize_t device_read(struct file *filp, /* see include/linux/fs.h   */
 /*
  * Called when a process writes to dev file: echo "hi" > /dev/hello
  */
-static ssize_t device_write(struct file *filp, const char *buf, size_t len, loff_t *off) { return 0; }
+static ssize_t device_write(struct file *filp, const char *buf, size_t len, loff_t *off) {
+    return 0;
+}

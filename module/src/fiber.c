@@ -8,12 +8,17 @@
  */
 #include "fiber.h"
 
-MODULE_LICENSE("Dual BSD/GPL");
+MODULE_LICENSE("GPL");
 
 /**
  * @brief The init function of the module
- * inspired by https://static.lwn.net/images/pdf/LDD3/ch02.pdf
- * @return int init_fiber
+ *
+ * This is the entry point of the module. Every kind of default structures and services are
+ * instantiated here.
+ *
+ * Inspired by https://static.lwn.net/images/pdf/LDD3/ch02.pdf
+ *
+ * @return int 0 if everything ok, otherwise -1
  */
 static int __init init_fiber(void) {
     int err = 0;
@@ -32,6 +37,11 @@ device_err:
     return -1;
 }
 
+/**
+ * @brief The destroy function of the module
+ *
+ * This function deallocate all memory and deregister every service used
+ */
 static void __exit destroy_fiber(void) {
     // destroy the char device
     destroy_device();

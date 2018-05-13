@@ -14,7 +14,13 @@
     "param.h": "c",
     "module.h": "c",
     "kernel.h": "c",
-    "thread": "cpp"
+    "thread": "cpp",
+    "device.h": "c",
+    "hashtable.h": "c",
+    "current.h": "c",
+    "ptrace.h": "c",
+    "array": "c",
+    "string_view": "c"
   },
   "doxdocgen.generic.authorTag": "@author Gabriele Proietti Mattia <gabry.gabry@hotmail.it>\n * @author Alexandru Daniel Tufa <alex.tufa94@gmail.com>"
 }

@@ -1,22 +1,21 @@
 /**
  * @brief This file contains definitions of ioctl commands
  *
+ * # Module operations
+ * We define the following operations for the module that are mapped with the library (Library ->
+ * Module)
+ * - ConvertThreadToFiber -> FIBER_IOC_CONVERTTHREADTOFIBER
+ * - CreateFiber -> FIBER_IOC_CREATEFIBER
+ * - SwitchToFiber -> FIBER_IOC_SWITCHTOFIBER
+ * - FlsAlloc -> FLS_ALLOC
+ * - FlsFree -> FLS_FREE
+ * - FlsGetValue -> FLS_GET
+ * - FlsSetValue -> FLS_SET
+ *
  * @file ioctlcmd.h
  * @author Gabriele Proietti Mattia <gabry.gabry@hotmail.it>
  * @author Alexandru Daniel Tufa <alex.tufa94@gmail.com>
  * @date 2018-05-07
- */
-/*
- * IOCTL Section
- * We define the following operations for the module
- * - CONVERTTOFIBER - ConvertThreadToFiber
- * - CREATEFIBER - CreateFiber
- *
- * - SWITCHTOFIBER - SwitchToFiber
- * - FLS_ALLOC - FlsAlloc
- * - FLS_FREE - FlsFree
- * - FLS_GET - FlsGetValue
- * - FLS_SET - FlsSetValue
  */
 
 #include <linux/ioctl.h>
@@ -35,4 +34,4 @@
 #define FIBER_IOC_MAXNR 7
 
 // errors
-#define THREAD_ALREADY_FIBER 100
+#define ERR_THREAD_ALREADY_FIBER 100

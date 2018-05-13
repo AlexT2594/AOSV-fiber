@@ -35,7 +35,7 @@ static struct file_operations fiber_proc_file_ops = {
 // clang-format on
 
 /*
- * Exposed functions
+ * Implementations
  */
 
 /**
@@ -76,7 +76,9 @@ void destroy_proc() {
  * @param file
  * @return int
  */
-static int fiber_proc_open(struct inode *inode, struct file *file) { return seq_open(file, &fiber_proc_ops); }
+static int fiber_proc_open(struct inode *inode, struct file *file) {
+    return seq_open(file, &fiber_proc_ops);
+}
 
 /**
  * @brief Start of the iterator, we may want here to acquire semaphores/spinlocks

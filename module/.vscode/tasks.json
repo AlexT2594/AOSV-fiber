@@ -111,6 +111,24 @@
         "focus": true,
         "panel": "shared"
       }
+    },
+    {
+      "label": "Build & Mount",
+      "type": "shell",
+      "command": "sudo ./build_mount.sh",
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared"
+      }
     }
   ]
 }
