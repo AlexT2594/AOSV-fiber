@@ -14,6 +14,7 @@
   "files.associations": {
     "fiber.h": "c",
     "fcntl.h": "c",
-    "ioctl.h": "c"
+    "ioctl.h": "c",
+    "stdlib.h": "c"
   }
 }

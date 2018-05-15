@@ -159,15 +159,7 @@ static int device_open(struct inode *inode, struct file *filp) {
  */
 static int device_release(struct inode *inode, struct file *filp) {
     is_device_open--;
-
-    /*
-     * Decrement the usage count, or else once you opened the file, you'll never
-     * get rid of the module.
-     *
-     * TODO: comment out the line below to have some fun!
-     */
     module_put(THIS_MODULE);
-
     return SUCCESS;
 }
 
@@ -179,34 +171,7 @@ static ssize_t device_read(struct file *filp, /* see include/linux/fs.h   */
                            char *buffer,      /* buffer to fill with data */
                            size_t length,     /* length of the buffer     */
                            loff_t *offset) {
-    /*
-     * Number of bytes actually written to the buffer
-     */
-    int bytes_read = 0;
-
-    /*
-     * If we're at the end of the message, return 0 signifying end of file.
-     */
-    if (*msg_ptr == 0) return 0;
-
-    /*
-     * Actually put the data into the buffer
-     */
-    while (length && *msg_ptr) {
-        /*
-         * The buffer is in the user data segment, not the kernel segment so "*"
-         * assignment won't work. We have to use put_user which copies data from the
-         * kernel data segment to the user data segment.
-         */
-        // put_user(*(msg_ptr++), buffer++);
-        length--;
-        bytes_read++;
-    }
-
-    /*
-     * Most read functions return the number of bytes put into the buffer
-     */
-    return bytes_read;
+    return 0;
 }
 
 /*

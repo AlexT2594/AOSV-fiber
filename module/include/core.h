@@ -32,12 +32,6 @@
 #define CORE_LOG ": DEV: "
 
 /*
- * Exposed methods
- */
-
-int convert_thread_to_fiber(void);
-
-/*
  * Definitions
  */
 
@@ -45,6 +39,26 @@ typedef struct fibered_process fibered_process_node_t;
 typedef struct fiber_processes_list fiber_process_list_t;
 typedef struct fiber fiber_node_t;
 typedef struct fibers_list fibers_list_t;
+typedef struct fiber_params fiber_params_t;
+
+/*
+ * Exposed methods
+ */
+
+int convert_thread_to_fiber(void);
+int create_fiber(fiber_params_t *params);
+int switch_to_fiber(int fiber_id);
+
+/**
+ * @brief Params to be passed by the library when creating or converting to a fiber
+ *
+ */
+typedef struct fiber_params {
+    unsigned long stack_addr; /**< The stack starting address allocated by the library */
+    unsigned long function; /**< The function pointer passed by the user, that will be the starting
+                               point of the fiber */
+    unsigned long function_args; /**< Pointer to params for fiber_params::function */
+} fiber_params_t;
 
 /**
  * @brief The state of the fiber
@@ -94,17 +108,22 @@ typedef struct fibered_processes_list {
  *
  */
 typedef struct fiber {
-    fiber_node_t *prev; /**< Pointer to the previous element in the list */
-    fiber_node_t *next; /**< Pointer to the next element in the list */
-    unsigned id;        /**< Unique if of the fiber, used for  */
-    void *starting_function;
-    unsigned long base_user_stack_pointer;
-    fiber_state_t state;
-    struct pt_regs regs;
-    pid_t created_by;
-    unsigned success_activations_count;
-    unsigned failed_activations_count;
-    unsigned long total_time;
+    fiber_node_t *prev;                 /**< Pointer to the previous element in the list */
+    fiber_node_t *next;                 /**< Pointer to the next element in the list */
+    unsigned id;                        /**< Unique if of the fiber, used for  */
+    unsigned long starting_function;    /**< The starting fuction of the fiber */
+    unsigned long base_user_stack_addr; /** The starting address of the stack that will be
+                                              allocated by the library */
+    fiber_state_t state;                /**< The current state of the fiber */
+    struct pt_regs regs; /**< The current snapshot of cpu registers. The values that we user are:
+- `regs->ip` - The current instruction pointer;
+- `regs->sp` - The current stack pointer.
+*/
+    pid_t
+        created_by; /**< The `pid` of the process (`tgid` of every thread) that created the fiber */
+    unsigned success_activations_count; /** Number of successful activation of the fiber */
+    unsigned failed_activations_count;  /** Number of failed activation of the fiber */
+    unsigned long total_time;           /** Total running time of the fiber */
 } fiber_node_t;
 
 /**

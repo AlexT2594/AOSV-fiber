@@ -1,6 +1,8 @@
 /**
  * @brief This file contains definitions of ioctl commands
  *
+ * This header file is imported also in the library.
+ *
  * # Module operations
  * We define the following operations for the module that are mapped with the library (Library ->
  * Module)
@@ -35,3 +37,4 @@
 
 // errors
 #define ERR_THREAD_ALREADY_FIBER 100
+#define ERR_NOT_FIBERED 200

@@ -33,13 +33,34 @@ static fibered_processes_list_t fibered_processes_list = {
  * @brief Convert the current thread to a fiber
  *
  * # Implementation
- * When a thread is converted to a fiber several task are performed. First of all, if the process
- * never created a fiber, it must become **fiber-enabled**, this means that we have to instantiate a
- * fibered_process element in the @ref fibered_processes_list variable. Then we have to
- * instantiate a @ref fiber element in the fibers_list field of the fibered_process element of the
- * list.
+ * When a thread is converted to a fiber several tasks are performed. First of all, we must check if
+ * the process if *fiber-enabled* or not by searching if its `pid` (so even its `tgid`) is already
+ * present in the fibered_processes_list, that must be initialized if it is the case.
  *
- * @return int 0 if everything ok, otherwise an error listed in @ref ioctlcmd.h
+ * ## Process not **fiber-enabled**
+ * If the process never created a fiber, it must become **fiber-enabled**, this means that we have
+ * to instantiate a fibered_process element in the @ref fibered_processes_list variable. Then we
+ * have to instantiate a @ref fiber element in the fibers_list field of the fibered_process element
+ * of the list.
+ *
+ * ## Process **fiber-enabled**
+ * If the process is already a *fiber-enabled* then we have just to append a new @ref fiber entry to
+ * the fibered_process::fibers_list. This requires that the parameters are also set according to the
+ * ones that are passed to the function as @p params argument. At the end a new proc file must be
+ * created in the directory `/proc/<pid>/fibers/<fid>`. The fields of the fiber element are set in
+ * this way:
+ * - fiber::id is set to the current number of fibers -1;
+ * - fiber::regs is set with the function `task_pt_regs(current)`;
+ * - fiber::starting_function is set to fiber::regs::ip;
+ * - fiber::state is set to fiber_state::RUNNING;
+ * - fiber::created_by is set to `current->pid`;
+ * - fiber::success_activations_count is set to 1 if success else 0;
+ * - fiber::failed_activations_count is set to 1 if fail else 0;
+ * - fiber::total_time is set to 0;
+ * - fiber::base_user_stack_addr is ignored;
+ *
+ * @return int the id of the newly created fiber otherwise `ERR_THREAD_ALREADY_FIBER` if the thread
+ * already has been converted to a fiber
  */
 int convert_thread_to_fiber() {
     // check if process already created at least a fiber
@@ -103,5 +124,45 @@ int convert_thread_to_fiber() {
     fiber_node->id = fibered_process_node->fibers_list->fibers_count - 1;
     fiber_node->state = RUNNING;
 
-    return 0;
+    // TODO Create proc now
+
+    return fiber_node->id;
 }
+
+/**
+ * @brief Create a new fiber
+ *
+ * # Implementation
+ * First of all, only a thread that has been converted to a fiber can create fibers, so after this
+ * check we have to create a @ref fiber element in the fibered_process::fibers_list and assign to it
+ * the params that are passed in the @p params argument, so:
+ * - fiber::id is set to the current number of fibers -1;
+ * - fiber::regs is set with the function `task_pt_regs(current)`;
+ * - fiber::starting_function is set to fiber::regs::ip;
+ * - fiber::state is set to fiber_state::IDLE;
+ * - fiber::base_user_stack_addr is set to fiber_params::stack_addr - for setting the stack base
+ * address
+ * - fiber::regs::ip is set to fiber_params::function - for setting the starting instruction of the
+ * fiber
+ * - fiber::regs::di is set to fiber_params::function_args - for setting the first parameter of the
+ * function that the user passed as starting point of the fiber
+ * - fiber::created_by is set to `current->pid`;
+ * - fiber::success_activations_count is set 0;
+ * - fiber::failed_activations_count is set 0;
+ * - fiber::total_time is set to 0;
+ *
+ * At the end a proc directory is created in `/proc/<pid>/fibers/<fid>`.
+ *
+ * @param params
+ * @return int the id of the newly created fiber otherwise ERR_NOT_FIBERED if the thread is not
+ * *fiber-enabled*
+ */
+int create_fiber(fiber_params_t *params) { return 0; }
+
+/**
+ * @brief
+ *
+ * @param fiber_id
+ * @return int
+ */
+int switch_to_fiber(int fiber_id) { return 0; }
