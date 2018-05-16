@@ -1,0 +1,69 @@
+\hypertarget{structfibered__process}{}\section{fibered\+\_\+process Struct Reference}
+\label{structfibered__process}\index{fibered\+\_\+process@{fibered\+\_\+process}}
+
+
+A node of the list of processes in \mbox{\hyperlink{structfibered__processes__list}{fibered\+\_\+processes\+\_\+list}}, a {\bfseries fiber-\/enabled} process.  
+
+
+
+
+{\ttfamily \#include $<$core.\+h$>$}
+
+
+
+Collaboration diagram for fibered\+\_\+process\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=216pt]{structfibered__process__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{core_8h_aa16708c717e33e5e95614cd1e4ca7b2b}{fibered\+\_\+process\+\_\+node\+\_\+t}} $\ast$ \mbox{\hyperlink{structfibered__process_adf5ba8614f416e75bc026fe449fdd08c}{prev}}
+\item 
+\mbox{\hyperlink{core_8h_aa16708c717e33e5e95614cd1e4ca7b2b}{fibered\+\_\+process\+\_\+node\+\_\+t}} $\ast$ \mbox{\hyperlink{structfibered__process_a8779fb1384900987ccd2d0d9de09a1ab}{next}}
+\item 
+\mbox{\hyperlink{core_8h_aad42420053a7ace7b3fb17805d6e9004}{fibers\+\_\+list\+\_\+t}} $\ast$ \mbox{\hyperlink{structfibered__process_a1aae0be425bbc05b6444909f16ec56b9}{fibers\+\_\+list}}
+\item 
+pid\+\_\+t \mbox{\hyperlink{structfibered__process_ad8f9adb6ee521988f3607ccf279e10a6}{pid}}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+A node of the list of processes in \mbox{\hyperlink{structfibered__processes__list}{fibered\+\_\+processes\+\_\+list}}, a {\bfseries fiber-\/enabled} process. 
+
+A \mbox{\hyperlink{structfibered__process}{fibered\+\_\+process}} is a process in which at least one thread has been converted to a fiber, so a \mbox{\hyperlink{structfibered__process}{fibered\+\_\+process}} always has at least one fiber in the \mbox{\hyperlink{structfibered__process_a1aae0be425bbc05b6444909f16ec56b9}{fibered\+\_\+process\+::fibers\+\_\+list}} field. Moreover the first element of the list has \mbox{\hyperlink{structfibered__process_adf5ba8614f416e75bc026fe449fdd08c}{fibered\+\_\+process\+::prev}} pointing to {\ttfamily N\+U\+LL} and the last element of the list has \mbox{\hyperlink{structfibered__process_a8779fb1384900987ccd2d0d9de09a1ab}{fibered\+\_\+process\+::next}} pointing to {\ttfamily N\+U\+LL}. 
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{structfibered__process_a1aae0be425bbc05b6444909f16ec56b9}\label{structfibered__process_a1aae0be425bbc05b6444909f16ec56b9}} 
+\index{fibered\+\_\+process@{fibered\+\_\+process}!fibers\+\_\+list@{fibers\+\_\+list}}
+\index{fibers\+\_\+list@{fibers\+\_\+list}!fibered\+\_\+process@{fibered\+\_\+process}}
+\subsubsection{\texorpdfstring{fibers\+\_\+list}{fibers\_list}}
+{\footnotesize\ttfamily \mbox{\hyperlink{core_8h_aad42420053a7ace7b3fb17805d6e9004}{fibers\+\_\+list\+\_\+t}}$\ast$ fibered\+\_\+process\+::fibers\+\_\+list}
+
+A list of fibers created in the process environment (so by any thread in it) \mbox{\Hypertarget{structfibered__process_a8779fb1384900987ccd2d0d9de09a1ab}\label{structfibered__process_a8779fb1384900987ccd2d0d9de09a1ab}} 
+\index{fibered\+\_\+process@{fibered\+\_\+process}!next@{next}}
+\index{next@{next}!fibered\+\_\+process@{fibered\+\_\+process}}
+\subsubsection{\texorpdfstring{next}{next}}
+{\footnotesize\ttfamily \mbox{\hyperlink{core_8h_aa16708c717e33e5e95614cd1e4ca7b2b}{fibered\+\_\+process\+\_\+node\+\_\+t}}$\ast$ fibered\+\_\+process\+::next}
+
+The next element of the list \mbox{\Hypertarget{structfibered__process_ad8f9adb6ee521988f3607ccf279e10a6}\label{structfibered__process_ad8f9adb6ee521988f3607ccf279e10a6}} 
+\index{fibered\+\_\+process@{fibered\+\_\+process}!pid@{pid}}
+\index{pid@{pid}!fibered\+\_\+process@{fibered\+\_\+process}}
+\subsubsection{\texorpdfstring{pid}{pid}}
+{\footnotesize\ttfamily pid\+\_\+t fibered\+\_\+process\+::pid}
+
+the pid of the main thread, so the tgid of every thread of the process \mbox{\Hypertarget{structfibered__process_adf5ba8614f416e75bc026fe449fdd08c}\label{structfibered__process_adf5ba8614f416e75bc026fe449fdd08c}} 
+\index{fibered\+\_\+process@{fibered\+\_\+process}!prev@{prev}}
+\index{prev@{prev}!fibered\+\_\+process@{fibered\+\_\+process}}
+\subsubsection{\texorpdfstring{prev}{prev}}
+{\footnotesize\ttfamily \mbox{\hyperlink{core_8h_aa16708c717e33e5e95614cd1e4ca7b2b}{fibered\+\_\+process\+\_\+node\+\_\+t}}$\ast$ fibered\+\_\+process\+::prev}
+
+The previous element of the list 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/\mbox{\hyperlink{core_8h}{core.\+h}}\end{DoxyCompactItemize}

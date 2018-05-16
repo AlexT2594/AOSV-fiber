@@ -121,6 +121,11 @@ typedef struct fiber {
 */
     pid_t
         created_by; /**< The `pid` of the process (`tgid` of every thread) that created the fiber */
+    pid_t run_by;   /**< This field represents:
+    - the `pid` of the thread that is currently running the fiber if @fiber::state is @ref
+    fiber_state::RUNNING
+    - the `pid` of the last thread that executed it if @ref fiber_state::IDLE
+    - -1 if we just called @ref create_fiber*/
     unsigned success_activations_count; /** Number of successful activation of the fiber */
     unsigned failed_activations_count;  /** Number of failed activation of the fiber */
     unsigned long total_time;           /** Total running time of the fiber */

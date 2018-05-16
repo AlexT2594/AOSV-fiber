@@ -1,0 +1,54 @@
+\hypertarget{core_8c}{}\section{src/core.c File Reference}
+\label{core_8c}\index{src/core.\+c@{src/core.\+c}}
+
+
+This file contains the implementation of all the core functions of the module.  
+
+
+{\ttfamily \#include \char`\"{}core.\+h\char`\"{}}\newline
+Include dependency graph for core.\+c\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{core_8c__incl}
+\end{center}
+\end{figure}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{core_8c_a0901eb890c674d9f7f5e97316fc67a2c}{convert\+\_\+thread\+\_\+to\+\_\+fiber}} ()
+\begin{DoxyCompactList}\small\item\em Convert the current thread to a fiber. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This file contains the implementation of all the core functions of the module. 
+
+\begin{DoxyAuthor}{Author}
+Gabriele Proietti Mattia \href{mailto:gabry.gabry@hotmail.it}{\tt gabry.\+gabry@hotmail.\+it} 
+
+Alexandru Daniel Tufa \href{mailto:alex.tufa94@gmail.com}{\tt alex.\+tufa94@gmail.\+com} 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+2018-\/05-\/13 
+\end{DoxyDate}
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{core_8c_a0901eb890c674d9f7f5e97316fc67a2c}\label{core_8c_a0901eb890c674d9f7f5e97316fc67a2c}} 
+\index{core.\+c@{core.\+c}!convert\+\_\+thread\+\_\+to\+\_\+fiber@{convert\+\_\+thread\+\_\+to\+\_\+fiber}}
+\index{convert\+\_\+thread\+\_\+to\+\_\+fiber@{convert\+\_\+thread\+\_\+to\+\_\+fiber}!core.\+c@{core.\+c}}
+\subsubsection{\texorpdfstring{convert\+\_\+thread\+\_\+to\+\_\+fiber()}{convert\_thread\_to\_fiber()}}
+{\footnotesize\ttfamily int convert\+\_\+thread\+\_\+to\+\_\+fiber (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+Convert the current thread to a fiber. 
+
+\subsection*{Implementation}
+
+When a thread is converted to a fiber several task are performed. First of all, if the process never created a fiber, it must become {\bfseries fiber-\/enabled}, this means that we have to instantiate a \mbox{\hyperlink{structfibered__process}{fibered\+\_\+process}} element in the \mbox{\hyperlink{structfibered__processes__list}{fibered\+\_\+processes\+\_\+list}} variable. Then we have to instantiate a \mbox{\hyperlink{structfiber}{fiber}} element in the \mbox{\hyperlink{structfibers__list}{fibers\+\_\+list}} field of the \mbox{\hyperlink{structfibered__process}{fibered\+\_\+process}} element of the list.
+
+\begin{DoxyReturn}{Returns}
+int 0 if everything ok, otherwise an error listed in \mbox{\hyperlink{ioctlcmd_8h}{ioctlcmd.\+h}} 
+\end{DoxyReturn}

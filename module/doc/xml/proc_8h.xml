@@ -1,0 +1,158 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.14">
+  <compounddef id="proc_8h" kind="file" language="C++">
+    <compoundname>proc.h</compoundname>
+    <includes refid="common_8h" local="yes">common.h</includes>
+    <includes local="no">linux/proc_fs.h</includes>
+    <includes local="no">linux/seq_file.h</includes>
+    <includedby refid="fiber_8h" local="yes">include/fiber.h</includedby>
+    <includedby refid="proc_8c" local="yes">src/proc.c</includedby>
+    <incdepgraph>
+      <node id="90">
+        <label>linux/seq_file.h</label>
+      </node>
+      <node id="87">
+        <label>include/proc.h</label>
+        <link refid="proc_8h"/>
+        <childnode refid="88" relation="include">
+        </childnode>
+        <childnode refid="89" relation="include">
+        </childnode>
+        <childnode refid="90" relation="include">
+        </childnode>
+      </node>
+      <node id="89">
+        <label>linux/proc_fs.h</label>
+      </node>
+      <node id="88">
+        <label>common.h</label>
+        <link refid="common_8h_source"/>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="92">
+        <label>include/fiber.h</label>
+        <link refid="fiber_8h"/>
+        <childnode refid="93" relation="include">
+        </childnode>
+      </node>
+      <node id="94">
+        <label>src/proc.c</label>
+        <link refid="proc_8c"/>
+      </node>
+      <node id="91">
+        <label>include/proc.h</label>
+        <link refid="proc_8h"/>
+        <childnode refid="92" relation="include">
+        </childnode>
+        <childnode refid="94" relation="include">
+        </childnode>
+      </node>
+      <node id="93">
+        <label>src/fiber.c</label>
+        <link refid="fiber_8c"/>
+      </node>
+    </invincdepgraph>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="proc_8h_1a91eee23c506ccb0b8530e45a3a78a0b5" prot="public" static="no">
+        <name>PROC_LOG</name>
+        <initializer>&quot;: PROC: &quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/proc.h" line="17" column="9" bodyfile="include/proc.h" bodystart="17" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="proc_8h_1a8c811fa2b4410338baac74a1e6f8db98" prot="public" static="no">
+        <name>PROC_FOLDER</name>
+        <initializer>&quot;fibers&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/proc.h" line="26" column="9" bodyfile="include/proc.h" bodystart="26" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="proc_8h_1a8e2554ffb48c1fb5167a9f61045df1f2" prot="public" static="no">
+        <name>PROC_ENTRY</name>
+        <initializer>&quot;fiber&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/proc.h" line="27" column="9" bodyfile="include/proc.h" bodystart="27" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="proc_8h_1ac259d1fab55f793f322af5233653b7a3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int init_proc</definition>
+        <argsstring>(void)</argsstring>
+        <name>init_proc</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Init here all the proc files for the module Inspired by <ulink url="https://static.lwn.net/images/pdf/LDD3/ch04.pdf">https://static.lwn.net/images/pdf/LDD3/ch04.pdf</ulink> and updated to new standard. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>int </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/proc.h" line="23" column="1" bodyfile="src/proc.c" bodystart="46" bodyend="55"/>
+      </memberdef>
+      <memberdef kind="function" id="proc_8h_1abfed4d9c489643f848aa94cb5147df5d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void destroy_proc</definition>
+        <argsstring>(void)</argsstring>
+        <name>destroy_proc</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Destroy all the proc files. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/proc.h" line="24" column="1" bodyfile="src/proc.c" bodystart="61" bodyend="64"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This file contains definitions and macros for the <emphasis>proc</emphasis> part of the module. </para>    </briefdescription>
+    <detaileddescription>
+<para><simplesect kind="author"><para>Gabriele Proietti Mattia <ulink url="mailto:gabry.gabry@hotmail.it">gabry.gabry@hotmail.it</ulink> </para></simplesect>
+<simplesect kind="author"><para>Alexandru Daniel Tufa <ulink url="mailto:alex.tufa94@gmail.com">alex.tufa94@gmail.com</ulink> </para></simplesect>
+<simplesect kind="date"><para>2018-05-13 </para></simplesect>
+</para>    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"></codeline>
+<codeline lineno="10"><highlight class="preprocessor">#ifndef<sp/>__PROC_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>__PROC_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;common.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;linux/proc_fs.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;linux/seq_file.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>PROC_LOG<sp/>&quot;:<sp/>PROC:<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>Exposed<sp/>methods</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="proc_8h_1ac259d1fab55f793f322af5233653b7a3" kindref="member">init_proc</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="proc_8h_1abfed4d9c489643f848aa94cb5147df5d" kindref="member">destroy_proc</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>PROC_FOLDER<sp/>&quot;fibers&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>PROC_ENTRY<sp/>&quot;fiber&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+    </programlisting>
+    <location file="include/proc.h"/>
+  </compounddef>
+</doxygen>

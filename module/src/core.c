@@ -137,7 +137,9 @@ int convert_thread_to_fiber() {
  * check we have to create a @ref fiber element in the fibered_process::fibers_list and assign to it
  * the params that are passed in the @p params argument, so:
  * - fiber::id is set to the current number of fibers -1;
- * - fiber::regs is set with the function `task_pt_regs(current)`;
+ * - fiber::regs is set with the values of the @c pt_regs structure, after they have been obtained
+ * with the function `task_pt_regs(current)`. In order to do this we have to allocate some kernel
+ * memory using @c kmalloc;
  * - fiber::starting_function is set to fiber::regs::ip;
  * - fiber::state is set to fiber_state::IDLE;
  * - fiber::base_user_stack_addr is set to fiber_params::stack_addr - for setting the stack base
@@ -162,7 +164,30 @@ int create_fiber(fiber_params_t *params) { return 0; }
 /**
  * @brief
  *
- * @param fiber_id
- * @return int
+ * @param Switch to a chosen fiber
+ *
+ * #Implementation
+ * Before starting the actual function, we have to do some checks:
+ * 1. Check if there exists a process in the @ref fibered_processes_list, which means there exists a
+ * process with pid equal to the tgid of the thread (this means that the processes is
+ * _fibered-enabled_)
+ * 2. Check if the @c pid of the currently running thread is present in at least one of @ref
+ * fibered_process::fibers_list::fiber::created_by, this means that this thread has called @ref
+ * @convert_thread_to_fiber
+ * 3. Check if there exists a @ref fiber element with a fiber::id equal to @p fid
+ * 4. Check if the fiber is already @ref fiber_state::RUNNING
+ *
+ * The context of the currently running fiber has to be saved. This means:
+ * - the @c pt_regs structure has to be saved to the current @ref fiber::regs
+ * - TODO FPU @see https://wiki.osdev.org/SSE
+ *
+ * Afterwards we'll get replace the current @c pt_regs structure with the one previously saved.
+ *
+ * @return int 0 if everything went OK, otherwise:
+ * - ERR_NOT_FIBERED if the the process is not fibered enabled, which means that none of its threads
+ * has ever called @ref convert_thread_to_fiber
+ * - ERR_NOT_FIBERED if the thread has never done @ref convert_thread_to_fiber
+ * - ERR_FIBER_NOT_EXISTS
+ * - ERR_FIBER_ALREADY_RUNNING
  */
-int switch_to_fiber(int fiber_id) { return 0; }
+int switch_to_fiber(unsigned fid) { return 0; }

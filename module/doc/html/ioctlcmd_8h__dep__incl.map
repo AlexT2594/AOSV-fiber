@@ -1,0 +1,8 @@
+<map id="include/ioctlcmd.h" name="include/ioctlcmd.h">
+<area shape="rect" id="node2" href="$core_8h.html" title="The head of the core part of the module. " alt="" coords="165,80,279,107"/>
+<area shape="rect" id="node3" href="$device_8h.html" title="This file contains definitions and macros for the device of the module. " alt="" coords="63,155,191,181"/>
+<area shape="rect" id="node7" href="$core_8c.html" title="This file contains the implementation of all the core functions of the module. " alt="" coords="216,155,300,181"/>
+<area shape="rect" id="node4" href="$fiber_8h.html" title="This file contains definitions and macros of the starting point part of the module. " alt="" coords="5,229,119,256"/>
+<area shape="rect" id="node6" href="$device_8c.html" title="This file contains the implementation of the char device. " alt="" coords="143,229,242,256"/>
+<area shape="rect" id="node5" href="$fiber_8c.html" title="This file is the starting point of the module. " alt="" coords="20,304,104,331"/>
+</map>

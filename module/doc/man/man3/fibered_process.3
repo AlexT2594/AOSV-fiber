@@ -1,0 +1,46 @@
+.TH "fibered_process" 3 "Mon May 14 2018" "Version 0.0.1b" "Fiber(KernelModule)" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+fibered_process \- A node of the list of processes in \fBfibered_processes_list\fP, a \fBfiber-enabled\fP process\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <core\&.h>\fP
+.SS "Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "\fBfibered_process_node_t\fP * \fBprev\fP"
+.br
+.ti -1c
+.RI "\fBfibered_process_node_t\fP * \fBnext\fP"
+.br
+.ti -1c
+.RI "\fBfibers_list_t\fP * \fBfibers_list\fP"
+.br
+.ti -1c
+.RI "pid_t \fBpid\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+A node of the list of processes in \fBfibered_processes_list\fP, a \fBfiber-enabled\fP process\&. 
+
+A \fBfibered_process\fP is a process in which at least one thread has been converted to a fiber, so a \fBfibered_process\fP always has at least one fiber in the \fBfibered_process::fibers_list\fP field\&. Moreover the first element of the list has \fBfibered_process::prev\fP pointing to \fCNULL\fP and the last element of the list has \fBfibered_process::next\fP pointing to \fCNULL\fP\&. 
+.SH "Member Data Documentation"
+.PP 
+.SS "\fBfibers_list_t\fP* fibered_process::fibers_list"
+A list of fibers created in the process environment (so by any thread in it) 
+.SS "\fBfibered_process_node_t\fP* fibered_process::next"
+The next element of the list 
+.SS "pid_t fibered_process::pid"
+the pid of the main thread, so the tgid of every thread of the process 
+.SS "\fBfibered_process_node_t\fP* fibered_process::prev"
+The previous element of the list 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Fiber(KernelModule) from the source code\&.

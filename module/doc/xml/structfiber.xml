@@ -1,0 +1,180 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.14">
+  <compounddef id="structfiber" kind="struct" language="C++" prot="public">
+    <compoundname>fiber</compoundname>
+    <includes refid="core_8h" local="no">core.h</includes>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structfiber_1a327a77d565b2e0054f97b057e55b2178" prot="public" static="no" mutable="no">
+        <type><ref refid="core_8h_1adb14c8b48a1d56cf9c6632295ab90048" kindref="member">fiber_node_t</ref> *</type>
+        <definition>fiber_node_t* fiber::prev</definition>
+        <argsstring></argsstring>
+        <name>prev</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Pointer to the previous element in the list </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/core.h" line="97" column="1" bodyfile="include/core.h" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfiber_1a8edc01f505460ec3df1f5319d26ee0cd" prot="public" static="no" mutable="no">
+        <type><ref refid="core_8h_1adb14c8b48a1d56cf9c6632295ab90048" kindref="member">fiber_node_t</ref> *</type>
+        <definition>fiber_node_t* fiber::next</definition>
+        <argsstring></argsstring>
+        <name>next</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Pointer to the next element in the list </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/core.h" line="98" column="1" bodyfile="include/core.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfiber_1a6301190065f177d47b2d74fa1d1240c0" prot="public" static="no" mutable="no">
+        <type>unsigned</type>
+        <definition>unsigned fiber::id</definition>
+        <argsstring></argsstring>
+        <name>id</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Unique if of the fiber, used for </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/core.h" line="99" column="1" bodyfile="include/core.h" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfiber_1a614a5ee08f9f0afe7f0b14b7fdb22437" prot="public" static="no" mutable="no">
+        <type>void *</type>
+        <definition>void* fiber::starting_function</definition>
+        <argsstring></argsstring>
+        <name>starting_function</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/core.h" line="100" column="1" bodyfile="include/core.h" bodystart="100" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfiber_1a3cf689305251f7117a3a91805f8ad729" prot="public" static="no" mutable="no">
+        <type>unsigned long</type>
+        <definition>unsigned long fiber::base_user_stack_pointer</definition>
+        <argsstring></argsstring>
+        <name>base_user_stack_pointer</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/core.h" line="101" column="1" bodyfile="include/core.h" bodystart="101" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfiber_1a4ea650b723a810af6832f697a0de7e99" prot="public" static="no" mutable="no">
+        <type><ref refid="core_8h_1a707fd6f68415e6978adb340746527715" kindref="member">fiber_state_t</ref></type>
+        <definition>fiber_state_t fiber::state</definition>
+        <argsstring></argsstring>
+        <name>state</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/core.h" line="102" column="1" bodyfile="include/core.h" bodystart="102" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfiber_1ae29b11c431ae8c5aa8e0c1e9027b28f2" prot="public" static="no" mutable="no">
+        <type>struct pt_regs</type>
+        <definition>struct pt_regs fiber::regs</definition>
+        <argsstring></argsstring>
+        <name>regs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/core.h" line="102" column="1" bodyfile="include/core.h" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfiber_1adc6e3e51fa77df35cc927f1c088cee4e" prot="public" static="no" mutable="no">
+        <type>pid_t</type>
+        <definition>pid_t fiber::created_by</definition>
+        <argsstring></argsstring>
+        <name>created_by</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/core.h" line="104" column="1" bodyfile="include/core.h" bodystart="104" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfiber_1a1e8bfeeac1b424ed9934df75aa294141" prot="public" static="no" mutable="no">
+        <type>unsigned</type>
+        <definition>unsigned fiber::success_activations_count</definition>
+        <argsstring></argsstring>
+        <name>success_activations_count</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/core.h" line="105" column="1" bodyfile="include/core.h" bodystart="105" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfiber_1ac47ac73fa0666a3c6b2f7abe4963bc32" prot="public" static="no" mutable="no">
+        <type>unsigned</type>
+        <definition>unsigned fiber::failed_activations_count</definition>
+        <argsstring></argsstring>
+        <name>failed_activations_count</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/core.h" line="106" column="1" bodyfile="include/core.h" bodystart="106" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structfiber_1ac20c19c4679f14d5abad539853c42bc3" prot="public" static="no" mutable="no">
+        <type>unsigned long</type>
+        <definition>unsigned long fiber::total_time</definition>
+        <argsstring></argsstring>
+        <name>total_time</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/core.h" line="107" column="1" bodyfile="include/core.h" bodystart="107" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>A node in the <ref refid="structfibers__list" kindref="compound">fibers_list</ref>. This type fully represent a <computeroutput>fiber</computeroutput>. </para>    </briefdescription>
+    <detaileddescription>
+<para>This is the complete description of a fiber. </para>    </detaileddescription>
+    <collaborationgraph>
+      <node id="1">
+        <label>fiber</label>
+        <link refid="structfiber"/>
+        <childnode refid="1" relation="usage">
+          <edgelabel>prev</edgelabel>
+          <edgelabel>next</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="include/core.h" line="96" column="1" bodyfile="include/core.h" bodystart="96" bodyend="108"/>
+    <listofallmembers>
+      <member refid="structfiber_1a3cf689305251f7117a3a91805f8ad729" prot="public" virt="non-virtual"><scope>fiber</scope><name>base_user_stack_pointer</name></member>
+      <member refid="structfiber_1adc6e3e51fa77df35cc927f1c088cee4e" prot="public" virt="non-virtual"><scope>fiber</scope><name>created_by</name></member>
+      <member refid="structfiber_1ac47ac73fa0666a3c6b2f7abe4963bc32" prot="public" virt="non-virtual"><scope>fiber</scope><name>failed_activations_count</name></member>
+      <member refid="structfiber_1a6301190065f177d47b2d74fa1d1240c0" prot="public" virt="non-virtual"><scope>fiber</scope><name>id</name></member>
+      <member refid="structfiber_1a8edc01f505460ec3df1f5319d26ee0cd" prot="public" virt="non-virtual"><scope>fiber</scope><name>next</name></member>
+      <member refid="structfiber_1a327a77d565b2e0054f97b057e55b2178" prot="public" virt="non-virtual"><scope>fiber</scope><name>prev</name></member>
+      <member refid="structfiber_1ae29b11c431ae8c5aa8e0c1e9027b28f2" prot="public" virt="non-virtual"><scope>fiber</scope><name>regs</name></member>
+      <member refid="structfiber_1a614a5ee08f9f0afe7f0b14b7fdb22437" prot="public" virt="non-virtual"><scope>fiber</scope><name>starting_function</name></member>
+      <member refid="structfiber_1a4ea650b723a810af6832f697a0de7e99" prot="public" virt="non-virtual"><scope>fiber</scope><name>state</name></member>
+      <member refid="structfiber_1a1e8bfeeac1b424ed9934df75aa294141" prot="public" virt="non-virtual"><scope>fiber</scope><name>success_activations_count</name></member>
+      <member refid="structfiber_1ac20c19c4679f14d5abad539853c42bc3" prot="public" virt="non-virtual"><scope>fiber</scope><name>total_time</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

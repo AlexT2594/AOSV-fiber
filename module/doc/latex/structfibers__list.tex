@@ -1,0 +1,61 @@
+\hypertarget{structfibers__list}{}\section{fibers\+\_\+list Struct Reference}
+\label{structfibers__list}\index{fibers\+\_\+list@{fibers\+\_\+list}}
+
+
+A generic list of fibers.  
+
+
+
+
+{\ttfamily \#include $<$core.\+h$>$}
+
+
+
+Collaboration diagram for fibers\+\_\+list\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=174pt]{structfibers__list__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{core_8h_adb14c8b48a1d56cf9c6632295ab90048}{fiber\+\_\+node\+\_\+t}} $\ast$ \mbox{\hyperlink{structfibers__list_aa1dd39c8c192607d164f204821d5b3ed}{head}}
+\item 
+\mbox{\hyperlink{core_8h_adb14c8b48a1d56cf9c6632295ab90048}{fiber\+\_\+node\+\_\+t}} $\ast$ \mbox{\hyperlink{structfibers__list_af94c6bcedeb27c078ea1fa4869c53673}{tail}}
+\item 
+unsigned \mbox{\hyperlink{structfibers__list_a54a8a9f5a97c783b1461257d6e07aa1a}{fibers\+\_\+count}}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+A generic list of fibers. 
+
+The list has the purpose of containing the list of fibers for a given process. The list can be considered empty when at least one of \mbox{\hyperlink{structfibers__list_aa1dd39c8c192607d164f204821d5b3ed}{fibers\+\_\+list\+::head}} or \mbox{\hyperlink{structfibers__list_af94c6bcedeb27c078ea1fa4869c53673}{fibers\+\_\+list\+::tail}} is pointing to {\ttfamily N\+U\+LL}. 
+
+\subsection{Member Data Documentation}
+\mbox{\Hypertarget{structfibers__list_a54a8a9f5a97c783b1461257d6e07aa1a}\label{structfibers__list_a54a8a9f5a97c783b1461257d6e07aa1a}} 
+\index{fibers\+\_\+list@{fibers\+\_\+list}!fibers\+\_\+count@{fibers\+\_\+count}}
+\index{fibers\+\_\+count@{fibers\+\_\+count}!fibers\+\_\+list@{fibers\+\_\+list}}
+\subsubsection{\texorpdfstring{fibers\+\_\+count}{fibers\_count}}
+{\footnotesize\ttfamily unsigned fibers\+\_\+list\+::fibers\+\_\+count}
+
+Number of fibers created \mbox{\Hypertarget{structfibers__list_aa1dd39c8c192607d164f204821d5b3ed}\label{structfibers__list_aa1dd39c8c192607d164f204821d5b3ed}} 
+\index{fibers\+\_\+list@{fibers\+\_\+list}!head@{head}}
+\index{head@{head}!fibers\+\_\+list@{fibers\+\_\+list}}
+\subsubsection{\texorpdfstring{head}{head}}
+{\footnotesize\ttfamily \mbox{\hyperlink{core_8h_adb14c8b48a1d56cf9c6632295ab90048}{fiber\+\_\+node\+\_\+t}}$\ast$ fibers\+\_\+list\+::head}
+
+The first element in the list \mbox{\Hypertarget{structfibers__list_af94c6bcedeb27c078ea1fa4869c53673}\label{structfibers__list_af94c6bcedeb27c078ea1fa4869c53673}} 
+\index{fibers\+\_\+list@{fibers\+\_\+list}!tail@{tail}}
+\index{tail@{tail}!fibers\+\_\+list@{fibers\+\_\+list}}
+\subsubsection{\texorpdfstring{tail}{tail}}
+{\footnotesize\ttfamily \mbox{\hyperlink{core_8h_adb14c8b48a1d56cf9c6632295ab90048}{fiber\+\_\+node\+\_\+t}}$\ast$ fibers\+\_\+list\+::tail}
+
+The last element in the list 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+include/\mbox{\hyperlink{core_8h}{core.\+h}}\end{DoxyCompactItemize}

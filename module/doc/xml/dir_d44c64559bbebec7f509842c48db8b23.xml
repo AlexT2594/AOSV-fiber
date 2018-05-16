@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.14">
+  <compounddef id="dir_d44c64559bbebec7f509842c48db8b23" kind="dir">
+    <compoundname>include</compoundname>
+    <innerfile refid="common_8h">common.h</innerfile>
+    <innerfile refid="core_8h">core.h</innerfile>
+    <innerfile refid="device_8h">device.h</innerfile>
+    <innerfile refid="fiber_8h">fiber.h</innerfile>
+    <innerfile refid="ioctlcmd_8h">ioctlcmd.h</innerfile>
+    <innerfile refid="proc_8h">proc.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="include/"/>
+  </compounddef>
+</doxygen>

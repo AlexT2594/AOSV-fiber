@@ -1,0 +1,292 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.14">
+  <compounddef id="fiber_8c" kind="file" language="C++">
+    <compoundname>fiber.c</compoundname>
+    <includes refid="fiber_8h" local="yes">fiber.h</includes>
+    <incdepgraph>
+      <node id="144">
+        <label>linux/list.h</label>
+      </node>
+      <node id="147">
+        <label>linux/semaphore.h</label>
+      </node>
+      <node id="155">
+        <label>linux/init.h</label>
+      </node>
+      <node id="142">
+        <label>linux/hashtable.h</label>
+      </node>
+      <node id="143">
+        <label>linux/kernel.h</label>
+      </node>
+      <node id="133">
+        <label>fiber.h</label>
+        <link refid="fiber_8h"/>
+        <childnode refid="134" relation="include">
+        </childnode>
+        <childnode refid="135" relation="include">
+        </childnode>
+        <childnode refid="152" relation="include">
+        </childnode>
+        <childnode refid="155" relation="include">
+        </childnode>
+        <childnode refid="145" relation="include">
+        </childnode>
+      </node>
+      <node id="135">
+        <label>device.h</label>
+        <link refid="device_8h"/>
+        <childnode refid="134" relation="include">
+        </childnode>
+        <childnode refid="136" relation="include">
+        </childnode>
+        <childnode refid="137" relation="include">
+        </childnode>
+        <childnode refid="139" relation="include">
+        </childnode>
+        <childnode refid="140" relation="include">
+        </childnode>
+        <childnode refid="150" relation="include">
+        </childnode>
+        <childnode refid="141" relation="include">
+        </childnode>
+        <childnode refid="142" relation="include">
+        </childnode>
+        <childnode refid="138" relation="include">
+        </childnode>
+        <childnode refid="143" relation="include">
+        </childnode>
+        <childnode refid="151" relation="include">
+        </childnode>
+        <childnode refid="145" relation="include">
+        </childnode>
+        <childnode refid="146" relation="include">
+        </childnode>
+        <childnode refid="147" relation="include">
+        </childnode>
+        <childnode refid="148" relation="include">
+        </childnode>
+        <childnode refid="149" relation="include">
+        </childnode>
+      </node>
+      <node id="145">
+        <label>linux/module.h</label>
+      </node>
+      <node id="154">
+        <label>linux/seq_file.h</label>
+      </node>
+      <node id="152">
+        <label>proc.h</label>
+        <link refid="proc_8h"/>
+        <childnode refid="134" relation="include">
+        </childnode>
+        <childnode refid="153" relation="include">
+        </childnode>
+        <childnode refid="154" relation="include">
+        </childnode>
+      </node>
+      <node id="141">
+        <label>linux/fs.h</label>
+      </node>
+      <node id="148">
+        <label>linux/slab.h</label>
+      </node>
+      <node id="136">
+        <label>core.h</label>
+        <link refid="core_8h"/>
+        <childnode refid="134" relation="include">
+        </childnode>
+        <childnode refid="137" relation="include">
+        </childnode>
+        <childnode refid="139" relation="include">
+        </childnode>
+        <childnode refid="140" relation="include">
+        </childnode>
+        <childnode refid="141" relation="include">
+        </childnode>
+        <childnode refid="142" relation="include">
+        </childnode>
+        <childnode refid="138" relation="include">
+        </childnode>
+        <childnode refid="143" relation="include">
+        </childnode>
+        <childnode refid="144" relation="include">
+        </childnode>
+        <childnode refid="145" relation="include">
+        </childnode>
+        <childnode refid="146" relation="include">
+        </childnode>
+        <childnode refid="147" relation="include">
+        </childnode>
+        <childnode refid="148" relation="include">
+        </childnode>
+        <childnode refid="149" relation="include">
+        </childnode>
+      </node>
+      <node id="146">
+        <label>linux/sched/task_stack.h</label>
+      </node>
+      <node id="138">
+        <label>linux/ioctl.h</label>
+      </node>
+      <node id="151">
+        <label>linux/miscdevice.h</label>
+      </node>
+      <node id="140">
+        <label>asm/ptrace.h</label>
+      </node>
+      <node id="149">
+        <label>linux/uaccess.h</label>
+      </node>
+      <node id="137">
+        <label>ioctlcmd.h</label>
+        <link refid="ioctlcmd_8h"/>
+        <childnode refid="138" relation="include">
+        </childnode>
+      </node>
+      <node id="132">
+        <label>src/fiber.c</label>
+        <link refid="fiber_8c"/>
+        <childnode refid="133" relation="include">
+        </childnode>
+      </node>
+      <node id="153">
+        <label>linux/proc_fs.h</label>
+      </node>
+      <node id="134">
+        <label>common.h</label>
+        <link refid="common_8h_source"/>
+      </node>
+      <node id="150">
+        <label>linux/cdev.h</label>
+      </node>
+      <node id="139">
+        <label>asm/current.h</label>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="fiber_8c_1ad94b36675e7eb067ea3ce6ff9e244a44" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>MODULE_LICENSE</definition>
+        <argsstring>(&quot;GPL&quot;)</argsstring>
+        <name>MODULE_LICENSE</name>
+        <param>
+          <type>&quot;GPL&quot;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/fiber.c" line="11" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="fiber_8c_1a41e39ab9b43a902dd8bfc9706397fc0d" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int __init</type>
+        <definition>static int __init init_fiber</definition>
+        <argsstring>(void)</argsstring>
+        <name>init_fiber</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>The init function of the module. </para>        </briefdescription>
+        <detaileddescription>
+<para>This is the entry point of the module. Every kind of default structures and services are instantiated here.</para><para>Inspired by <ulink url="https://static.lwn.net/images/pdf/LDD3/ch02.pdf">https://static.lwn.net/images/pdf/LDD3/ch02.pdf</ulink></para><para><simplesect kind="return"><para>int 0 if everything ok, otherwise -1 </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/fiber.c" line="23" column="1" bodyfile="src/fiber.c" bodystart="23" bodyend="38"/>
+      </memberdef>
+      <memberdef kind="function" id="fiber_8c_1ac8c97e56c879d1c9a6e4126151f5b84e" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void __exit</type>
+        <definition>static void __exit destroy_fiber</definition>
+        <argsstring>(void)</argsstring>
+        <name>destroy_fiber</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>The destroy function of the module. </para>        </briefdescription>
+        <detaileddescription>
+<para>This function deallocate all memory and deregister every service used </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/fiber.c" line="45" column="1" bodyfile="src/fiber.c" bodystart="45" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="fiber_8c_1a91c7dd13520e5d6d04bcd1f29448e10d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>module_init</definition>
+        <argsstring>(init_fiber)</argsstring>
+        <name>module_init</name>
+        <param>
+          <type>init_fiber</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/fiber.c" line="52" column="1"/>
+      </memberdef>
+      <memberdef kind="function" id="fiber_8c_1aaac60d4f12bc7ddbd5d64cc095f060bc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>module_exit</definition>
+        <argsstring>(destroy_fiber)</argsstring>
+        <name>module_exit</name>
+        <param>
+          <type>destroy_fiber</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/fiber.c" line="53" column="1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This file is the starting point of the module. </para>    </briefdescription>
+    <detaileddescription>
+<para><simplesect kind="author"><para>Gabriele Proietti Mattia <ulink url="mailto:gabry.gabry@hotmail.it">gabry.gabry@hotmail.it</ulink> </para></simplesect>
+<simplesect kind="author"><para>Alexandru Daniel Tufa <ulink url="mailto:alex.tufa94@gmail.com">alex.tufa94@gmail.com</ulink> </para></simplesect>
+<simplesect kind="date"><para>2018-05-06 </para></simplesect>
+</para>    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"></codeline>
+<codeline lineno="9"><highlight class="preprocessor">#include<sp/>&quot;<ref refid="fiber_8h" kindref="compound">fiber.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal">MODULE_LICENSE(</highlight><highlight class="stringliteral">&quot;GPL&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>__init<sp/>init_fiber(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>err<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>init<sp/>the<sp/>char<sp/>device</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>printk(KERN_INFO<sp/>MODULE_NAME<sp/>FIBER_LOG<sp/></highlight><highlight class="stringliteral">&quot;loading<sp/>module\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/>err<sp/>|=<sp/><ref refid="device_8h_1a88bd4adb20dc9040ae78f5b4036b61ab" kindref="member">init_device</ref>();</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(err)<sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>device_err;</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/>err<sp/>|=<sp/><ref refid="proc_8h_1ac259d1fab55f793f322af5233653b7a3" kindref="member">init_proc</ref>();</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(err)<sp/></highlight><highlight class="keywordflow">goto</highlight><highlight class="normal"><sp/>proc_err;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>printk(KERN_INFO<sp/>MODULE_NAME<sp/>FIBER_LOG<sp/></highlight><highlight class="stringliteral">&quot;loaded<sp/>successfully\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>SUCCESS;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal">proc_err:</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="device_8h_1a80ad9d4cfc87c34e428952a2d24b73e5" kindref="member">destroy_device</ref>();</highlight></codeline>
+<codeline lineno="35"><highlight class="normal">device_err:</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>printk(KERN_ALERT<sp/>MODULE_NAME<sp/>FIBER_LOG<sp/></highlight><highlight class="stringliteral">&quot;loading<sp/>error\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>__exit<sp/>destroy_fiber(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>destroy<sp/>the<sp/>char<sp/>device</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="device_8h_1a80ad9d4cfc87c34e428952a2d24b73e5" kindref="member">destroy_device</ref>();</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="proc_8h_1abfed4d9c489643f848aa94cb5147df5d" kindref="member">destroy_proc</ref>();</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>printk(KERN_INFO<sp/>MODULE_NAME<sp/>FIBER_LOG<sp/></highlight><highlight class="stringliteral">&quot;unloaded<sp/>successfully\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="50"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal">module_init(init_fiber);</highlight></codeline>
+<codeline lineno="53"><highlight class="normal">module_exit(destroy_fiber);</highlight></codeline>
+    </programlisting>
+    <location file="src/fiber.c"/>
+  </compounddef>
+</doxygen>

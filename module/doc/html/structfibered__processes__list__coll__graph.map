@@ -1,0 +1,5 @@
+<map id="fibered_processes_list" name="fibered_processes_list">
+<area shape="rect" id="node2" href="$structfibered__process.html" title="A node of the list of processes in fibered_processes_list, a fiber&#45;enabled process. " alt="" coords="27,203,151,229"/>
+<area shape="rect" id="node3" href="$structfibers__list.html" title="A generic list of fibers. " alt="" coords="46,112,131,139"/>
+<area shape="rect" id="node4" href="$structfiber.html" title="A node in the fibers_list. This type fully represent a fiber. " alt="" coords="63,7,114,33"/>
+</map>

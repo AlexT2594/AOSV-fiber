@@ -1,0 +1,183 @@
+.TH "include/core.h" 3 "Mon May 14 2018" "Version 0.0.1b" "Fiber(KernelModule)" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/core.h \- The head of the core part of the module\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'common\&.h'\fP
+.br
+\fC#include 'ioctlcmd\&.h'\fP
+.br
+\fC#include <asm/current\&.h>\fP
+.br
+\fC#include <asm/ptrace\&.h>\fP
+.br
+\fC#include <linux/fs\&.h>\fP
+.br
+\fC#include <linux/hashtable\&.h>\fP
+.br
+\fC#include <linux/ioctl\&.h>\fP
+.br
+\fC#include <linux/kernel\&.h>\fP
+.br
+\fC#include <linux/list\&.h>\fP
+.br
+\fC#include <linux/module\&.h>\fP
+.br
+\fC#include <linux/sched/task_stack\&.h>\fP
+.br
+\fC#include <linux/semaphore\&.h>\fP
+.br
+\fC#include <linux/slab\&.h>\fP
+.br
+\fC#include <linux/uaccess\&.h>\fP
+.br
+
+.SS "Classes"
+
+.in +1c
+.ti -1c
+.RI "struct \fBfibered_process\fP"
+.br
+.RI "A node of the list of processes in \fBfibered_processes_list\fP, a \fBfiber-enabled\fP process\&. "
+.ti -1c
+.RI "struct \fBfibered_processes_list\fP"
+.br
+.RI "The list of processes that have at least one fiber\&. "
+.ti -1c
+.RI "struct \fBfiber\fP"
+.br
+.RI "A node in the \fBfibers_list\fP\&. This type fully represent a \fCfiber\fP\&. "
+.ti -1c
+.RI "struct \fBfibers_list\fP"
+.br
+.RI "A generic list of fibers\&. "
+.in -1c
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBERR_THREAD_ALREADY_FIBER\fP   100"
+.br
+.ti -1c
+.RI "#define \fBCORE_LOG\fP   ': DEV: '"
+.br
+.in -1c
+.SS "Typedefs"
+
+.in +1c
+.ti -1c
+.RI "typedef struct \fBfibered_process\fP \fBfibered_process_node_t\fP"
+.br
+.RI "A node of the list of processes in \fBfibered_processes_list\fP, a \fBfiber-enabled\fP process\&. "
+.ti -1c
+.RI "typedef struct fiber_processes_list \fBfiber_process_list_t\fP"
+.br
+.ti -1c
+.RI "typedef struct \fBfiber\fP \fBfiber_node_t\fP"
+.br
+.RI "A node in the \fBfibers_list\fP\&. This type fully represent a \fCfiber\fP\&. "
+.ti -1c
+.RI "typedef struct \fBfibers_list\fP \fBfibers_list_t\fP"
+.br
+.RI "A generic list of fibers\&. "
+.ti -1c
+.RI "typedef enum \fBfiber_state\fP \fBfiber_state_t\fP"
+.br
+.RI "The state of the fiber\&. "
+.ti -1c
+.RI "typedef struct \fBfibered_processes_list\fP \fBfibered_processes_list_t\fP"
+.br
+.RI "The list of processes that have at least one fiber\&. "
+.in -1c
+.SS "Enumerations"
+
+.in +1c
+.ti -1c
+.RI "enum \fBfiber_state\fP { \fBRUNNING\fP, \fBIDLE\fP }"
+.br
+.RI "The state of the fiber\&. "
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "int \fBconvert_thread_to_fiber\fP (void)"
+.br
+.RI "Convert the current thread to a fiber\&. "
+.in -1c
+.SH "Detailed Description"
+.PP 
+The head of the core part of the module\&. 
+
+This file contains all the data structures and the methods that implements the core functions of the fiber module
+.PP
+\fBAuthor:\fP
+.RS 4
+Gabriele Proietti Mattia gabry.gabry@hotmail.it 
+.PP
+Alexandru Daniel Tufa alex.tufa94@gmail.com 
+.RE
+.PP
+\fBDate:\fP
+.RS 4
+2018-05-13 
+.RE
+.PP
+
+.SH "Typedef Documentation"
+.PP 
+.SS "typedef struct \fBfiber\fP \fBfiber_node_t\fP"
+
+.PP
+A node in the \fBfibers_list\fP\&. This type fully represent a \fCfiber\fP\&. This is the complete description of a fiber\&. 
+.SS "typedef struct \fBfibered_process\fP \fBfibered_process_node_t\fP"
+
+.PP
+A node of the list of processes in \fBfibered_processes_list\fP, a \fBfiber-enabled\fP process\&. A \fBfibered_process\fP is a process in which at least one thread has been converted to a fiber, so a \fBfibered_process\fP always has at least one fiber in the \fBfibered_process::fibers_list\fP field\&. Moreover the first element of the list has \fBfibered_process::prev\fP pointing to \fCNULL\fP and the last element of the list has \fBfibered_process::next\fP pointing to \fCNULL\fP\&. 
+.SS "typedef struct \fBfibered_processes_list\fP  \fBfibered_processes_list_t\fP"
+
+.PP
+The list of processes that have at least one fiber\&. This list has the purpose of containing the list of processes that have created at least one fiber and they became fiber-enabled\&. The list can be considered empty when at least one of \fBfibered_processes_list::head\fP or \fBfibered_processes_list::tail\fP is pointing to \fCNULL\fP\&. 
+.SS "typedef struct \fBfibers_list\fP \fBfibers_list_t\fP"
+
+.PP
+A generic list of fibers\&. The list has the purpose of containing the list of fibers for a given process\&. The list can be considered empty when at least one of \fBfibers_list::head\fP or \fBfibers_list::tail\fP is pointing to \fCNULL\fP\&. 
+.SH "Enumeration Type Documentation"
+.PP 
+.SS "enum \fBfiber_state\fP"
+
+.PP
+The state of the fiber\&. 
+.PP
+\fBEnumerator\fP
+.in +1c
+.TP
+\fB\fIRUNNING \fP\fP
+The fiber is running since the thread switched to it 
+.TP
+\fB\fIIDLE \fP\fP
+The fiber is created but no thread switched to it 
+.SH "Function Documentation"
+.PP 
+.SS "int convert_thread_to_fiber (void)"
+
+.PP
+Convert the current thread to a fiber\&. 
+.SH "Implementation"
+.PP
+.PP
+When a thread is converted to a fiber several task are performed\&. First of all, if the process never created a fiber, it must become \fBfiber-enabled\fP, this means that we have to instantiate a \fBfibered_process\fP element in the \fBfibered_processes_list\fP variable\&. Then we have to instantiate a \fBfiber\fP element in the \fBfibers_list\fP field of the \fBfibered_process\fP element of the list\&.
+.PP
+\fBReturns:\fP
+.RS 4
+int 0 if everything ok, otherwise an error listed in \fBioctlcmd\&.h\fP 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Fiber(KernelModule) from the source code\&.

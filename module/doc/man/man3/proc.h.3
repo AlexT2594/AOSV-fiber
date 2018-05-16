@@ -1,0 +1,76 @@
+.TH "include/proc.h" 3 "Mon May 14 2018" "Version 0.0.1b" "Fiber(KernelModule)" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+include/proc.h \- This file contains definitions and macros for the \fIproc\fP part of the module\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'common\&.h'\fP
+.br
+\fC#include <linux/proc_fs\&.h>\fP
+.br
+\fC#include <linux/seq_file\&.h>\fP
+.br
+
+.SS "Macros"
+
+.in +1c
+.ti -1c
+.RI "#define \fBPROC_LOG\fP   ': PROC: '"
+.br
+.ti -1c
+.RI "#define \fBPROC_FOLDER\fP   'fibers'"
+.br
+.ti -1c
+.RI "#define \fBPROC_ENTRY\fP   'fiber'"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "int \fBinit_proc\fP (void)"
+.br
+.RI "Init here all the proc files for the module Inspired by https://static.lwn.net/images/pdf/LDD3/ch04.pdf and updated to new standard\&. "
+.ti -1c
+.RI "void \fBdestroy_proc\fP (void)"
+.br
+.RI "Destroy all the proc files\&. "
+.in -1c
+.SH "Detailed Description"
+.PP 
+This file contains definitions and macros for the \fIproc\fP part of the module\&. 
+
+
+.PP
+\fBAuthor:\fP
+.RS 4
+Gabriele Proietti Mattia gabry.gabry@hotmail.it 
+.PP
+Alexandru Daniel Tufa alex.tufa94@gmail.com 
+.RE
+.PP
+\fBDate:\fP
+.RS 4
+2018-05-13 
+.RE
+.PP
+
+.SH "Function Documentation"
+.PP 
+.SS "int init_proc (void)"
+
+.PP
+Init here all the proc files for the module Inspired by https://static.lwn.net/images/pdf/LDD3/ch04.pdf and updated to new standard\&. 
+.PP
+\fBReturns:\fP
+.RS 4
+int 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Fiber(KernelModule) from the source code\&.

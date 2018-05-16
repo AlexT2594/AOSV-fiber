@@ -1,0 +1,41 @@
+.TH "fibered_processes_list" 3 "Mon May 14 2018" "Version 0.0.1b" "Fiber(KernelModule)" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+fibered_processes_list \- The list of processes that have at least one fiber\&.  
+
+.SH SYNOPSIS
+.br
+.PP
+.PP
+\fC#include <core\&.h>\fP
+.SS "Public Attributes"
+
+.in +1c
+.ti -1c
+.RI "\fBfibered_process_node_t\fP * \fBhead\fP"
+.br
+.ti -1c
+.RI "\fBfibered_process_node_t\fP * \fBtail\fP"
+.br
+.ti -1c
+.RI "unsigned \fBprocesses_count\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+The list of processes that have at least one fiber\&. 
+
+This list has the purpose of containing the list of processes that have created at least one fiber and they became fiber-enabled\&. The list can be considered empty when at least one of \fBfibered_processes_list::head\fP or \fBfibered_processes_list::tail\fP is pointing to \fCNULL\fP\&. 
+.SH "Member Data Documentation"
+.PP 
+.SS "\fBfibered_process_node_t\fP* fibered_processes_list::head"
+The first element in the list 
+.SS "unsigned fibered_processes_list::processes_count"
+The number of elements in the list 
+.SS "\fBfibered_process_node_t\fP* fibered_processes_list::tail"
+The last element in the list 
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Fiber(KernelModule) from the source code\&.

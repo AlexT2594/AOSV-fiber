@@ -1,0 +1,388 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.14">
+  <compounddef id="core_8h" kind="file" language="C++">
+    <compoundname>core.h</compoundname>
+    <includes refid="common_8h" local="yes">common.h</includes>
+    <includes refid="ioctlcmd_8h" local="yes">ioctlcmd.h</includes>
+    <includes local="no">asm/current.h</includes>
+    <includes local="no">asm/ptrace.h</includes>
+    <includes local="no">linux/fs.h</includes>
+    <includes local="no">linux/hashtable.h</includes>
+    <includes local="no">linux/ioctl.h</includes>
+    <includes local="no">linux/kernel.h</includes>
+    <includes local="no">linux/list.h</includes>
+    <includes local="no">linux/module.h</includes>
+    <includes local="no">linux/sched/task_stack.h</includes>
+    <includes local="no">linux/semaphore.h</includes>
+    <includes local="no">linux/slab.h</includes>
+    <includes local="no">linux/uaccess.h</includes>
+    <includedby refid="device_8h" local="yes">include/device.h</includedby>
+    <includedby refid="core_8c" local="yes">src/core.c</includedby>
+    <incdepgraph>
+      <node id="19">
+        <label>linux/list.h</label>
+      </node>
+      <node id="22">
+        <label>linux/semaphore.h</label>
+      </node>
+      <node id="17">
+        <label>linux/hashtable.h</label>
+      </node>
+      <node id="18">
+        <label>linux/kernel.h</label>
+      </node>
+      <node id="20">
+        <label>linux/module.h</label>
+      </node>
+      <node id="16">
+        <label>linux/fs.h</label>
+      </node>
+      <node id="23">
+        <label>linux/slab.h</label>
+      </node>
+      <node id="10">
+        <label>include/core.h</label>
+        <link refid="core_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="18" relation="include">
+        </childnode>
+        <childnode refid="19" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
+        <childnode refid="21" relation="include">
+        </childnode>
+        <childnode refid="22" relation="include">
+        </childnode>
+        <childnode refid="23" relation="include">
+        </childnode>
+        <childnode refid="24" relation="include">
+        </childnode>
+      </node>
+      <node id="21">
+        <label>linux/sched/task_stack.h</label>
+      </node>
+      <node id="13">
+        <label>linux/ioctl.h</label>
+      </node>
+      <node id="15">
+        <label>asm/ptrace.h</label>
+      </node>
+      <node id="24">
+        <label>linux/uaccess.h</label>
+      </node>
+      <node id="12">
+        <label>ioctlcmd.h</label>
+        <link refid="ioctlcmd_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>common.h</label>
+        <link refid="common_8h_source"/>
+      </node>
+      <node id="14">
+        <label>asm/current.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="30">
+        <label>src/core.c</label>
+        <link refid="core_8c"/>
+      </node>
+      <node id="27">
+        <label>include/fiber.h</label>
+        <link refid="fiber_8h"/>
+        <childnode refid="28" relation="include">
+        </childnode>
+      </node>
+      <node id="26">
+        <label>include/device.h</label>
+        <link refid="device_8h"/>
+        <childnode refid="27" relation="include">
+        </childnode>
+        <childnode refid="29" relation="include">
+        </childnode>
+      </node>
+      <node id="29">
+        <label>src/device.c</label>
+        <link refid="device_8c"/>
+      </node>
+      <node id="25">
+        <label>include/core.h</label>
+        <link refid="core_8h"/>
+        <childnode refid="26" relation="include">
+        </childnode>
+        <childnode refid="30" relation="include">
+        </childnode>
+      </node>
+      <node id="28">
+        <label>src/fiber.c</label>
+        <link refid="fiber_8c"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structfibered__process" prot="public">fibered_process</innerclass>
+    <innerclass refid="structfibered__processes__list" prot="public">fibered_processes_list</innerclass>
+    <innerclass refid="structfiber" prot="public">fiber</innerclass>
+    <innerclass refid="structfibers__list" prot="public">fibers_list</innerclass>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="core_8h_1a88633244fc905d1234bac90e464791da" prot="public" static="no">
+        <name>ERR_THREAD_ALREADY_FIBER</name>
+        <initializer>100</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/core.h" line="18" column="9" bodyfile="include/ioctlcmd.h" bodystart="37" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="core_8h_1a4cc9121f26b7a012965835e97dfd5315" prot="public" static="no">
+        <name>CORE_LOG</name>
+        <initializer>&quot;: DEV: &quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/core.h" line="32" column="9" bodyfile="include/core.h" bodystart="32" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="enum">
+      <memberdef kind="enum" id="core_8h_1a7b11bd960a2de8da146a5ebb7f7abbc2" prot="public" static="no" strong="no">
+        <type></type>
+        <name>fiber_state</name>
+        <enumvalue id="core_8h_1a7b11bd960a2de8da146a5ebb7f7abbc2a1061be6c3fb88d32829cba6f6b2be304" prot="public">
+          <name>RUNNING</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>The fiber is running since the thread switched to it </para>          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="core_8h_1a7b11bd960a2de8da146a5ebb7f7abbc2afd6a0e4343048b10646dd2976cc5ad18" prot="public">
+          <name>IDLE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>The fiber is created but no thread switched to it </para>          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>The state of the fiber. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/core.h" line="53" column="1" bodyfile="include/core.h" bodystart="53" bodyend="56"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="core_8h_1aa16708c717e33e5e95614cd1e4ca7b2b" prot="public" static="no">
+        <type>struct <ref refid="structfibered__process" kindref="compound">fibered_process</ref></type>
+        <definition>typedef struct fibered_process fibered_process_node_t</definition>
+        <argsstring></argsstring>
+        <name>fibered_process_node_t</name>
+        <briefdescription>
+<para>A node of the list of processes in <ref refid="structfibered__processes__list" kindref="compound">fibered_processes_list</ref>, a <bold>fiber-enabled</bold> process. </para>        </briefdescription>
+        <detaileddescription>
+<para>A <ref refid="structfibered__process" kindref="compound">fibered_process</ref> is a process in which at least one thread has been converted to a fiber, so a <ref refid="structfibered__process" kindref="compound">fibered_process</ref> always has at least one fiber in the <ref refid="structfibered__process_1a1aae0be425bbc05b6444909f16ec56b9" kindref="member">fibered_process::fibers_list</ref> field. Moreover the first element of the list has <ref refid="structfibered__process_1adf5ba8614f416e75bc026fe449fdd08c" kindref="member">fibered_process::prev</ref> pointing to <computeroutput>NULL</computeroutput> and the last element of the list has <ref refid="structfibered__process_1a8779fb1384900987ccd2d0d9de09a1ab" kindref="member">fibered_process::next</ref> pointing to <computeroutput>NULL</computeroutput>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/core.h" line="38" column="1" bodyfile="include/core.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="core_8h_1a87e2a324967b7142f288286f66f2a149" prot="public" static="no">
+        <type>struct fiber_processes_list</type>
+        <definition>typedef struct fiber_processes_list fiber_process_list_t</definition>
+        <argsstring></argsstring>
+        <name>fiber_process_list_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/core.h" line="38" column="1" bodyfile="include/core.h" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="core_8h_1adb14c8b48a1d56cf9c6632295ab90048" prot="public" static="no">
+        <type>struct <ref refid="structfiber" kindref="compound">fiber</ref></type>
+        <definition>typedef struct fiber fiber_node_t</definition>
+        <argsstring></argsstring>
+        <name>fiber_node_t</name>
+        <briefdescription>
+<para>A node in the <ref refid="structfibers__list" kindref="compound">fibers_list</ref>. This type fully represent a <computeroutput>fiber</computeroutput>. </para>        </briefdescription>
+        <detaileddescription>
+<para>This is the complete description of a fiber. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/core.h" line="38" column="1" bodyfile="include/core.h" bodystart="46" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="core_8h_1aad42420053a7ace7b3fb17805d6e9004" prot="public" static="no">
+        <type>struct <ref refid="structfibers__list" kindref="compound">fibers_list</ref></type>
+        <definition>typedef struct fibers_list fibers_list_t</definition>
+        <argsstring></argsstring>
+        <name>fibers_list_t</name>
+        <briefdescription>
+<para>A generic list of fibers. </para>        </briefdescription>
+        <detaileddescription>
+<para>The list has the purpose of containing the list of fibers for a given process. The list can be considered empty when at least one of <ref refid="structfibers__list_1aa1dd39c8c192607d164f204821d5b3ed" kindref="member">fibers_list::head</ref> or <ref refid="structfibers__list_1af94c6bcedeb27c078ea1fa4869c53673" kindref="member">fibers_list::tail</ref> is pointing to <computeroutput>NULL</computeroutput>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/core.h" line="38" column="1" bodyfile="include/core.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="core_8h_1a707fd6f68415e6978adb340746527715" prot="public" static="no">
+        <type>enum <ref refid="core_8h_1a7b11bd960a2de8da146a5ebb7f7abbc2" kindref="member">fiber_state</ref></type>
+        <definition>typedef enum fiber_state  fiber_state_t</definition>
+        <argsstring></argsstring>
+        <name>fiber_state_t</name>
+        <briefdescription>
+<para>The state of the fiber. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/core.h" line="56" column="1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="core_8h_1afffa2dfe134b8b5494026f1038f68a39" prot="public" static="no">
+        <type>struct <ref refid="structfibered__processes__list" kindref="compound">fibered_processes_list</ref></type>
+        <definition>typedef struct fibered_processes_list  fibered_processes_list_t</definition>
+        <argsstring></argsstring>
+        <name>fibered_processes_list_t</name>
+        <briefdescription>
+<para>The list of processes that have at least one fiber. </para>        </briefdescription>
+        <detaileddescription>
+<para>This list has the purpose of containing the list of processes that have created at least one fiber and they became fiber-enabled. The list can be considered empty when at least one of <ref refid="structfibered__processes__list_1a460c3f34099c7589c25c383add98650b" kindref="member">fibered_processes_list::head</ref> or <ref refid="structfibered__processes__list_1a423b95d461fa440ede7dd019b8c94aa6" kindref="member">fibered_processes_list::tail</ref> is pointing to <computeroutput>NULL</computeroutput>. </para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/core.h" line="88" column="1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="core_8h_1a62235692d124309201f915bec1a89374" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int convert_thread_to_fiber</definition>
+        <argsstring>(void)</argsstring>
+        <name>convert_thread_to_fiber</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Convert the current thread to a fiber. </para>        </briefdescription>
+        <detaileddescription>
+<para><heading level="1">Implementation</heading>
+</para><para>When a thread is converted to a fiber several task are performed. First of all, if the process never created a fiber, it must become <bold>fiber-enabled</bold>, this means that we have to instantiate a <ref refid="structfibered__process" kindref="compound">fibered_process</ref> element in the <ref refid="structfibered__processes__list" kindref="compound">fibered_processes_list</ref> variable. Then we have to instantiate a <ref refid="structfiber" kindref="compound">fiber</ref> element in the <ref refid="structfibers__list" kindref="compound">fibers_list</ref> field of the <ref refid="structfibered__process" kindref="compound">fibered_process</ref> element of the list.</para><para><simplesect kind="return"><para>int 0 if everything ok, otherwise an error listed in <ref refid="ioctlcmd_8h" kindref="compound">ioctlcmd.h</ref> </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="include/core.h" line="38" column="1" bodyfile="src/core.c" bodystart="44" bodyend="107"/>
+        <references refid="structfibered__processes__list_1a460c3f34099c7589c25c383add98650b" compoundref="core_8h" startline="85">fibered_processes_list::head</references>
+        <references refid="structfibered__process_1ad8f9adb6ee521988f3607ccf279e10a6" compoundref="core_8h" startline="73">fibered_process::pid</references>
+        <references refid="structfibered__process_1a8779fb1384900987ccd2d0d9de09a1ab" compoundref="core_8h" startline="70">fibered_process::next</references>
+        <references refid="structfibered__processes__list_1a357ed70a414391e2cde4cf1c6062b6ce" compoundref="core_8h" startline="87">fibered_processes_list::processes_count</references>
+        <references refid="structfibered__process_1adf5ba8614f416e75bc026fe449fdd08c" compoundref="core_8h" startline="69">fibered_process::prev</references>
+        <references refid="structfibered__process_1a1aae0be425bbc05b6444909f16ec56b9" compoundref="core_8h" startline="71">fibered_process::fibers_list</references>
+        <references refid="structfibers__list_1a54a8a9f5a97c783b1461257d6e07aa1a" compoundref="core_8h" startline="121">fibers_list::fibers_count</references>
+        <references refid="structfibers__list_1aa1dd39c8c192607d164f204821d5b3ed" compoundref="core_8h" startline="119">fibers_list::head</references>
+        <references refid="structfibers__list_1af94c6bcedeb27c078ea1fa4869c53673" compoundref="core_8h" startline="120">fibers_list::tail</references>
+        <references refid="structfibered__processes__list_1a423b95d461fa440ede7dd019b8c94aa6" compoundref="core_8h" startline="86">fibered_processes_list::tail</references>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The head of the core part of the module. </para>    </briefdescription>
+    <detaileddescription>
+<para>This file contains all the data structures and the methods that implements the core functions of the fiber module</para><para><simplesect kind="author"><para>Gabriele Proietti Mattia <ulink url="mailto:gabry.gabry@hotmail.it">gabry.gabry@hotmail.it</ulink> </para></simplesect>
+<simplesect kind="author"><para>Alexandru Daniel Tufa <ulink url="mailto:alex.tufa94@gmail.com">alex.tufa94@gmail.com</ulink> </para></simplesect>
+<simplesect kind="date"><para>2018-05-13 </para></simplesect>
+</para>    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"></codeline>
+<codeline lineno="14"><highlight class="preprocessor">#ifndef<sp/>__CORE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>__CORE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;common.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="ioctlcmd_8h" kindref="compound">ioctlcmd.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;asm/current.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;asm/ptrace.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;linux/fs.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;linux/hashtable.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;linux/ioctl.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;linux/kernel.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;linux/list.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;linux/module.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;linux/sched/task_stack.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;linux/semaphore.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;linux/slab.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;linux/uaccess.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>CORE_LOG<sp/>&quot;:<sp/>DEV:<sp/>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/>*<sp/>Exposed<sp/>methods</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="core_8h_1a62235692d124309201f915bec1a89374" kindref="member">convert_thread_to_fiber</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="41"><highlight class="comment"><sp/>*<sp/>Definitions</highlight></codeline>
+<codeline lineno="42"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44" refid="core_8h_1aa16708c717e33e5e95614cd1e4ca7b2b" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfibered__process" kindref="compound">fibered_process</ref><sp/><ref refid="structfibered__process" kindref="compound">fibered_process_node_t</ref>;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">fiber_processes_list<sp/>fiber_process_list_t;</highlight></codeline>
+<codeline lineno="46" refid="core_8h_1adb14c8b48a1d56cf9c6632295ab90048" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfiber" kindref="compound">fiber</ref><sp/><ref refid="structfiber" kindref="compound">fiber_node_t</ref>;</highlight></codeline>
+<codeline lineno="47" refid="core_8h_1aad42420053a7ace7b3fb17805d6e9004" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfibers__list" kindref="compound">fibers_list</ref><sp/><ref refid="structfibers__list" kindref="compound">fibers_list_t</ref>;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53" refid="core_8h_1a7b11bd960a2de8da146a5ebb7f7abbc2" refkind="member"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/><ref refid="core_8h_1a7b11bd960a2de8da146a5ebb7f7abbc2" kindref="member">fiber_state</ref><sp/>{</highlight></codeline>
+<codeline lineno="54" refid="core_8h_1a7b11bd960a2de8da146a5ebb7f7abbc2a1061be6c3fb88d32829cba6f6b2be304" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="core_8h_1a7b11bd960a2de8da146a5ebb7f7abbc2a1061be6c3fb88d32829cba6f6b2be304" kindref="member">RUNNING</ref>,<sp/></highlight></codeline>
+<codeline lineno="55" refid="core_8h_1a7b11bd960a2de8da146a5ebb7f7abbc2afd6a0e4343048b10646dd2976cc5ad18" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="core_8h_1a7b11bd960a2de8da146a5ebb7f7abbc2afd6a0e4343048b10646dd2976cc5ad18" kindref="member">IDLE</ref><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="56"><highlight class="normal">}<sp/><ref refid="core_8h_1a707fd6f68415e6978adb340746527715" kindref="member">fiber_state_t</ref>;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68" refid="structfibered__process" refkind="compound"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfibered__process" kindref="compound">fibered_process</ref><sp/>{</highlight></codeline>
+<codeline lineno="69" refid="structfibered__process_1adf5ba8614f416e75bc026fe449fdd08c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structfibered__process" kindref="compound">fibered_process_node_t</ref><sp/>*<ref refid="structfibered__process_1adf5ba8614f416e75bc026fe449fdd08c" kindref="member">prev</ref>;<sp/></highlight></codeline>
+<codeline lineno="70" refid="structfibered__process_1a8779fb1384900987ccd2d0d9de09a1ab" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structfibered__process" kindref="compound">fibered_process_node_t</ref><sp/>*<ref refid="structfibered__process_1a8779fb1384900987ccd2d0d9de09a1ab" kindref="member">next</ref>;<sp/></highlight></codeline>
+<codeline lineno="71" refid="structfibered__process_1a1aae0be425bbc05b6444909f16ec56b9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structfibers__list" kindref="compound">fibers_list_t</ref><sp/>*<ref refid="structfibered__process_1a1aae0be425bbc05b6444909f16ec56b9" kindref="member">fibers_list</ref>;<sp/></highlight></codeline>
+<codeline lineno="73" refid="structfibered__process_1ad8f9adb6ee521988f3607ccf279e10a6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>pid_t<sp/><ref refid="structfibered__process_1ad8f9adb6ee521988f3607ccf279e10a6" kindref="member">pid</ref>;<sp/></highlight></codeline>
+<codeline lineno="74"><highlight class="normal">}<sp/><ref refid="core_8h_1aa16708c717e33e5e95614cd1e4ca7b2b" kindref="member">fibered_process_node_t</ref>;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84" refid="structfibered__processes__list" refkind="compound"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfibered__processes__list" kindref="compound">fibered_processes_list</ref><sp/>{</highlight></codeline>
+<codeline lineno="85" refid="structfibered__processes__list_1a460c3f34099c7589c25c383add98650b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structfibered__process" kindref="compound">fibered_process_node_t</ref><sp/>*<ref refid="structfibered__processes__list_1a460c3f34099c7589c25c383add98650b" kindref="member">head</ref>;<sp/></highlight></codeline>
+<codeline lineno="86" refid="structfibered__processes__list_1a423b95d461fa440ede7dd019b8c94aa6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structfibered__process" kindref="compound">fibered_process_node_t</ref><sp/>*<ref refid="structfibered__processes__list_1a423b95d461fa440ede7dd019b8c94aa6" kindref="member">tail</ref>;<sp/></highlight></codeline>
+<codeline lineno="87" refid="structfibered__processes__list_1a357ed70a414391e2cde4cf1c6062b6ce" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/><ref refid="structfibered__processes__list_1a357ed70a414391e2cde4cf1c6062b6ce" kindref="member">processes_count</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="88"><highlight class="normal">}<sp/><ref refid="core_8h_1afffa2dfe134b8b5494026f1038f68a39" kindref="member">fibered_processes_list_t</ref>;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96" refid="structfiber" refkind="compound"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfiber" kindref="compound">fiber</ref><sp/>{</highlight></codeline>
+<codeline lineno="97" refid="structfiber_1a327a77d565b2e0054f97b057e55b2178" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structfiber" kindref="compound">fiber_node_t</ref><sp/>*<ref refid="structfiber_1a327a77d565b2e0054f97b057e55b2178" kindref="member">prev</ref>;<sp/></highlight></codeline>
+<codeline lineno="98" refid="structfiber_1a8edc01f505460ec3df1f5319d26ee0cd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structfiber" kindref="compound">fiber_node_t</ref><sp/>*<ref refid="structfiber_1a8edc01f505460ec3df1f5319d26ee0cd" kindref="member">next</ref>;<sp/></highlight></codeline>
+<codeline lineno="99" refid="structfiber_1a6301190065f177d47b2d74fa1d1240c0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/><ref refid="structfiber_1a6301190065f177d47b2d74fa1d1240c0" kindref="member">id</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*starting_function;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/>base_user_stack_pointer;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="core_8h_1a707fd6f68415e6978adb340746527715" kindref="member">fiber_state_t</ref><sp/>state;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">pt_regs<sp/>regs;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/>pid_t<sp/>created_by;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>success_activations_count;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>failed_activations_count;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/>total_time;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal">}<sp/><ref refid="core_8h_1adb14c8b48a1d56cf9c6632295ab90048" kindref="member">fiber_node_t</ref>;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118" refid="structfibers__list" refkind="compound"><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structfibers__list" kindref="compound">fibers_list</ref><sp/>{</highlight></codeline>
+<codeline lineno="119" refid="structfibers__list_1aa1dd39c8c192607d164f204821d5b3ed" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structfiber" kindref="compound">fiber_node_t</ref><sp/>*<ref refid="structfibers__list_1aa1dd39c8c192607d164f204821d5b3ed" kindref="member">head</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="120" refid="structfibers__list_1af94c6bcedeb27c078ea1fa4869c53673" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structfiber" kindref="compound">fiber_node_t</ref><sp/>*<ref refid="structfibers__list_1af94c6bcedeb27c078ea1fa4869c53673" kindref="member">tail</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="121" refid="structfibers__list_1a54a8a9f5a97c783b1461257d6e07aa1a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/><ref refid="structfibers__list_1a54a8a9f5a97c783b1461257d6e07aa1a" kindref="member">fibers_count</ref>;<sp/></highlight></codeline>
+<codeline lineno="123"><highlight class="normal">}<sp/><ref refid="core_8h_1aad42420053a7ace7b3fb17805d6e9004" kindref="member">fibers_list_t</ref>;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+    </programlisting>
+    <location file="include/core.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,83 @@
+\hypertarget{ioctlcmd_8h}{}\section{include/ioctlcmd.h File Reference}
+\label{ioctlcmd_8h}\index{include/ioctlcmd.\+h@{include/ioctlcmd.\+h}}
+
+
+This file contains definitions of ioctl commands.  
+
+
+{\ttfamily \#include $<$linux/ioctl.\+h$>$}\newline
+Include dependency graph for ioctlcmd.\+h\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=186pt]{ioctlcmd_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=301pt]{ioctlcmd_8h__dep__incl}
+\end{center}
+\end{figure}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{ioctlcmd_8h_a3fa8721290c13653f9d838794d7ee261}\label{ioctlcmd_8h_a3fa8721290c13653f9d838794d7ee261}} 
+\#define {\bfseries F\+I\+B\+E\+R\+\_\+\+I\+O\+C\+\_\+\+M\+A\+G\+IC}~0x\+F1
+\item 
+\mbox{\Hypertarget{ioctlcmd_8h_a0fe5046498c1c9c1f58df873802329f8}\label{ioctlcmd_8h_a0fe5046498c1c9c1f58df873802329f8}} 
+\#define {\bfseries F\+I\+B\+E\+R\+\_\+\+I\+O\+C\+R\+E\+S\+ET}~\+\_\+\+IO(F\+I\+B\+E\+R\+\_\+\+I\+O\+C\+\_\+\+M\+A\+G\+IC, 0)
+\item 
+\mbox{\Hypertarget{ioctlcmd_8h_a16f37437f12488e28b159071431a79e5}\label{ioctlcmd_8h_a16f37437f12488e28b159071431a79e5}} 
+\#define {\bfseries F\+I\+B\+E\+R\+\_\+\+I\+O\+C\+\_\+\+C\+O\+N\+V\+E\+R\+T\+T\+H\+R\+E\+A\+D\+T\+O\+F\+I\+B\+ER}~\+\_\+\+IO(F\+I\+B\+E\+R\+\_\+\+I\+O\+C\+\_\+\+M\+A\+G\+IC, 1)
+\item 
+\mbox{\Hypertarget{ioctlcmd_8h_ade67fad05a99e6ec17b0526e5e55eba0}\label{ioctlcmd_8h_ade67fad05a99e6ec17b0526e5e55eba0}} 
+\#define {\bfseries F\+I\+B\+E\+R\+\_\+\+I\+O\+C\+\_\+\+C\+R\+E\+A\+T\+E\+F\+I\+B\+ER}~\+\_\+\+I\+OW(F\+I\+B\+E\+R\+\_\+\+I\+O\+C\+\_\+\+M\+A\+G\+IC, 2, int)
+\item 
+\mbox{\Hypertarget{ioctlcmd_8h_a8c285b2a6378660f8b4b3bd57087655e}\label{ioctlcmd_8h_a8c285b2a6378660f8b4b3bd57087655e}} 
+\#define {\bfseries F\+I\+B\+E\+R\+\_\+\+I\+O\+C\+\_\+\+S\+W\+I\+T\+C\+H\+T\+O\+F\+I\+B\+ER}~\+\_\+\+IO(F\+I\+B\+E\+R\+\_\+\+I\+O\+C\+\_\+\+M\+A\+G\+IC, 3)
+\item 
+\mbox{\Hypertarget{ioctlcmd_8h_a8b452a3bcd354dab866a9951f1e11cfc}\label{ioctlcmd_8h_a8b452a3bcd354dab866a9951f1e11cfc}} 
+\#define {\bfseries F\+I\+B\+E\+R\+\_\+\+I\+O\+C\+\_\+\+F\+L\+S\+\_\+\+A\+L\+L\+OC}~\+\_\+\+I\+O\+WR(F\+I\+B\+E\+R\+\_\+\+I\+O\+C\+\_\+\+M\+A\+G\+IC, 4, int)
+\item 
+\mbox{\Hypertarget{ioctlcmd_8h_a7888c883b97e1cc417ef2437874f22d3}\label{ioctlcmd_8h_a7888c883b97e1cc417ef2437874f22d3}} 
+\#define {\bfseries F\+I\+B\+E\+R\+\_\+\+I\+O\+C\+\_\+\+F\+L\+S\+\_\+\+F\+R\+EE}~\+\_\+\+I\+OW(F\+I\+B\+E\+R\+\_\+\+I\+O\+C\+\_\+\+M\+A\+G\+IC, 5, int)
+\item 
+\mbox{\Hypertarget{ioctlcmd_8h_aca78d5f71cce3383c675f5c7e4ff3b09}\label{ioctlcmd_8h_aca78d5f71cce3383c675f5c7e4ff3b09}} 
+\#define {\bfseries F\+I\+B\+E\+R\+\_\+\+I\+O\+C\+\_\+\+F\+L\+S\+\_\+\+G\+ET}~\+\_\+\+I\+OR(F\+I\+B\+E\+R\+\_\+\+I\+O\+C\+\_\+\+M\+A\+G\+IC, 6, int)
+\item 
+\mbox{\Hypertarget{ioctlcmd_8h_a98785938d1b5f470d3b09e032ecac4ac}\label{ioctlcmd_8h_a98785938d1b5f470d3b09e032ecac4ac}} 
+\#define {\bfseries F\+I\+B\+E\+R\+\_\+\+I\+O\+C\+\_\+\+F\+L\+S\+\_\+\+S\+ET}~\+\_\+\+I\+OW(F\+I\+B\+E\+R\+\_\+\+I\+O\+C\+\_\+\+M\+A\+G\+IC, 7, int)
+\item 
+\mbox{\Hypertarget{ioctlcmd_8h_a0518e8a551a25376f65a60e98189cb70}\label{ioctlcmd_8h_a0518e8a551a25376f65a60e98189cb70}} 
+\#define {\bfseries F\+I\+B\+E\+R\+\_\+\+I\+O\+C\+\_\+\+M\+A\+X\+NR}~7
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This file contains definitions of ioctl commands. 
+
+\subsection*{Module operations}
+
+We define the following operations for the module that are mapped with the library (Library -\/$>$ Module)
+\begin{DoxyItemize}
+\item Convert\+Thread\+To\+Fiber -\/$>$ F\+I\+B\+E\+R\+\_\+\+I\+O\+C\+\_\+\+C\+O\+N\+V\+E\+R\+T\+T\+H\+R\+E\+A\+D\+T\+O\+F\+I\+B\+ER
+\item Create\+Fiber -\/$>$ F\+I\+B\+E\+R\+\_\+\+I\+O\+C\+\_\+\+C\+R\+E\+A\+T\+E\+F\+I\+B\+ER
+\item Switch\+To\+Fiber -\/$>$ F\+I\+B\+E\+R\+\_\+\+I\+O\+C\+\_\+\+S\+W\+I\+T\+C\+H\+T\+O\+F\+I\+B\+ER
+\item Fls\+Alloc -\/$>$ F\+L\+S\+\_\+\+A\+L\+L\+OC
+\item Fls\+Free -\/$>$ F\+L\+S\+\_\+\+F\+R\+EE
+\item Fls\+Get\+Value -\/$>$ F\+L\+S\+\_\+\+G\+ET
+\item Fls\+Set\+Value -\/$>$ F\+L\+S\+\_\+\+S\+ET
+\end{DoxyItemize}
+
+\begin{DoxyAuthor}{Author}
+Gabriele Proietti Mattia \href{mailto:gabry.gabry@hotmail.it}{\tt gabry.\+gabry@hotmail.\+it} 
+
+Alexandru Daniel Tufa \href{mailto:alex.tufa94@gmail.com}{\tt alex.\+tufa94@gmail.\+com} 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+2018-\/05-\/07 
+\end{DoxyDate}

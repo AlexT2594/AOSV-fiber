@@ -1,0 +1,601 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.8.14">
+  <compounddef id="device_8c" kind="file" language="C++">
+    <compoundname>device.c</compoundname>
+    <includes refid="device_8h" local="yes">device.h</includes>
+    <incdepgraph>
+      <node id="123">
+        <label>linux/list.h</label>
+      </node>
+      <node id="126">
+        <label>linux/semaphore.h</label>
+      </node>
+      <node id="121">
+        <label>linux/hashtable.h</label>
+      </node>
+      <node id="122">
+        <label>linux/kernel.h</label>
+      </node>
+      <node id="113">
+        <label>device.h</label>
+        <link refid="device_8h"/>
+        <childnode refid="114" relation="include">
+        </childnode>
+        <childnode refid="115" relation="include">
+        </childnode>
+        <childnode refid="116" relation="include">
+        </childnode>
+        <childnode refid="118" relation="include">
+        </childnode>
+        <childnode refid="119" relation="include">
+        </childnode>
+        <childnode refid="129" relation="include">
+        </childnode>
+        <childnode refid="120" relation="include">
+        </childnode>
+        <childnode refid="121" relation="include">
+        </childnode>
+        <childnode refid="117" relation="include">
+        </childnode>
+        <childnode refid="122" relation="include">
+        </childnode>
+        <childnode refid="130" relation="include">
+        </childnode>
+        <childnode refid="124" relation="include">
+        </childnode>
+        <childnode refid="125" relation="include">
+        </childnode>
+        <childnode refid="126" relation="include">
+        </childnode>
+        <childnode refid="127" relation="include">
+        </childnode>
+        <childnode refid="128" relation="include">
+        </childnode>
+      </node>
+      <node id="124">
+        <label>linux/module.h</label>
+      </node>
+      <node id="112">
+        <label>src/device.c</label>
+        <link refid="device_8c"/>
+        <childnode refid="113" relation="include">
+        </childnode>
+      </node>
+      <node id="120">
+        <label>linux/fs.h</label>
+      </node>
+      <node id="127">
+        <label>linux/slab.h</label>
+      </node>
+      <node id="115">
+        <label>core.h</label>
+        <link refid="core_8h"/>
+        <childnode refid="114" relation="include">
+        </childnode>
+        <childnode refid="116" relation="include">
+        </childnode>
+        <childnode refid="118" relation="include">
+        </childnode>
+        <childnode refid="119" relation="include">
+        </childnode>
+        <childnode refid="120" relation="include">
+        </childnode>
+        <childnode refid="121" relation="include">
+        </childnode>
+        <childnode refid="117" relation="include">
+        </childnode>
+        <childnode refid="122" relation="include">
+        </childnode>
+        <childnode refid="123" relation="include">
+        </childnode>
+        <childnode refid="124" relation="include">
+        </childnode>
+        <childnode refid="125" relation="include">
+        </childnode>
+        <childnode refid="126" relation="include">
+        </childnode>
+        <childnode refid="127" relation="include">
+        </childnode>
+        <childnode refid="128" relation="include">
+        </childnode>
+      </node>
+      <node id="125">
+        <label>linux/sched/task_stack.h</label>
+      </node>
+      <node id="117">
+        <label>linux/ioctl.h</label>
+      </node>
+      <node id="130">
+        <label>linux/miscdevice.h</label>
+      </node>
+      <node id="119">
+        <label>asm/ptrace.h</label>
+      </node>
+      <node id="128">
+        <label>linux/uaccess.h</label>
+      </node>
+      <node id="116">
+        <label>ioctlcmd.h</label>
+        <link refid="ioctlcmd_8h"/>
+        <childnode refid="117" relation="include">
+        </childnode>
+      </node>
+      <node id="114">
+        <label>common.h</label>
+        <link refid="common_8h_source"/>
+      </node>
+      <node id="129">
+        <label>linux/cdev.h</label>
+      </node>
+      <node id="118">
+        <label>asm/current.h</label>
+      </node>
+    </incdepgraph>
+      <sectiondef kind="var">
+      <memberdef kind="variable" id="device_8c_1a721753eea4b519b7edb413124b70651d" prot="public" static="yes" mutable="no">
+        <type><ref refid="device_8h_1ad8cf304de032bd5afa605f8bbbc8ff63" kindref="member">fiber_dev_t</ref></type>
+        <definition>fiber_dev_t fiber_dev</definition>
+        <argsstring></argsstring>
+        <name>fiber_dev</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/device.c" line="24" column="1" bodyfile="src/device.c" bodystart="24" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="device_8c_1a2dbe927c6efd446935b8ef602591f103" prot="public" static="yes" mutable="no">
+        <type>int</type>
+        <definition>int is_device_open</definition>
+        <argsstring></argsstring>
+        <name>is_device_open</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/device.c" line="25" column="1" bodyfile="src/device.c" bodystart="25" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="device_8c_1a66f561333655d8415c9366f66793e709" prot="public" static="yes" mutable="no">
+        <type>char</type>
+        <definition>char msg[BUF_LEN]</definition>
+        <argsstring>[BUF_LEN]</argsstring>
+        <name>msg</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/device.c" line="26" column="1" bodyfile="src/device.c" bodystart="26" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="device_8c_1a0274258b24ca3e56ae7c37b809d1a4a6" prot="public" static="yes" mutable="no">
+        <type>char *</type>
+        <definition>char* msg_ptr</definition>
+        <argsstring></argsstring>
+        <name>msg_ptr</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/device.c" line="27" column="1" bodyfile="src/device.c" bodystart="27" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="device_8c_1a28ee7ed9613033920e733c9da671f79c" prot="public" static="yes" mutable="no">
+        <type>struct file_operations</type>
+        <definition>struct file_operations fops</definition>
+        <argsstring></argsstring>
+        <name>fops</name>
+        <initializer>= {
+    .read = device_read,
+    .write = device_write,
+    .open = device_open,
+    .release = device_release,
+    .unlocked_ioctl = fiber_ioctl,
+    .compat_ioctl = fiber_ioctl
+}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/device.c" line="27" column="1" bodyfile="src/device.c" bodystart="30" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="device_8c_1adcb38a0fc5454e2ee89a2c640ecb9335" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int device_open</definition>
+        <argsstring>(struct inode *, struct file *)</argsstring>
+        <name>device_open</name>
+        <param>
+          <type>struct inode *</type>
+          <defname>inode</defname>
+        </param>
+        <param>
+          <type>struct file *</type>
+          <defname>filp</defname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/device.c" line="14" column="1" bodyfile="src/device.c" bodystart="141" bodyend="155"/>
+      </memberdef>
+      <memberdef kind="function" id="device_8c_1af751b2a6d592d32f8b7cd641b619ced4" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int device_release</definition>
+        <argsstring>(struct inode *, struct file *)</argsstring>
+        <name>device_release</name>
+        <param>
+          <type>struct inode *</type>
+          <defname>inode</defname>
+        </param>
+        <param>
+          <type>struct file *</type>
+          <defname>filp</defname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/device.c" line="15" column="1" bodyfile="src/device.c" bodystart="160" bodyend="172"/>
+      </memberdef>
+      <memberdef kind="function" id="device_8c_1aa3fa1f55cdb57db3fba3bd368324d81b" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>static ssize_t device_read</definition>
+        <argsstring>(struct file *, char *, size_t, loff_t *)</argsstring>
+        <name>device_read</name>
+        <param>
+          <type>struct file *</type>
+          <defname>filp</defname>
+        </param>
+        <param>
+          <type>char *</type>
+          <defname>buffer</defname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <defname>length</defname>
+        </param>
+        <param>
+          <type>loff_t *</type>
+          <defname>offset</defname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/device.c" line="16" column="1" bodyfile="src/device.c" bodystart="178" bodyend="210"/>
+      </memberdef>
+      <memberdef kind="function" id="device_8c_1af931fb67b44c0789b9986ef692ccc027" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>static ssize_t device_write</definition>
+        <argsstring>(struct file *, const char *, size_t, loff_t *)</argsstring>
+        <name>device_write</name>
+        <param>
+          <type>struct file *</type>
+          <defname>filp</defname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <defname>buf</defname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <defname>len</defname>
+        </param>
+        <param>
+          <type>loff_t *</type>
+          <defname>off</defname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/device.c" line="17" column="1" bodyfile="src/device.c" bodystart="215" bodyend="217"/>
+      </memberdef>
+      <memberdef kind="function" id="device_8c_1aee71f2df7c40c8553a7e3796940f08ca" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>long</type>
+        <definition>static long fiber_ioctl</definition>
+        <argsstring>(struct file *filp, unsigned int cmd, unsigned long arg)</argsstring>
+        <name>fiber_ioctl</name>
+        <param>
+          <type>struct file *</type>
+          <declname>filp</declname>
+        </param>
+        <param>
+          <type>unsigned int</type>
+          <declname>cmd</declname>
+        </param>
+        <param>
+          <type>unsigned long</type>
+          <declname>arg</declname>
+        </param>
+        <briefdescription>
+<para>The main ioctl function, dispatcher of all the exposed capabilities of the module - aka syscalls. Inspired by <ulink url="https://static.lwn.net/images/pdf/LDD3/ch06.pdf">https://static.lwn.net/images/pdf/LDD3/ch06.pdf</ulink>. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>inode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>filp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para></para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cmd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>command number </para></parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>arg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>possible pointer to a data structure in user space </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/device.c" line="18" column="1" bodyfile="src/device.c" bodystart="85" bodyend="135"/>
+      </memberdef>
+      <memberdef kind="function" id="device_8c_1a88bd4adb20dc9040ae78f5b4036b61ab" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int init_device</definition>
+        <argsstring>(void)</argsstring>
+        <name>init_device</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Init the device inspired by <ulink url="https://www.linuxjournal.com/article/2920">https://www.linuxjournal.com/article/2920</ulink>. </para>        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>int </para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/device.c" line="45" column="1" bodyfile="src/device.c" bodystart="45" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="function" id="device_8c_1a80ad9d4cfc87c34e428952a2d24b73e5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void destroy_device</definition>
+        <argsstring>(void)</argsstring>
+        <name>destroy_device</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Destroy the device. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/device.c" line="65" column="1" bodyfile="src/device.c" bodystart="65" bodyend="69"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>This file contains the implementation of the char device. </para>    </briefdescription>
+    <detaileddescription>
+<para><simplesect kind="author"><para>Gabriele Proietti Mattia <ulink url="mailto:gabry.gabry@hotmail.it">gabry.gabry@hotmail.it</ulink> </para></simplesect>
+<simplesect kind="author"><para>Alexandru Daniel Tufa <ulink url="mailto:alex.tufa94@gmail.com">alex.tufa94@gmail.com</ulink> </para></simplesect>
+<simplesect kind="date"><para>2018-05-06 </para></simplesect>
+</para>    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"></codeline>
+<codeline lineno="9"><highlight class="preprocessor">#include<sp/>&quot;<ref refid="device_8h" kindref="compound">device.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/>Static<sp/>functions</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>device_open(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>inode<sp/>*,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>file<sp/>*);</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>device_release(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>inode<sp/>*,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>file<sp/>*);</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>ssize_t<sp/>device_read(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>file<sp/>*,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">,<sp/>loff_t<sp/>*);</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>ssize_t<sp/>device_write(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>file<sp/>*,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">,<sp/>loff_t<sp/>*);</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/>fiber_ioctl(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>file<sp/>*filp,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>cmd,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/>arg);</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>Variables</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structfiber__dev" kindref="compound">fiber_dev_t</ref><sp/><ref refid="structfiber__dev" kindref="compound">fiber_dev</ref>;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>is_device_open<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>msg[BUF_LEN];</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*msg_ptr;</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="comment">//<sp/>clang-format<sp/>off</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">file_operations<sp/>fops<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>.read<sp/>=<sp/>device_read,</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/>.write<sp/>=<sp/>device_write,</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/>.open<sp/>=<sp/>device_open,</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>.release<sp/>=<sp/>device_release,</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/>.unlocked_ioctl<sp/>=<sp/>fiber_ioctl,</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>.compat_ioctl<sp/>=<sp/>fiber_ioctl</highlight></codeline>
+<codeline lineno="37"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="comment">//<sp/>clang-format<sp/>on</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45" refid="device_8c_1a88bd4adb20dc9040ae78f5b4036b61ab" refkind="member"><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="device_8c_1a88bd4adb20dc9040ae78f5b4036b61ab" kindref="member">init_device</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>ret<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structfiber__dev" kindref="compound">fiber_dev</ref>.device.minor<sp/>=<sp/>MISC_DYNAMIC_MINOR;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structfiber__dev" kindref="compound">fiber_dev</ref>.device.name<sp/>=<sp/>FIBER_DEVICE_NAME;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structfiber__dev" kindref="compound">fiber_dev</ref>.device.mode<sp/>=<sp/>0666;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structfiber__dev" kindref="compound">fiber_dev</ref>.device.fops<sp/>=<sp/>&amp;fops;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>register<sp/>the<sp/>device</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/>ret<sp/>=<sp/>misc_register(&amp;(<ref refid="structfiber__dev" kindref="compound">fiber_dev</ref>.device));</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ret<sp/>&lt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>printk(KERN_ALERT<sp/>MODULE_NAME<sp/>DEVICE_LOG<sp/></highlight><highlight class="stringliteral">&quot;/dev/&quot;</highlight><highlight class="normal"><sp/>FIBER_DEVICE_NAME<sp/></highlight><highlight class="stringliteral">&quot;<sp/>creation<sp/>error&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-1;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/>printk(KERN_DEBUG<sp/>MODULE_NAME<sp/>DEVICE_LOG<sp/></highlight><highlight class="stringliteral">&quot;/dev/&quot;</highlight><highlight class="normal"><sp/>FIBER_DEVICE_NAME<sp/></highlight><highlight class="stringliteral">&quot;<sp/>successfully<sp/>created&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>SUCCESS;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65" refid="device_8c_1a80ad9d4cfc87c34e428952a2d24b73e5" refkind="member"><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="device_8c_1a80ad9d4cfc87c34e428952a2d24b73e5" kindref="member">destroy_device</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>deregister<sp/>the<sp/>device</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/>misc_deregister(&amp;(<ref refid="structfiber__dev" kindref="compound">fiber_dev</ref>.device));</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>printk(KERN_DEBUG<sp/>MODULE_NAME<sp/>DEVICE_LOG<sp/></highlight><highlight class="stringliteral">&quot;/dev/&quot;</highlight><highlight class="normal"><sp/>FIBER_DEVICE_NAME<sp/></highlight><highlight class="stringliteral">&quot;<sp/>successfully<sp/>destroyed&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="72"><highlight class="comment"><sp/>*<sp/>Implementation<sp/>of<sp/>static<sp/>functions</highlight></codeline>
+<codeline lineno="73"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/>fiber_ioctl(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>file<sp/>*filp,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>cmd,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">long</highlight><highlight class="normal"><sp/>arg)<sp/>{</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>err<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>retval<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">pt_regs<sp/>*regs<sp/>=<sp/>task_pt_regs(current);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>printk(KERN_DEBUG<sp/>MODULE_NAME<sp/>DEVICE_LOG<sp/></highlight><highlight class="stringliteral">&quot;Called<sp/>IOCTL<sp/>with<sp/>cmd<sp/>%d&quot;</highlight><highlight class="normal">,<sp/>_IOC_NR(cmd));</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>check<sp/>correctness<sp/>of<sp/>type<sp/>and<sp/>command<sp/>number</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(_IOC_TYPE(cmd)<sp/>!=<sp/>FIBER_IOC_MAGIC)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-ENOTTY;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(_IOC_NR(cmd)<sp/>&gt;<sp/>FIBER_IOC_MAXNR)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-ENOTTY;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>check<sp/>addresses<sp/>before<sp/>performing<sp/>operations</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(_IOC_DIR(cmd)<sp/>&amp;<sp/>_IOC_READ)</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>err<sp/>=<sp/>!access_ok(VERIFY_WRITE,<sp/>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>__user<sp/>*)arg,<sp/>_IOC_SIZE(cmd));</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(_IOC_DIR(cmd)<sp/>&amp;<sp/>_IOC_WRITE)</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>err<sp/>=<sp/>!access_ok(VERIFY_READ,<sp/>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>__user<sp/>*)arg,<sp/>_IOC_SIZE(cmd));</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(err)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-EFAULT;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(cmd)<sp/>{</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>FIBER_IOCRESET:</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>FIBER_IOC_CONVERTTHREADTOFIBER:</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>printk(KERN_DEBUG<sp/>MODULE_NAME<sp/>DEVICE_LOG</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;Called<sp/>FIBER_IOC_CONVERTTHREADTOFIBER<sp/>from<sp/>pid<sp/>%d,<sp/>tgid<sp/>%d&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>current-&gt;pid,<sp/>current-&gt;tgid);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="core_8h_1a62235692d124309201f915bec1a89374" kindref="member">convert_thread_to_fiber</ref>();</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>FIBER_IOC_CREATEFIBER:</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>printk(KERN_DEBUG<sp/>MODULE_NAME<sp/>DEVICE_LOG</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;Called<sp/>FIBER_IOC_CREATEFIBER<sp/>from<sp/>pid<sp/>%d,<sp/>tgid<sp/>%d&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>current-&gt;pid,<sp/>current-&gt;tgid);</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>printk(KERN_DEBUG<sp/>MODULE_NAME<sp/>DEVICE_LOG<sp/></highlight><highlight class="stringliteral">&quot;Passed<sp/>arg<sp/>%lu&quot;</highlight><highlight class="normal">,<sp/>arg);</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>set<sp/>rip<sp/>to<sp/>desired<sp/>function</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>regs-&gt;ip<sp/>=<sp/>arg;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>FIBER_IOC_FLS_ALLOC:</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>call<sp/>__get_user<sp/>for<sp/>getting<sp/>the<sp/>passed<sp/>data<sp/>structure</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>FIBER_IOC_FLS_FREE:</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>call<sp/>__get_user<sp/>for<sp/>getting<sp/>the<sp/>passed<sp/>data<sp/>structure</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>FIBER_IOC_FLS_GET:</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>call<sp/>__get_user<sp/>for<sp/>getting<sp/>the<sp/>passed<sp/>data<sp/>structure</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>FIBER_IOC_FLS_SET:</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>call<sp/>__get_user<sp/>for<sp/>getting<sp/>the<sp/>passed<sp/>data<sp/>structure</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>retval;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="138"><highlight class="comment"><sp/>*<sp/>Called<sp/>when<sp/>a<sp/>process<sp/>tries<sp/>to<sp/>open<sp/>the<sp/>device<sp/>file,<sp/>like</highlight></codeline>
+<codeline lineno="139"><highlight class="comment"><sp/>*<sp/>&quot;cat<sp/>/dev/mycharfile&quot;</highlight></codeline>
+<codeline lineno="140"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>device_open(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>inode<sp/>*inode,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>file<sp/>*filp)<sp/>{</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>counter<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(is_device_open)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-EBUSY;</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/>is_device_open++;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/>sprintf(msg,<sp/></highlight><highlight class="stringliteral">&quot;I<sp/>already<sp/>told<sp/>you<sp/>%d<sp/>times<sp/>Hello<sp/>world!\n&quot;</highlight><highlight class="normal">,<sp/>counter++);</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/>msg_ptr<sp/>=<sp/>msg;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="150"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>TODO:<sp/>comment<sp/>out<sp/>the<sp/>line<sp/>below<sp/>to<sp/>have<sp/>some<sp/>fun!</highlight></codeline>
+<codeline lineno="151"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/>try_module_get(THIS_MODULE);</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>SUCCESS;</highlight></codeline>
+<codeline lineno="155"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="158"><highlight class="comment"><sp/>*<sp/>Called<sp/>when<sp/>a<sp/>process<sp/>closes<sp/>the<sp/>device<sp/>file.</highlight></codeline>
+<codeline lineno="159"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>device_release(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>inode<sp/>*inode,<sp/></highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>file<sp/>*filp)<sp/>{</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/>is_device_open--;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="164"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>Decrement<sp/>the<sp/>usage<sp/>count,<sp/>or<sp/>else<sp/>once<sp/>you<sp/>opened<sp/>the<sp/>file,<sp/>you&apos;ll<sp/>never</highlight></codeline>
+<codeline lineno="165"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>get<sp/>rid<sp/>of<sp/>the<sp/>module.</highlight></codeline>
+<codeline lineno="166"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="167"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>TODO:<sp/>comment<sp/>out<sp/>the<sp/>line<sp/>below<sp/>to<sp/>have<sp/>some<sp/>fun!</highlight></codeline>
+<codeline lineno="168"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/>module_put(THIS_MODULE);</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>SUCCESS;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="175"><highlight class="comment"><sp/>*<sp/>Called<sp/>when<sp/>a<sp/>process,<sp/>which<sp/>already<sp/>opened<sp/>the<sp/>dev<sp/>file,<sp/>attempts<sp/>to<sp/>read</highlight></codeline>
+<codeline lineno="176"><highlight class="comment"><sp/>*<sp/>from<sp/>it.</highlight></codeline>
+<codeline lineno="177"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>ssize_t<sp/>device_read(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>file<sp/>*filp,<sp/></highlight><highlight class="comment">/*<sp/>see<sp/>include/linux/fs.h<sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*buffer,<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>buffer<sp/>to<sp/>fill<sp/>with<sp/>data<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>length,<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>length<sp/>of<sp/>the<sp/>buffer<sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>loff_t<sp/>*offset)<sp/>{</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="183"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>Number<sp/>of<sp/>bytes<sp/>actually<sp/>written<sp/>to<sp/>the<sp/>buffer</highlight></codeline>
+<codeline lineno="184"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>bytes_read<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="188"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>If<sp/>we&apos;re<sp/>at<sp/>the<sp/>end<sp/>of<sp/>the<sp/>message,<sp/>return<sp/>0<sp/>signifying<sp/>end<sp/>of<sp/>file.</highlight></codeline>
+<codeline lineno="189"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(*msg_ptr<sp/>==<sp/>0)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="193"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>Actually<sp/>put<sp/>the<sp/>data<sp/>into<sp/>the<sp/>buffer</highlight></codeline>
+<codeline lineno="194"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(length<sp/>&amp;&amp;<sp/>*msg_ptr)<sp/>{</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="197"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>The<sp/>buffer<sp/>is<sp/>in<sp/>the<sp/>user<sp/>data<sp/>segment,<sp/>not<sp/>the<sp/>kernel<sp/>segment<sp/>so<sp/>&quot;*&quot;</highlight></codeline>
+<codeline lineno="198"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>assignment<sp/>won&apos;t<sp/>work.<sp/>We<sp/>have<sp/>to<sp/>use<sp/>put_user<sp/>which<sp/>copies<sp/>data<sp/>from<sp/>the</highlight></codeline>
+<codeline lineno="199"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>kernel<sp/>data<sp/>segment<sp/>to<sp/>the<sp/>user<sp/>data<sp/>segment.</highlight></codeline>
+<codeline lineno="200"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>put_user(*(msg_ptr++),<sp/>buffer++);</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>length--;</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bytes_read++;</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="207"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>Most<sp/>read<sp/>functions<sp/>return<sp/>the<sp/>number<sp/>of<sp/>bytes<sp/>put<sp/>into<sp/>the<sp/>buffer</highlight></codeline>
+<codeline lineno="208"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>bytes_read;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="213"><highlight class="comment"><sp/>*<sp/>Called<sp/>when<sp/>a<sp/>process<sp/>writes<sp/>to<sp/>dev<sp/>file:<sp/>echo<sp/>&quot;hi&quot;<sp/>&gt;<sp/>/dev/hello</highlight></codeline>
+<codeline lineno="214"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>ssize_t<sp/>device_write(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/>file<sp/>*filp,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len,<sp/>loff_t<sp/>*off)<sp/>{</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="217"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/device.c"/>
+  </compounddef>
+</doxygen>
