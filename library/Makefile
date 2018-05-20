@@ -2,7 +2,7 @@ CC := gcc
 SRCDIR := src
 INCDIR := include
 BUILDDIR := build
-DOCDIR := doc
+DOCDIR := doxy
 CFLAGS := -std=c11 -Wall
 LIBS := -lpthread
 INC := -Iinclude

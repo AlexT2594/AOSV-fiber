@@ -1,7 +1,0 @@
-<map id="include/fiber.h" name="include/fiber.h">
-<area shape="rect" id="node2" href="$common_8h_source.html" title="common.h" alt="" coords="1789,229,1879,256"/>
-<area shape="rect" id="node3" href="$device_8h.html" title="This file contains definitions and macros for the device of the module. " alt="" coords="1055,80,1133,107"/>
-<area shape="rect" id="node20" href="$proc_8h.html" title="This file contains definitions and macros for the proc part of the module. " alt="" coords="1872,80,1935,107"/>
-<area shape="rect" id="node4" href="$core_8h.html" title="The head of the core part of the module. " alt="" coords="759,155,821,181"/>
-<area shape="rect" id="node5" href="$ioctlcmd_8h.html" title="This file contains definitions of ioctl commands. " alt="" coords="441,229,531,256"/>
-</map>

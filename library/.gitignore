@@ -76,3 +76,4 @@ dkms.conf
 bin/
 build/
 lib/
+doxy/

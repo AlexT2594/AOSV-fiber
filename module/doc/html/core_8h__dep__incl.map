@@ -1,7 +1,0 @@
-<map id="include/core.h" name="include/core.h">
-<area shape="rect" id="node2" href="$device_8h.html" title="This file contains definitions and macros for the device of the module. " alt="" coords="63,80,191,107"/>
-<area shape="rect" id="node6" href="$core_8c.html" title="This file contains the implementation of all the core functions of the module. " alt="" coords="216,80,300,107"/>
-<area shape="rect" id="node3" href="$fiber_8h.html" title="This file contains definitions and macros of the starting point part of the module. " alt="" coords="5,155,119,181"/>
-<area shape="rect" id="node5" href="$device_8c.html" title="This file contains the implementation of the char device. " alt="" coords="143,155,242,181"/>
-<area shape="rect" id="node4" href="$fiber_8c.html" title="This file is the starting point of the module. " alt="" coords="20,229,104,256"/>
-</map>
