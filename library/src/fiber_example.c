@@ -1,12 +1,16 @@
 #include "fiber.h"
 #include <pthread.h>
 
-int hello();
+void hello(void *args);
 
 int main(int argc, char **argv) {
     printf("Starting fiber test!\n");
     ConvertThreadToFiber();
-    ConvertThreadToFiber();
+    int a = 5;
+    int my_new_fiber = CreateFiber(&hello, &a);
+    printf("My new fid is %d\n", my_new_fiber);
+    SwitchToFiber(my_new_fiber);
+    // ConvertThreadToFiber();
     // pthread_t t1;
     // pthread_t t2;
     // pthread_create(&t1, NULL, ConvertThreadToFiber, NULL);
@@ -18,4 +22,4 @@ int main(int argc, char **argv) {
     exit(EXIT_SUCCESS);
 }
 
-int hello() { printf("Hello called"); }
+void hello(void *args) { printf("Hello called\n"); }

@@ -17,7 +17,8 @@
 #define STACK_SIZE 16384
 
 int ConvertThreadToFiber();
-int CreateFiber(void *(*function)(void *));
+int CreateFiber(void (*function)(void *), void *args);
+int SwitchToFiber(unsigned fid);
 
 int create_context();
 

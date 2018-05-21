@@ -51,17 +51,6 @@ int create_fiber(fiber_params_t *params);
 int switch_to_fiber(unsigned fid);
 
 /**
- * @brief Params to be passed by the library when creating or converting to a fiber
- *
- */
-typedef struct fiber_params {
-    unsigned long stack_addr; /**< The stack starting address allocated by the library */
-    unsigned long function; /**< The function pointer passed by the user, that will be the starting
-                               point of the fiber */
-    unsigned long function_args; /**< Pointer to params for fiber_params::function */
-} fiber_params_t;
-
-/**
  * @brief The state of the fiber
  *
  */

@@ -96,7 +96,7 @@ int convert_thread_to_fiber() {
         fiber_node->created_by = current->pid;
         fiber_node->run_by = current->pid;
         memcpy(&fiber_node->regs, task_pt_regs(current), sizeof(struct pt_regs));
-        fiber_node->entry_point = fiber_node->regs->ip;
+        fiber_node->entry_point = fiber_node->regs.ip;
         fiber_node->success_activations_count = 1;
         fiber_node->failed_activations_count = 0;
         fiber_node->total_time = 0;
@@ -137,7 +137,40 @@ int convert_thread_to_fiber() {
  * @return int the id of the newly created fiber otherwise ERR_NOT_FIBERED if the thread is not
  * *fiber-enabled*
  */
-int create_fiber(fiber_params_t *params) { return 0; }
+int create_fiber(fiber_params_t *params) {
+    fibered_process_node_t *fibered_process_node;
+    fiber_node_t *fiber_node;
+    fiber_params_t params_kern;
+    copy_from_user(&params_kern, params, sizeof(fiber_params_t));
+    // check if process if fiber enabled
+    printk(KERN_DEBUG " Called create_fiber");
+    check_if_exists(fibered_process_node, &fibered_processes_list_head.list, pid, current->tgid,
+                    list, fibered_process_node_t);
+    if (fibered_process_node == NULL) return -ERR_NOT_FIBERED;
+    // check if the thread is a fiber
+    check_if_exists(fiber_node, &fibered_process_node->fibers_list.list, run_by, current->pid, list,
+                    fiber_node_t);
+    if (fiber_node == NULL) return -ERR_NOT_FIBERED;
+    printk(KERN_DEBUG " Passed params_kern->function is %lu", params_kern.function);
+    // create the fiber node
+    create_list_entry(fiber_node, &fibered_process_node->fibers_list.list, list, fiber_node_t);
+    fiber_node->id = fibered_process_node->fibers_list.fibers_count;
+    printk(KERN_DEBUG " Created fiber is is %u", fiber_node->id);
+    fiber_node->created_by = current->pid;
+    // -> Set the registers
+    memcpy(&fiber_node->regs, task_pt_regs(current), sizeof(struct pt_regs));
+    fiber_node->regs.ip = params_kern.function;
+    fiber_node->regs.di = params_kern.function_args;
+    // fiber_node->regs.sp = params_kern.stack_addr;
+    fiber_node->base_user_stack_addr = params_kern.stack_addr;
+    // -> Save as reference
+    fiber_node->entry_point = params_kern.function;
+    fibered_process_node->fibers_list.fibers_count++;
+    fiber_node->success_activations_count = 0;
+    fiber_node->failed_activations_count = 0;
+    fiber_node->total_time = 0;
+    return fiber_node->id;
+}
 
 /**
  * @brief
@@ -146,11 +179,12 @@ int create_fiber(fiber_params_t *params) { return 0; }
  *
  * #Implementation
  * Before starting the actual function, we have to do some checks:
- * 1. Check if there exists a process in the @ref fibered_processes_list, which means there exists a
- * process with pid equal to the tgid of the thread (this means that the processes is
- * _fibered-enabled_)
+ * 1. Check if there exists a process in the @ref fibered_processes_list, which means there
+ * exists a process with pid equal to the tgid of the thread (this means that the processes
+ * is _fibered-enabled_)
  * 2. Check if the @c pid of the currently running thread is present in at least one of @ref
- * fibered_process::fibers_list::fiber::created_by, this means that this thread has called @ref
+ * fibered_process::fibers_list::fiber::created_by, this means that this thread has called
+ * @ref
  * @convert_thread_to_fiber
  * 3. Check if there exists a @ref fiber element with a fiber::id equal to @p fid
  * 4. Check if the fiber is already @ref fiber_state::RUNNING
@@ -159,13 +193,39 @@ int create_fiber(fiber_params_t *params) { return 0; }
  * - the @c pt_regs structure has to be saved to the current @ref fiber::regs
  * - TODO FPU @see https://wiki.osdev.org/SSE
  *
- * Afterwards we'll get replace the current @c pt_regs structure with the one previously saved.
+ * Afterwards we'll get replace the current @c pt_regs structure with the one previously
+ * saved.
  *
  * @return int 0 if everything went OK, otherwise:
- * - ERR_NOT_FIBERED if the the process is not fibered enabled, which means that none of its threads
- * has ever called @ref convert_thread_to_fiber
+ * - ERR_NOT_FIBERED if the the process is not fibered enabled, which means that none of its
+ * threads has ever called @ref convert_thread_to_fiber
  * - ERR_NOT_FIBERED if the thread has never done @ref convert_thread_to_fiber
  * - ERR_FIBER_NOT_EXISTS
  * - ERR_FIBER_ALREADY_RUNNING
  */
-int switch_to_fiber(unsigned fid) { return 0; }
+int switch_to_fiber(unsigned fid) {
+    fibered_process_node_t *fibered_process_node;
+    fiber_node_t *current_fiber_node;
+    fiber_node_t *requested_fiber_node;
+    // check if process if fiber enabled
+    check_if_exists(fibered_process_node, &fibered_processes_list_head.list, pid, current->tgid,
+                    list, fibered_process_node_t);
+    if (fibered_process_node == NULL) return -ERR_NOT_FIBERED;
+    // check if the thread is a fiber
+    check_if_exists(current_fiber_node, &fibered_process_node->fibers_list.list, run_by,
+                    current->pid, list, fiber_node_t);
+    if (current_fiber_node == NULL) return -ERR_NOT_FIBERED;
+    // find a fiber element with id as fid
+    check_if_exists(requested_fiber_node, &fibered_process_node->fibers_list.list, id, fid, list,
+                    fiber_node_t);
+    if (requested_fiber_node == NULL) return -ERR_FIBER_NOT_EXISTS;
+    if (requested_fiber_node->state != RUNNING) return -ERR_FIBER_ALREADY_RUNNING;
+    // switch to that fiber
+    // -> save the current registers
+    // TODO: FPU registers
+    memcpy(&current_fiber_node->regs, task_pt_regs(current), sizeof(struct pt_regs));
+    // -> replace pt_regs
+    memcpy(task_pt_regs(current), &requested_fiber_node->regs, sizeof(struct pt_regs));
+    printk(KERN_DEBUG MODULE_NAME CORE_LOG "Im changing IP to %lu", task_pt_regs(current)->ip);
+    return 0;
+}

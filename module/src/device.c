@@ -85,7 +85,6 @@ void destroy_device(void) {
 static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
     int err = 0;
     int retval = 0;
-    struct pt_regs *regs = task_pt_regs(current);
     printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "Called IOCTL with cmd %d", _IOC_NR(cmd));
 
     // check correctness of type and command number
@@ -112,9 +111,14 @@ static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) 
                "Called FIBER_IOC_CREATEFIBER from pid %d, tgid %d",
                current->pid, current->tgid);
         printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "Passed arg %lu", arg);
-        // set rip to desired function
-        regs->ip = arg;
-        return 0;
+        return create_fiber((fiber_params_t *)arg);
+        break;
+    case FIBER_IOC_SWITCHTOFIBER:
+        printk(KERN_DEBUG MODULE_NAME DEVICE_LOG
+               "Called FIBER_IOC_SWITCHTOFIBER from pid %d, tgid %d",
+               current->pid, current->tgid);
+        printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "Passed arg %lu", arg);
+        return switch_to_fiber((unsigned)arg);
         break;
     case FIBER_IOC_FLS_ALLOC:
         // call __get_user for getting the passed data structure
