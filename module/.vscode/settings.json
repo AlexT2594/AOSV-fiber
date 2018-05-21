@@ -20,7 +20,13 @@
     "current.h": "c",
     "ptrace.h": "c",
     "array": "c",
-    "string_view": "c"
+    "string_view": "c",
+    "istream": "c",
+    "ostream": "c",
+    "type_traits": "c",
+    "utility": "c",
+    "system_error": "cpp",
+    "typeinfo": "cpp"
   },
   "doxdocgen.generic.authorTag": "@author Gabriele Proietti Mattia <gabry.gabry@hotmail.it>\n * @author Alexandru Daniel Tufa <alex.tufa94@gmail.com>"
 }
