@@ -78,7 +78,7 @@ typedef enum fiber_state {
  */
 typedef struct fiber {
     unsigned id;                        /**< Unique if of the fiber, used for ... */
-    unsigned long starting_function;    /**< The starting fuction of the fiber */
+    unsigned long entry_point;          /**< The starting fuction of the fiber */
     unsigned long base_user_stack_addr; /** The starting address of the stack that will be
                                               allocated by the library */
     fiber_state_t state;                /**< The current state of the fiber */

@@ -57,13 +57,13 @@ static fibered_processes_list_t fibered_processes_list_head = {
  * fiber element are set in this way:
  * - fiber::id is set to the current number of fibers -1;
  * - fiber::regs is set with the function `task_pt_regs(current)`;
- * - fiber::starting_function is set to fiber::regs::ip;
+ * - fiber::entry_point is set to fiber::regs::ip;
  * - fiber::state is set to fiber_state::RUNNING;
  * - fiber::created_by is set to `current->pid`;
  * - fiber::success_activations_count is set to 1 if success else 0;
  * - fiber::failed_activations_count is set to 1 if fail else 0;
  * - fiber::total_time is set to 0;
- * - fiber::base_user_stack_addr is ignored;
+ * - fiber::base_user_stack_addr is ignored - because the stack address is saved in `regs`;
  *
  * @return int the id of the newly created fiber otherwise `ERR_THREAD_ALREADY_FIBER` if the
  * thread already has been converted to a fiber
@@ -95,11 +95,16 @@ int convert_thread_to_fiber() {
         fiber_node->id = fibered_process_node->fibers_list.fibers_count;
         fiber_node->created_by = current->pid;
         fiber_node->run_by = current->pid;
-        fibered_process_node->fibers_list.fibers_count++;
+        memcpy(&fiber_node->regs, task_pt_regs(current), sizeof(struct pt_regs));
+        fiber_node->entry_point = fiber_node->regs->ip;
+        fiber_node->success_activations_count = 1;
+        fiber_node->failed_activations_count = 0;
+        fiber_node->total_time = 0;
         fiber_node->state = RUNNING;
+        fibered_process_node->fibers_list.fibers_count++;
+        return fiber_node->id;
     } else
         return -ERR_THREAD_ALREADY_FIBER;
-    return 0;
 }
 
 /**
