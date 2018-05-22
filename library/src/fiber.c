@@ -38,8 +38,7 @@ int CreateFiber(void *(*function)(void *), void *args) {
     fiber_params_t *params = (fiber_params_t *)malloc(sizeof(fiber_params_t));
     params->function = (unsigned long)function;
     params->function_args = (unsigned long)args;
-    params->stack_addr = (unsigned long)malloc(STACK_CELLS * sizeof(unsigned long)) +
-                         (STACK_CELLS * sizeof(unsigned long));
+    params->stack_addr = (unsigned long)malloc(STACK_SIZE) + STACK_SIZE;
     // set the return address to the desired cleanup function, return address is the first cell of
     // the stack
     ((unsigned long *)params->stack_addr)[0] = (unsigned long)&safe_cleanup;

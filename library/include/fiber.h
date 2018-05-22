@@ -19,7 +19,7 @@
  * @brief The number of unsigned long cells that the stack will contain
  *
  */
-#define STACK_CELLS 2048
+#define STACK_SIZE 2048 *8
 
 int ConvertThreadToFiber();
 int CreateFiber(void *(*function)(void *), void *args);
