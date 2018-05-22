@@ -225,6 +225,8 @@ int switch_to_fiber(unsigned fid) {
     if (requested_fiber_node == NULL) return -ERR_FIBER_NOT_EXISTS;
     if (requested_fiber_node->state == RUNNING) return -ERR_FIBER_ALREADY_RUNNING;
     // switch to that fiber
+    current_fiber_node->state = IDLE;
+    requested_fiber_node->state = RUNNING;
     // -> save the current registers
     // TODO: FPU registers
     memcpy(&current_fiber_node->regs, task_pt_regs(current), sizeof(struct pt_regs));
