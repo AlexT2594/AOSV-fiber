@@ -7,7 +7,7 @@ int main(int argc, char **argv) {
     printf("Starting fiber test!\n");
     ConvertThreadToFiber();
     int a = 5;
-    int my_new_fiber = CreateFiber(&hello, &a);
+    int my_new_fiber = CreateFiber((void *)&hello, &a);
     printf("My new fid is %d\n", my_new_fiber);
     SwitchToFiber(my_new_fiber);
     // ConvertThreadToFiber();
@@ -23,6 +23,8 @@ int main(int argc, char **argv) {
 }
 
 void hello(void *args) {
+    int a = 3;
     printf("Hello called\n");
-    exit(EXIT_SUCCESS);
+    printf("a is %d\n", a);
+    // exit(EXIT_SUCCESS);
 }

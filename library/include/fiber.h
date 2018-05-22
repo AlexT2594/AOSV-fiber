@@ -9,15 +9,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stropts.h>
+#include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
 #define FIBER_DEV_PATH "/dev/fiber"
 
-#define STACK_SIZE 16384
+/**
+ * @brief The number of unsigned long cells that the stack will contain
+ *
+ */
+#define STACK_CELLS 2048
 
 int ConvertThreadToFiber();
-int CreateFiber(void (*function)(void *), void *args);
+int CreateFiber(void *(*function)(void *), void *args);
 int SwitchToFiber(unsigned fid);
 
 int create_context();
