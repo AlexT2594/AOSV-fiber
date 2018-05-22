@@ -143,7 +143,6 @@ int create_fiber(fiber_params_t *params) {
     fiber_params_t params_kern;
     copy_from_user(&params_kern, params, sizeof(fiber_params_t));
     // check if process if fiber enabled
-    printk(KERN_DEBUG " Called create_fiber");
     check_if_exists(fibered_process_node, &fibered_processes_list_head.list, pid, current->tgid,
                     list, fibered_process_node_t);
     if (fibered_process_node == NULL) return -ERR_NOT_FIBERED;
@@ -151,17 +150,22 @@ int create_fiber(fiber_params_t *params) {
     check_if_exists(fiber_node, &fibered_process_node->fibers_list.list, run_by, current->pid, list,
                     fiber_node_t);
     if (fiber_node == NULL) return -ERR_NOT_FIBERED;
-    printk(KERN_DEBUG " Passed params_kern->function is %lu", params_kern.function);
+    printk(KERN_DEBUG MODULE_NAME CORE_LOG "create_fiber Passed params_kern->function is %lu",
+           params_kern.function);
+    printk(KERN_DEBUG MODULE_NAME CORE_LOG "create_fiber Passed params_kern->stack_addr is %lu",
+           params_kern.stack_addr);
     // create the fiber node
     create_list_entry(fiber_node, &fibered_process_node->fibers_list.list, list, fiber_node_t);
     fiber_node->id = fibered_process_node->fibers_list.fibers_count;
-    printk(KERN_DEBUG " Created fiber is is %u", fiber_node->id);
+    printk(KERN_DEBUG MODULE_NAME CORE_LOG "create_fiber Created fiber id is %u", fiber_node->id);
     fiber_node->created_by = current->pid;
+    fiber_node->state = IDLE;
     // -> Set the registers
     memcpy(&fiber_node->regs, task_pt_regs(current), sizeof(struct pt_regs));
     fiber_node->regs.ip = params_kern.function;
     fiber_node->regs.di = params_kern.function_args;
-    // fiber_node->regs.sp = params_kern.stack_addr;
+    fiber_node->regs.sp = params_kern.stack_addr;
+    fiber_node->regs.bp = params_kern.stack_addr;
     fiber_node->base_user_stack_addr = params_kern.stack_addr;
     // -> Save as reference
     fiber_node->entry_point = params_kern.function;
@@ -219,7 +223,7 @@ int switch_to_fiber(unsigned fid) {
     check_if_exists(requested_fiber_node, &fibered_process_node->fibers_list.list, id, fid, list,
                     fiber_node_t);
     if (requested_fiber_node == NULL) return -ERR_FIBER_NOT_EXISTS;
-    if (requested_fiber_node->state != RUNNING) return -ERR_FIBER_ALREADY_RUNNING;
+    if (requested_fiber_node->state == RUNNING) return -ERR_FIBER_ALREADY_RUNNING;
     // switch to that fiber
     // -> save the current registers
     // TODO: FPU registers

@@ -22,4 +22,7 @@ int main(int argc, char **argv) {
     exit(EXIT_SUCCESS);
 }
 
-void hello(void *args) { printf("Hello called\n"); }
+void hello(void *args) {
+    printf("Hello called\n");
+    exit(EXIT_SUCCESS);
+}
