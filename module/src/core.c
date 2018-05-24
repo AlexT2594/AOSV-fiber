@@ -26,8 +26,8 @@ static fibered_processes_list_t fibered_processes_list = {
 // clang-format on
 */
 
-static fibered_processes_list_t fibered_processes_list_head = {
-    .list = LIST_HEAD_INIT(fibered_processes_list_head.list),
+static fibered_processes_list_t fibered_processes_list = {
+    .list = LIST_HEAD_INIT(fibered_processes_list.list),
     .processes_count = 0,
 };
 
@@ -73,14 +73,14 @@ int convert_thread_to_fiber() {
     fiber_node_t *fiber_node;
     // check if process if fiber enabled
     // check if process already created at least a fiber
-    check_if_exists(fibered_process_node, &fibered_processes_list_head.list, pid, current->tgid,
-                    list, fibered_process_node_t);
+    check_if_exists(fibered_process_node, &fibered_processes_list.list, pid, current->tgid, list,
+                    fibered_process_node_t);
     if (fibered_process_node == NULL) {
         // process has never created a fiber
         printk(KERN_DEBUG MODULE_NAME CORE_LOG "Fibered process does not exist");
-        create_list_entry(fibered_process_node, &fibered_processes_list_head.list, list,
+        create_list_entry(fibered_process_node, &fibered_processes_list.list, list,
                           fibered_process_node_t);
-        fibered_processes_list_head.processes_count++;
+        fibered_processes_list.processes_count++;
         fibered_process_node->pid = current->tgid;
         INIT_LIST_HEAD(&fibered_process_node->fibers_list.list);
         fibered_process_node->fibers_list.fibers_count = 0;
@@ -143,8 +143,8 @@ int create_fiber(fiber_params_t *params) {
     fiber_params_t params_kern;
     copy_from_user(&params_kern, params, sizeof(fiber_params_t));
     // check if process if fiber enabled
-    check_if_exists(fibered_process_node, &fibered_processes_list_head.list, pid, current->tgid,
-                    list, fibered_process_node_t);
+    check_if_exists(fibered_process_node, &fibered_processes_list.list, pid, current->tgid, list,
+                    fibered_process_node_t);
     if (fibered_process_node == NULL) return -ERR_NOT_FIBERED;
     // check if the thread is a fiber
     check_if_exists(fiber_node, &fibered_process_node->fibers_list.list, run_by, current->pid, list,
@@ -212,8 +212,8 @@ int switch_to_fiber(unsigned fid) {
     fiber_node_t *current_fiber_node;
     fiber_node_t *requested_fiber_node;
     // check if process if fiber enabled
-    check_if_exists(fibered_process_node, &fibered_processes_list_head.list, pid, current->tgid,
-                    list, fibered_process_node_t);
+    check_if_exists(fibered_process_node, &fibered_processes_list.list, pid, current->tgid, list,
+                    fibered_process_node_t);
     if (fibered_process_node == NULL) return -ERR_NOT_FIBERED;
     // check if the thread is a fiber
     check_if_exists(current_fiber_node, &fibered_process_node->fibers_list.list, run_by,
@@ -232,6 +232,39 @@ int switch_to_fiber(unsigned fid) {
     memcpy(&current_fiber_node->regs, task_pt_regs(current), sizeof(struct pt_regs));
     // -> replace pt_regs
     memcpy(task_pt_regs(current), &requested_fiber_node->regs, sizeof(struct pt_regs));
-    printk(KERN_DEBUG MODULE_NAME CORE_LOG "Im changing IP to %lu", task_pt_regs(current)->ip);
+    // close the device descriptor
+    close_device_descriptor();
+    return 0;
+}
+
+/**
+ * @brief Called when a process ends
+ *
+ * @return int
+ */
+int exit_fibered() {
+    fibered_process_node_t *curr_process = NULL;
+    fiber_node_t *curr_fiber = NULL;
+    fiber_node_t *temp_fiber = NULL;
+    // get the process node
+    check_if_exists(curr_process, &fibered_processes_list.list, pid, current->tgid, list,
+                    fibered_process_node_t);
+    if (curr_process == NULL) { return ERR_NOT_FIBERED; }
+
+    if (!list_empty(&curr_process->fibers_list.list)) {
+        list_for_each_entry_safe(curr_fiber, temp_fiber, &curr_process->fibers_list.list, list) {
+            // remove fiber from list
+            list_del(&curr_fiber->list);
+            // free fiber
+            kfree(curr_fiber);
+        }
+    }
+    // remove process from list
+    list_del(&curr_process->list);
+    // free process
+    kfree(curr_process);
+
+    printk(KERN_DEBUG MODULE_NAME CORE_LOG "Process pid %d exited gracefully for ending thread %d",
+           current->tgid, current->pid);
     return 0;
 }

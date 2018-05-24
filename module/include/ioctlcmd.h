@@ -35,8 +35,9 @@
 #define FIBER_IOC_FLS_FREE _IOW(FIBER_IOC_MAGIC, 5, int)
 #define FIBER_IOC_FLS_GET _IOR(FIBER_IOC_MAGIC, 6, int)
 #define FIBER_IOC_FLS_SET _IOW(FIBER_IOC_MAGIC, 7, int)
-
-#define FIBER_IOC_MAXNR 7
+#define FIBER_IOC_EXIT _IO(FIBER_IOC_MAGIC, 8)
+// the maximum number of syscall integer id
+#define FIBER_IOC_MAXNR 8
 
 // errors
 #define ERR_THREAD_ALREADY_FIBER 100

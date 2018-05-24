@@ -15,10 +15,13 @@
 #define __CORE_H
 
 #include "common.h"
+#include "device.h"
 #include "ioctlcmd.h"
 #include "utils.h"
+
 #include <asm/current.h>
 #include <asm/ptrace.h>
+#include <linux/fdtable.h>
 #include <linux/fs.h>
 #include <linux/hashtable.h>
 #include <linux/ioctl.h>
@@ -49,6 +52,8 @@ typedef struct fiber_params fiber_params_t;
 int convert_thread_to_fiber(void);
 int create_fiber(fiber_params_t *params);
 int switch_to_fiber(unsigned fid);
+// not explicitly callable by user
+int exit_fibered(void);
 
 /**
  * @brief The state of the fiber

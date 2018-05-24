@@ -83,8 +83,7 @@ void destroy_device(void) {
  * @param arg possible pointer to a data structure in user space
  */
 static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
-    int err = 0;
-    int retval = 0;
+    int err = 0, retval = 0;
     printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "Called IOCTL with cmd %d", _IOC_NR(cmd));
 
     // check correctness of type and command number
@@ -97,29 +96,18 @@ static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) 
         err = !access_ok(VERIFY_READ, (void __user *)arg, _IOC_SIZE(cmd));
     if (err) return -EFAULT;
 
+    printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "Called cmd %d from pid %d, tgid %d", _IOC_NR(cmd),
+           current->pid, current->tgid);
+
     switch (cmd) {
     case FIBER_IOCRESET:
         break;
     case FIBER_IOC_CONVERTTHREADTOFIBER:
-        printk(KERN_DEBUG MODULE_NAME DEVICE_LOG
-               "Called FIBER_IOC_CONVERTTHREADTOFIBER from pid %d, tgid %d",
-               current->pid, current->tgid);
         return convert_thread_to_fiber();
-        break;
     case FIBER_IOC_CREATEFIBER:
-        printk(KERN_DEBUG MODULE_NAME DEVICE_LOG
-               "Called FIBER_IOC_CREATEFIBER from pid %d, tgid %d",
-               current->pid, current->tgid);
-        printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "Passed arg %lu", arg);
         return create_fiber((fiber_params_t *)arg);
-        break;
     case FIBER_IOC_SWITCHTOFIBER:
-        printk(KERN_DEBUG MODULE_NAME DEVICE_LOG
-               "Called FIBER_IOC_SWITCHTOFIBER from pid %d, tgid %d",
-               current->pid, current->tgid);
-        printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "Passed arg %lu", arg);
         return switch_to_fiber((unsigned)arg);
-        break;
     case FIBER_IOC_FLS_ALLOC:
         // call __get_user for getting the passed data structure
         break;
@@ -132,6 +120,8 @@ static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) 
     case FIBER_IOC_FLS_SET:
         // call __get_user for getting the passed data structure
         break;
+    case FIBER_IOC_EXIT:
+        return exit_fibered();
     default:
         break;
     }
@@ -183,4 +173,41 @@ static ssize_t device_read(struct file *filp, /* see include/linux/fs.h   */
  */
 static ssize_t device_write(struct file *filp, const char *buf, size_t len, loff_t *off) {
     return 0;
+}
+
+/*
+ * Utils
+ */
+
+/**
+ * @brief Force close the device descriptor opened by the current process
+ *
+ * # Implementation
+ * The function searches in the file descriptor array of the current process if there is a file
+ * descriptor that is associated with a file object whose inode has as real device `i_rdev` a device
+ * with the same minor of our device. Since our device is a `miscdevice` the minor number of its
+ * `dev_t` will identify it uniquely in the system
+ *
+ * @return int The result of the called `sys_close` on that file descriptor
+ */
+int close_device_descriptor() {
+    struct file **fd_array;
+    struct fdtable *fd_table = &current->files->fdtab;
+    unsigned fd = 0;
+    int ret = 0;
+
+    rcu_read_lock();
+    fd_array = rcu_dereference(current->files->fdtab.fd);
+    for (fd = 0; fd < current->files->fdtab.max_fds; fd++) {
+        // check for an open fd with the same minor of the fiber device and if found close it
+        if (fd_is_open(fd, fd_table) &&
+            fiber_dev.device.minor == MINOR(fd_array[fd]->f_inode->i_rdev)) {
+            ret = sys_close(fd);
+            break;
+        }
+    }
+    rcu_read_unlock();
+
+    if (ret < 0) printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "Error while closing the fd");
+    return ret;
 }

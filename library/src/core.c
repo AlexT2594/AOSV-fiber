@@ -112,6 +112,27 @@ int SwitchToFiber(unsigned fid) {
     return ret;
 }
 
+/**
+ * @brief Tells the kernel module that the process is going to terminate
+ *
+ * @return int
+ */
+int ExitFibered() {
+    printf("Called ExitFibered\n");
+    int dev_fd = open(FIBER_DEV_PATH, O_RDWR, 0666);
+    if (dev_fd < 0) {
+        printf("Cannot open " FIBER_DEV_PATH ", errno %d. Try again later.\n", errno);
+        return -1;
+    }
+    int ret = ioctl(dev_fd, FIBER_IOC_EXIT);
+    if (ret < 0) {
+        printf("Error while calling ioctl on fiber ERRNO %d\n", errno);
+        return -1;
+    }
+    close(dev_fd);
+    return ret;
+}
+
 /*
  * Utils functions
  */
@@ -124,6 +145,7 @@ int SwitchToFiber(unsigned fid) {
  */
 void safe_cleanup() {
     printf("Safe cleanup called\n");
+    ExitFibered();
     clean_memory();
     exit(0);
 }

@@ -25,6 +25,7 @@
 #include <linux/sched/task_stack.h>
 #include <linux/semaphore.h>
 #include <linux/slab.h>
+#include <linux/syscalls.h>
 #include <linux/uaccess.h>
 
 #define DEVICE_LOG ": DEV: "
@@ -35,6 +36,8 @@
 
 int init_device(void);
 void destroy_device(void);
+// utils
+int close_device_descriptor(void);
 
 /*
  * Definitions
