@@ -24,7 +24,9 @@
  */
 #define create_list_entry(new, head, member, type)                                                 \
     new = kmalloc(sizeof(type), GFP_KERNEL);                                                       \
-    list_add_tail(&(new->member), head);
+    mutex_lock(&fiber_lock);                                                                       \
+    list_add_tail(&(new->member), head);                                                           \
+    mutex_unlock(&fiber_lock);
 
 /**
  * @brief Check if exist an entry (of type) in list pointed by head with field equal to value
@@ -38,6 +40,7 @@
  *
  */
 #define check_if_exists(result, head, field, value, member, type)                                  \
+    mutex_lock(&fiber_lock);                                                                       \
     result = NULL;                                                                                 \
     if (!list_empty(head)) {                                                                       \
         type *type_temp__ = NULL;                                                                  \
@@ -47,5 +50,6 @@
                 break;                                                                             \
             }                                                                                      \
         }                                                                                          \
-    }
+    }                                                                                              \
+    mutex_unlock(&fiber_lock);
 #endif

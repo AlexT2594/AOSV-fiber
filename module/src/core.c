@@ -26,6 +26,13 @@ static fibered_processes_list_t fibered_processes_list = {
 // clang-format on
 */
 
+/**
+ * @brief see Initialization of the module mutex
+ * see https://www.kernel.org/doc/htmldocs/kernel-locking/Examples.html
+ * It will be used everytime we have to access critical data structures
+ */
+static DEFINE_MUTEX(fiber_lock);
+
 static fibered_processes_list_t fibered_processes_list = {
     .list = LIST_HEAD_INIT(fibered_processes_list.list),
     .processes_count = 0,
@@ -141,7 +148,12 @@ int create_fiber(fiber_params_t *params) {
     fibered_process_node_t *fibered_process_node;
     fiber_node_t *fiber_node;
     fiber_params_t params_kern;
-    copy_from_user(&params_kern, params, sizeof(fiber_params_t));
+    int ret;
+    ret = copy_from_user(&params_kern, params, sizeof(fiber_params_t));
+    if(ret != 0) {
+        printk(KERN_ALERT MODULE_NAME CORE_LOG "copy_from_user didn't copy %d bytes",ret);
+        return -EFAULT;
+    }
     // check if process if fiber enabled
     check_if_exists(fibered_process_node, &fibered_processes_list.list, pid, current->tgid, list,
                     fibered_process_node_t);
@@ -251,6 +263,7 @@ int exit_fibered() {
                     fibered_process_node_t);
     if (curr_process == NULL) { return ERR_NOT_FIBERED; }
 
+    mutex_lock(&fiber_lock);
     if (!list_empty(&curr_process->fibers_list.list)) {
         list_for_each_entry_safe(curr_fiber, temp_fiber, &curr_process->fibers_list.list, list) {
             // remove fiber from list
@@ -263,7 +276,7 @@ int exit_fibered() {
     list_del(&curr_process->list);
     // free process
     kfree(curr_process);
-
+    mutex_unlock(&fiber_unlock);
     printk(KERN_DEBUG MODULE_NAME CORE_LOG "Process pid %d exited gracefully for ending thread %d",
            current->tgid, current->pid);
     return 0;

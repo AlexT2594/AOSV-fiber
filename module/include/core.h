@@ -32,6 +32,7 @@
 #include <linux/semaphore.h>
 #include <linux/slab.h>
 #include <linux/uaccess.h>
+#include <linux/mutex.h>
 
 #define CORE_LOG ": CORE: "
 

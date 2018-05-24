@@ -26,6 +26,7 @@ static int is_device_open = 0;
 static char msg[BUF_LEN];
 static char *msg_ptr;
 
+
 // clang-format off
 static struct file_operations fops = {
     .read = device_read,
