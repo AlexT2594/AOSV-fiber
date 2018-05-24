@@ -3,7 +3,7 @@ SRCDIR := src
 INCDIR := include
 BUILDDIR := build
 DOCDIR := doxy
-CFLAGS := -std=c11 -Wall
+CFLAGS := -std=gnu11 -Wall -g
 LIBS := -lpthread
 INC := -Iinclude
 
@@ -27,7 +27,7 @@ $(TARGET_LIB_DIR)/$(TARGET_LIB).a: $(BUILDDIR)/$(TARGET_LIB).o
 	@mkdir -p $(TARGET_LIB_DIR) 
 	@ar rcs $@ $^
 
-$(BUILDDIR)/$(TARGET_LIB).o: $(SRCDIR)/fiber.c $(INCDIR)/fiber.h
+$(BUILDDIR)/$(TARGET_LIB).o: $(SRCDIR)/core.c $(INCDIR)/*.h
 	@echo "==> Compiling library object..."
 	@mkdir -p $(BUILDDIR) 
 	@$(CC) $(CFLAGS) $(LIBS) $(INC) -c -o $@ $<

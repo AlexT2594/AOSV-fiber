@@ -1,5 +1,7 @@
 #include "fiber.h"
 #include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 void hello(void *args);
 

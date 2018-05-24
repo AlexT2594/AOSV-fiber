@@ -15,6 +15,9 @@
     "fiber.h": "c",
     "fcntl.h": "c",
     "ioctl.h": "c",
-    "stdlib.h": "c"
+    "stdlib.h": "c",
+    "stropts.h": "c",
+    "stat.h": "c",
+    "stdio.h": "c"
   }
 }
