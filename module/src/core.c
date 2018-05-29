@@ -150,8 +150,8 @@ int create_fiber(fiber_params_t *params) {
     fiber_params_t params_kern;
     int ret;
     ret = copy_from_user(&params_kern, params, sizeof(fiber_params_t));
-    if(ret != 0) {
-        printk(KERN_ALERT MODULE_NAME CORE_LOG "copy_from_user didn't copy %d bytes",ret);
+    if (ret != 0) {
+        printk(KERN_ALERT MODULE_NAME CORE_LOG "copy_from_user didn't copy %d bytes", ret);
         return -EFAULT;
     }
     // check if process if fiber enabled
@@ -276,7 +276,7 @@ int exit_fibered() {
     list_del(&curr_process->list);
     // free process
     kfree(curr_process);
-    mutex_unlock(&fiber_unlock);
+    mutex_unlock(&fiber_lock);
     printk(KERN_DEBUG MODULE_NAME CORE_LOG "Process pid %d exited gracefully for ending thread %d",
            current->tgid, current->pid);
     return 0;
