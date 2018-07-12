@@ -26,13 +26,15 @@
 #include <linux/hashtable.h>
 #include <linux/ioctl.h>
 #include <linux/kernel.h>
+#include <linux/kprobes.h>
 #include <linux/list.h>
 #include <linux/module.h>
+#include <linux/mutex.h>
 #include <linux/sched/task_stack.h>
 #include <linux/semaphore.h>
+#include <linux/signal.h>
 #include <linux/slab.h>
 #include <linux/uaccess.h>
-#include <linux/mutex.h>
 
 #define CORE_LOG ": CORE: "
 
@@ -50,11 +52,17 @@ typedef struct fiber_params fiber_params_t;
  * Exposed methods
  */
 
+int init_core(void);
+void destroy_core(void);
+// implementations core fns
 int convert_thread_to_fiber(void);
 int create_fiber(fiber_params_t *params);
 int switch_to_fiber(unsigned fid);
 // not explicitly callable by user
 int exit_fibered(void);
+// kprobe handlers
+int pre_exit_handler(struct kprobe *p, struct pt_regs *regs);
+void post_exit_handler(struct kprobe *p, struct pt_regs *regs, unsigned long flags);
 
 /**
  * @brief The state of the fiber

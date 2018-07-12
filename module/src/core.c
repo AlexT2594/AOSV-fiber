@@ -12,19 +12,7 @@
 /*
  * Variables
  */
-
-/**
- * @brief The variable of the core part that will contain the **fiber-enabled** processes
- *
-
-// clang-format off
-static fibered_processes_list_t fibered_processes_list = {
-    .head = NULL,
-    .tail = NULL,
-    .processes_count = 0
-};
-// clang-format on
-*/
+static struct kprobe kp;
 
 /**
  * @brief see Initialization of the module mutex
@@ -33,10 +21,40 @@ static fibered_processes_list_t fibered_processes_list = {
  */
 static DEFINE_MUTEX(fiber_lock);
 
+/**
+ * @brief The variable of the core part that will contain the **fiber-enabled** processes
+ */
 static fibered_processes_list_t fibered_processes_list = {
     .list = LIST_HEAD_INIT(fibered_processes_list.list),
     .processes_count = 0,
 };
+
+/*
+ * Kprobe implementation
+ */
+int pre_exit_handler(struct kprobe *p, struct pt_regs *regs) {
+    printk(KERN_DEBUG MODULE_NAME CORE_LOG "pre_exit_handler called by tgid %d", current->tgid);
+    return 0;
+}
+void post_exit_handler(struct kprobe *p, struct pt_regs *regs, unsigned long flags) {
+    printk(KERN_DEBUG MODULE_NAME CORE_LOG "pre_exit_handler called");
+}
+
+/**
+ * @brief Init the core module
+ *
+ */
+int init_core() {
+    // Initalize the kprobe handler
+    kp.pre_handler = pre_exit_handler;
+    kp.post_handler = post_exit_handler;
+    kp.addr = (kprobe_opcode_t *)kallsyms_lookup_name("do_exit");
+    // de-comment the following line to register the kbrobe
+    // register_kprobe(&kp);
+    return 0;
+}
+
+void destroy_core() { unregister_kprobe(&kp); }
 
 /*
  * Implementations
