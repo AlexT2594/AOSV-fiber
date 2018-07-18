@@ -21,6 +21,6 @@
     "stdio.h": "c"
   },
   "licenser.author": "Gabriele Proietti Mattia <gabry.gabry@hotmail.it> & Alexandru Daniel Tufa <alex.tufa94@gmail.com>",
-  "licenser.projectName": "Fiber (Library)",
+  "licenser.projectName": "Fibers (Library)",
   "licenser.license": "GPLv3"
 }
