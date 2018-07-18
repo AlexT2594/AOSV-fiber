@@ -19,5 +19,8 @@
     "stropts.h": "c",
     "stat.h": "c",
     "stdio.h": "c"
-  }
+  },
+  "licenser.author": "Gabriele Proietti Mattia <gabry.gabry@hotmail.it> & Alexandru Daniel Tufa <alex.tufa94@gmail.com>",
+  "licenser.projectName": "Fiber (Library)",
+  "licenser.license": "GPLv3"
 }

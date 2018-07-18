@@ -34,5 +34,8 @@
     "initializer_list": "c",
     "semaphore.h": "c"
   },
-  "doxdocgen.generic.authorTag": "@author Gabriele Proietti Mattia <gabry.gabry@hotmail.it>\n * @author Alexandru Daniel Tufa <alex.tufa94@gmail.com>"
+  "doxdocgen.generic.authorTag": "@author Gabriele Proietti Mattia <gabry.gabry@hotmail.it>\n * @author Alexandru Daniel Tufa <alex.tufa94@gmail.com>",
+  "licenser.author": "Gabriele Proietti Mattia <gabry.gabry@hotmail.it> & Alexandru Daniel Tufa <alex.tufa94@gmail.com>",
+  "licenser.projectName": "Fiber (Kernel Module)",
+  "licenser.license": "GPLv3"
 }

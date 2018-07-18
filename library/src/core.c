@@ -1,3 +1,33 @@
+/**
+ * Copyright (C) 2018 Gabriele Proietti Mattia <gabry.gabry@hotmail.it> & Alexandru Daniel Tufa
+ * <alex.tufa94@gmail.com>
+ *
+ * This file is part of Fiber (Library).
+ *
+ * Fiber (Library) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Fiber (Library) is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Fiber (Library).  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * @brief This file represents the core of the library
+ *
+ * @file core.c
+ * @author Gabriele Proietti Mattia <gabry.gabry@hotmail.it>
+ * @author Alexandru Daniel Tufa <alex.tufa94@gmail.com>
+ * @date 2018-07-18
+ */
+
 #include "core.h"
 
 /*
