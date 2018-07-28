@@ -38,6 +38,8 @@
 #include "utils.h"
 
 #include <asm/current.h>
+#include <asm/fpu/internal.h>
+#include <asm/fpu/types.h>
 #include <asm/ptrace.h>
 #include <linux/fdtable.h>
 #include <linux/fs.h>
@@ -107,6 +109,7 @@ typedef struct fiber {
 - `regs->ip` - The current instruction pointer;
 - `regs->sp` - The current stack pointer.
 */
+    struct fpu fpu_regs; /**< Used for saving the fpu registers*/
     pid_t
         created_by; /**< The `pid` of the process (`tgid` of every thread) that created the fiber */
     pid_t run_by;   /**< This field represents:

@@ -249,6 +249,7 @@ int create_fiber(fiber_params_t *params) {
  * The context of the currently running fiber has to be saved. This means:
  * - the @c pt_regs structure has to be saved to the current @ref fiber::regs
  * - TODO FPU @see https://wiki.osdev.org/SSE
+ * - To save FPU registers kernel mode @see https://lwn.net/Articles/643235/
  *
  * Afterwards we'll get replace the current @c pt_regs structure with the one previously
  * saved.
@@ -281,10 +282,13 @@ int switch_to_fiber(unsigned fid) {
     current_fiber_node->state = IDLE;
     requested_fiber_node->state = RUNNING;
     // -> save the current registers
-    // TODO: FPU registers
     memcpy(&current_fiber_node->regs, task_pt_regs(current), sizeof(struct pt_regs));
     // -> replace pt_regs
     memcpy(task_pt_regs(current), &requested_fiber_node->regs, sizeof(struct pt_regs));
+    // save current FPU registers
+    copy_fxregs_to_kernel(&current_fiber_node->fpu_regs);
+    // restore requested FPU registers
+    copy_kernel_to_fxregs(&requested_fiber_node->fpu_regs.state.fxsave);
     // close the device descriptor
     close_device_descriptor();
     return 0;
