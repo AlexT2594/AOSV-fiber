@@ -40,11 +40,11 @@
  * @param type the type of the entry to create
  *
  */
-#define create_list_entry(new, head, member, type)                                                 \
+#define create_list_entry(new, head, member, type, mutex)                                          \
     new = kmalloc(sizeof(type), GFP_KERNEL);                                                       \
-    mutex_lock(&fiber_lock);                                                                       \
+    mutex_lock(&mutex);                                                                            \
     list_add_tail(&(new->member), head);                                                           \
-    mutex_unlock(&fiber_lock);
+    mutex_unlock(&mutex);
 
 /**
  * @brief Check if exist an entry (of type) in list pointed by head with field equal to value
@@ -57,8 +57,8 @@
  * @param type name of the type of the entries
  *
  */
-#define check_if_exists(result, head, field, value, member, type)                                  \
-    mutex_lock(&fiber_lock);                                                                       \
+#define check_if_exists(result, head, field, value, member, type, mutex)                           \
+    mutex_lock(&mutex);                                                                            \
     result = NULL;                                                                                 \
     if (!list_empty(head)) {                                                                       \
         type *type_temp__ = NULL;                                                                  \
@@ -69,5 +69,5 @@
             }                                                                                      \
         }                                                                                          \
     }                                                                                              \
-    mutex_unlock(&fiber_lock);
+    mutex_unlock(&mutex);
 #endif
