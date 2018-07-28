@@ -31,8 +31,10 @@
 #ifndef __FIBER_H
 #define __FIBER_H
 
+#define STACK_SIZE 2048 * 8
+
 int ConvertThreadToFiber();
-int CreateFiber(void *(*function)(void *), void *args);
+int CreateFiber(unsigned long stack_size, void *(*function)(void *), void *args);
 int SwitchToFiber(unsigned fid);
 
 #endif

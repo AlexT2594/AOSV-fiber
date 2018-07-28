@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
     printf("Starting fiber test!\n");
     main_fiber = ConvertThreadToFiber();
     int a = 5;
-    fiber1 = CreateFiber((void *)&hello, &a);
+    fiber1 = CreateFiber(STACK_SIZE, (void *)&hello, &a);
     printf("Main fiber fid is %d\n", main_fiber);
     // SwitchToFiber(my_new_fiber);
     // ConvertThreadToFiber();
@@ -73,7 +73,7 @@ void f11(void *args) {
 
 void f1(void *args) {
     thread1_fiber = ConvertThreadToFiber();
-    int fiber2 = CreateFiber((void *)&f11, NULL);
+    int fiber2 = CreateFiber(STACK_SIZE, (void *)&f11, NULL);
     SwitchToFiber(fiber2);
     printf("Returned from main_fiber, will not call Switch intentionally! \n");
 }
