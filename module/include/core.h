@@ -58,6 +58,8 @@
 
 #define CORE_LOG ": CORE: "
 
+#define MAX_FLS 64
+
 /*
  * Definitions
  */
@@ -78,6 +80,11 @@ void destroy_core(void);
 int convert_thread_to_fiber(void);
 int create_fiber(fiber_params_t *params);
 int switch_to_fiber(unsigned fid);
+// implementation of fls
+int fls_alloc(void);
+int fls_free(long);
+long fls_get(long);
+int fls_set(fls_params_t *params);
 // not explicitly callable by user
 int exit_fibered(void);
 // kprobe handlers
@@ -92,6 +99,17 @@ typedef enum fiber_state {
     RUNNING, /**< The fiber is running since the thread switched to it */
     IDLE     /**< The fiber is created but no thread switched to it */
 } fiber_state_t;
+
+/**
+ * @brief Simplistic implementation of fiber local storage based on the benchmark userspace fibers
+ *
+ * Each fiber has its own storage made of an array of longs. Also each fiber has an index which is
+ * used to access its array, which is incrementally increased with use.
+ */
+typedef struct fiber_local_storage {
+    long idx;
+    long fls[MAX_FLS];
+} fiber_local_storage_t;
 
 /**
  * @brief A node in the @ref fibers_list. This type fully represent a @c fiber
@@ -117,10 +135,11 @@ typedef struct fiber {
     fiber_state::RUNNING
     - the `pid` of the last thread that executed it if @ref fiber_state::IDLE
     - -1 if we just called @ref create_fiber*/
-    unsigned success_activations_count; /** Number of successful activation of the fiber */
-    unsigned failed_activations_count;  /** Number of failed activation of the fiber */
-    unsigned long total_time;           /** Total running time of the fiber */
-    struct list_head list;              /**< List implementation structure */
+    unsigned success_activations_count;  /**< Number of successful activation of the fiber */
+    unsigned failed_activations_count;   /**< Number of failed activation of the fiber */
+    unsigned long total_time;            /**< Total running time of the fiber */
+    struct list_head list;               /**< List implementation structure */
+    fiber_local_storage_t local_storage; /**< Fiber local storage */
 } fiber_node_t;
 
 /**

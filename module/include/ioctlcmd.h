@@ -63,6 +63,8 @@
 #define ERR_NOT_FIBERED 200
 #define ERR_FIBER_NOT_EXISTS 300
 #define ERR_FIBER_ALREADY_RUNNING 400
+#define ERR_FLS_FULL 500
+#define ERR_FLS_INVALID_INDEX 600
 
 /**
  * @brief Params to be passed by the library when creating or converting to a fiber
@@ -75,5 +77,14 @@ typedef struct fiber_params {
                                point of the fiber */
     unsigned long function_args; /**< Pointer to params for fiber_params::function */
 } fiber_params_t;
+
+/**
+ * @brief Params to be passed by the library when setting a value in its fiber local storage
+ *
+ */
+typedef struct fls_params {
+    long idx;   /**< Index in the local storage*/
+    long value; /**< Value to be associated with that index*/
+} fls_params_t;
 
 #endif

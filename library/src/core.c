@@ -163,6 +163,59 @@ int ExitFibered() {
     return ret;
 }
 
+long FlsAlloc() {
+    printf("Called FlsAlloc\n");
+    int dev_fd = open(FIBER_DEV_PATH, O_RDWR, 0666);
+    if (dev_fd < 0) {
+        printf("Cannot open " FIBER_DEV_PATH ", errno %d. Try again later.\n", errno);
+        return -1;
+    }
+    int ret = ioctl(dev_fd, FIBER_IOC_FLS_ALLOC);
+    if (ret < 0) {
+        printf("Error while calling ioctl on fiber ERRNO %d\n", errno);
+        return -1;
+    }
+    close(dev_fd);
+    return ret;
+}
+
+long FlsGetValue(long index) {
+    printf("Called FlsGetValue\n");
+    int dev_fd = open(FIBER_DEV_PATH, O_RDWR, 0666);
+    if (dev_fd < 0) {
+        printf("Cannot open " FIBER_DEV_PATH ", errno %d. Try again later.\n", errno);
+        return -1;
+    }
+    int ret = ioctl(dev_fd, FIBER_IOC_FLS_GET, (unsigned long)index);
+    if (ret < 0) {
+        printf("Error while calling ioctl on fiber ERRNO %d\n", errno);
+        return -1;
+    }
+    close(dev_fd);
+    return ret;
+}
+
+int FlsSetValue(long index, long value) {
+    // prepare the params
+    fls_params_t *params = (fls_params_t *)malloc(sizeof(fls_params_t));
+    params->idx = index;
+    params->value = value;
+
+    printf("Called FlsSetValue\n");
+    int dev_fd = open(FIBER_DEV_PATH, O_RDWR, 0666);
+    if (dev_fd < 0) {
+        printf("Cannot open " FIBER_DEV_PATH ", errno %d. Try again later.\n", errno);
+        return -1;
+    }
+    int ret = ioctl(dev_fd, FIBER_IOC_FLS_SET, (unsigned long)params);
+    if (ret < 0) {
+        printf("Error while calling ioctl on fiber ERRNO %d\n", errno);
+        return -1;
+    }
+    close(dev_fd);
+    return ret;
+}
+
 /*
  * Utils functions
  */
