@@ -31,6 +31,11 @@
 #include "core.h"
 
 /*
+ * Declarations
+ */
+int is_index_set(unsigned long *, long);
+
+/*
  * Variables
  */
 static struct kprobe kp;
@@ -149,7 +154,27 @@ int convert_thread_to_fiber() {
         fiber_node->total_time = 0;
         fiber_node->state = RUNNING;
         fibered_process_node->fibers_list.fibers_count++;
-        fiber_node->local_storage.idx = 0;
+
+        bitmap_clear(fiber_node->local_storage.fls_bitmap, 0, MAX_FLS);
+        /*
+        bitmap_set(fiber_node->local_storage.fls_bitmap, 0, MAX_FLS);
+
+        next_bit = bitmap_find_next_zero_area(fiber_node->local_storage.fls_bitmap, MAX_FLS, 0,
+        1,0);
+        printk(KERN_DEBUG MODULE_NAME CORE_LOG "Value of next bit is %lu", next_bit);
+        printk(KERN_DEBUG MODULE_NAME CORE_LOG "Dummy");*/
+        /*bitmap_set(fiber_node->local_storage.fls_bitmap, 0, 1);
+        bitmap_set(fiber_node->local_storage.fls_bitmap, 1, 1);
+        DECLARE_BITMAP(check_bitmap, MAX_FLS);
+        bitmap_clear(check_bitmap, 0, MAX_FLS);
+        bitmap_set(check_bitmap, 3, 1);
+        ret = bitmap_equal(fiber_node->local_storage.fls_bitmap, check_bitmap, MAX_FLS);
+        printk(KERN_DEBUG MODULE_NAME CORE_LOG "Value of bitmap equal is %d", ret);
+
+        next_bit =
+            bitmap_find_next_zero_area(fiber_node->local_storage.fls_bitmap, MAX_FLS, 0, 1, 0);
+        */
+
         return fiber_node->id;
     } else
         return -ERR_THREAD_ALREADY_FIBER;
@@ -227,7 +252,8 @@ int create_fiber(fiber_params_t *params) {
     fiber_node->success_activations_count = 0;
     fiber_node->failed_activations_count = 0;
     fiber_node->total_time = 0;
-    fiber_node->local_storage.idx = 0;
+    bitmap_clear(fiber_node->local_storage.fls_bitmap, 0, MAX_FLS);
+
     return fiber_node->id;
 }
 
@@ -340,7 +366,7 @@ int exit_fibered() {
 int fls_alloc() {
     fibered_process_node_t *fibered_process_node;
     fiber_node_t *current_fiber_node;
-    long index;
+    unsigned long index;
     // check if process is fiber enabled
     check_if_exists(fibered_process_node, &fibered_processes_list.list, pid, current->tgid, list,
                     fibered_process_node_t, fiber_lock);
@@ -350,19 +376,54 @@ int fls_alloc() {
                     current->pid, list, fiber_node_t, fiber_lock);
     if (current_fiber_node == NULL) return -ERR_NOT_FIBERED;
 
-    index = current_fiber_node->local_storage.idx;
-    if (index >= MAX_FLS) return -ERR_FLS_FULL;
-    current_fiber_node->local_storage.idx = index + 1;
-    return index;
+    /*bitmap_set(fiber_node->local_storage.fls_bitmap, 0, 1);
+    bitmap_set(fiber_node->local_storage.fls_bitmap, 1, 1);
+    DECLARE_BITMAP(check_bitmap, MAX_FLS);
+    bitmap_clear(check_bitmap, 0, MAX_FLS);
+    bitmap_set(check_bitmap, 3, 1);
+    ret = bitmap_equal(fiber_node->local_storage.fls_bitmap, check_bitmap, MAX_FLS);
+    printk(KERN_DEBUG MODULE_NAME CORE_LOG "Value of bitmap equal is %d", ret);
+
+    next_bit =
+        bitmap_find_next_zero_area(fiber_node->local_storage.fls_bitmap, MAX_FLS, 0, 1, 0);
+    */
+    index =
+        bitmap_find_next_zero_area(current_fiber_node->local_storage.fls_bitmap, MAX_FLS, 0, 1, 0);
+    if (index > MAX_FLS) return -ERR_FLS_FULL;
+    // otherwise the index is available
+    bitmap_set(current_fiber_node->local_storage.fls_bitmap, index, 1);
+    return (long)index;
 }
 
 /**
- * @brief
+ * @brief Allows for reusing the passed index by clearing it in the bitmap.
  *
+ * Returns 0 if all good, otherwise < 0;
  * @param index
  * @return int
  */
-int fls_free(long index) { return 0; }
+int fls_free(long index) {
+    fibered_process_node_t *fibered_process_node;
+    fiber_node_t *current_fiber_node;
+    // check if process is fiber enabled
+    check_if_exists(fibered_process_node, &fibered_processes_list.list, pid, current->tgid, list,
+                    fibered_process_node_t, fiber_lock);
+    if (fibered_process_node == NULL) return -ERR_NOT_FIBERED;
+    // check if the thread is a fiber
+    check_if_exists(current_fiber_node, &fibered_process_node->fibers_list.list, run_by,
+                    current->pid, list, fiber_node_t, fiber_lock);
+    if (current_fiber_node == NULL) return -ERR_NOT_FIBERED;
+
+    if (index >= MAX_FLS) return -ERR_FLS_INVALID_INDEX;
+    // check if index is 1 in fls_bitmap
+
+    if (!is_index_set(current_fiber_node->local_storage.fls_bitmap, index))
+        return -ERR_FLS_INVALID_INDEX;
+
+    bitmap_clear(current_fiber_node->local_storage.fls_bitmap, index, 1);
+
+    return 0;
+}
 long fls_get(long index) {
     fibered_process_node_t *fibered_process_node;
     fiber_node_t *current_fiber_node;
@@ -370,13 +431,15 @@ long fls_get(long index) {
     check_if_exists(fibered_process_node, &fibered_processes_list.list, pid, current->tgid, list,
                     fibered_process_node_t, fiber_lock);
     if (fibered_process_node == NULL) return -ERR_NOT_FIBERED;
-    // TODO check if the thread is a fiber
+    //  check if the thread is a fiber
     check_if_exists(current_fiber_node, &fibered_process_node->fibers_list.list, run_by,
                     current->pid, list, fiber_node_t, fiber_lock);
     if (current_fiber_node == NULL) return -ERR_NOT_FIBERED;
 
     if (index >= MAX_FLS) return -ERR_FLS_INVALID_INDEX;
-    // check if the index is valid with a bitmap
+    if (!is_index_set(current_fiber_node->local_storage.fls_bitmap, index))
+        return -ERR_FLS_INVALID_INDEX;
+
     return current_fiber_node->local_storage.fls[index];
 }
 int fls_set(fls_params_t *params) {
@@ -399,7 +462,23 @@ int fls_set(fls_params_t *params) {
                     current->pid, list, fiber_node_t, fiber_lock);
     if (current_fiber_node == NULL) return -ERR_NOT_FIBERED;
 
-    // TODO check if index is valid
+    // check if index is valid
+    if (params_kern.idx >= MAX_FLS) return -ERR_FLS_INVALID_INDEX;
+    // index must be one that has been previously given to the fiber
+    if (!is_index_set(current_fiber_node->local_storage.fls_bitmap, params_kern.idx))
+        return -ERR_FLS_INVALID_INDEX;
     current_fiber_node->local_storage.fls[params_kern.idx] = params_kern.value;
     return 0;
+}
+
+int is_index_set(unsigned long *bitmap, long index) {
+    DECLARE_BITMAP(and_bitmap, MAX_FLS);
+    DECLARE_BITMAP(check_bitmap, MAX_FLS);
+
+    bitmap_clear(check_bitmap, 0, MAX_FLS);
+    bitmap_clear(and_bitmap, 0, MAX_FLS);
+    bitmap_set(check_bitmap, index, 1);
+    bitmap_and(and_bitmap, check_bitmap, bitmap, MAX_FLS);
+
+    return bitmap_equal(check_bitmap, and_bitmap, MAX_FLS);
 }

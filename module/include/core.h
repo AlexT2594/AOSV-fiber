@@ -41,6 +41,7 @@
 #include <asm/fpu/internal.h>
 #include <asm/fpu/types.h>
 #include <asm/ptrace.h>
+#include <linux/bitmap.h>
 #include <linux/fdtable.h>
 #include <linux/fs.h>
 #include <linux/hashtable.h>
@@ -107,7 +108,7 @@ typedef enum fiber_state {
  * used to access its array, which is incrementally increased with use.
  */
 typedef struct fiber_local_storage {
-    long idx;
+    DECLARE_BITMAP(fls_bitmap, MAX_FLS);
     long fls[MAX_FLS];
 } fiber_local_storage_t;
 

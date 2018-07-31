@@ -179,6 +179,22 @@ long FlsAlloc() {
     return ret;
 }
 
+int FlsFree(long index) {
+    printf("Called FlsFree\n");
+    int dev_fd = open(FIBER_DEV_PATH, O_RDWR, 0666);
+    if (dev_fd < 0) {
+        printf("Cannot open " FIBER_DEV_PATH ", errno %d. Try again later.\n", errno);
+        return -1;
+    }
+    int ret = ioctl(dev_fd, FIBER_IOC_FLS_FREE, (unsigned long)index);
+    if (ret < 0) {
+        printf("Error while calling ioctl on fiber ERRNO %d\n", errno);
+        return -1;
+    }
+    close(dev_fd);
+    return ret;
+}
+
 long FlsGetValue(long index) {
     printf("Called FlsGetValue\n");
     int dev_fd = open(FIBER_DEV_PATH, O_RDWR, 0666);

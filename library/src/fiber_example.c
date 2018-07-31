@@ -44,8 +44,9 @@ int main(int argc, char **argv) {
     main_fiber = ConvertThreadToFiber();
     long index = FlsAlloc();
     printf("Index is %ld\n", index);
-    int ret = FlsSetValue(index, 34);
-    long value = FlsGetValue(index);
+    printf("Ret value of FlsSetValue is %d\n", FlsSetValue(0, 34));
+
+    long value = FlsGetValue(0);
     printf("Value of index 0 is %ld\n", value);
 
     // int a = 5;
