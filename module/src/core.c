@@ -147,6 +147,7 @@ int convert_thread_to_fiber() {
         fiber_node->success_activations_count = 1;
         fiber_node->failed_activations_count = 0;
         fiber_node->total_time = 0;
+        getnstimeofday(&fiber_node->time_last_switch);
         fiber_node->state = RUNNING;
         fibered_process_node->fibers_list.fibers_count++;
 
@@ -223,11 +224,9 @@ int create_fiber(fiber_params_t *params) {
     check_if_exists(fiber_node, &fibered_process_node->fibers_list.list, run_by, current->pid, list,
                     fiber_node_t, fiber_lock);
     if (fiber_node == NULL) return -ERR_NOT_FIBERED;
-    printk(KERN_DEBUG MODULE_NAME CORE_LOG "create_fiber Passed params_kern->function is %lu",
-           params_kern.function);
-    printk(KERN_DEBUG MODULE_NAME CORE_LOG "create_fiber Passed params_kern->stack_addr is %lu",
-           params_kern.stack_addr);
-    // create the fiber node
+    // printk(KERN_DEBUG MODULE_NAME CORE_LOG "create_fiber Passed params_kern->function is
+    // %lu",params_kern.function); printk(KERN_DEBUG MODULE_NAME CORE_LOG "create_fiber Passed
+    // params_kern->stack_addr is %lu",params_kern.stack_addr); create the fiber node
     create_list_entry(fiber_node, &fibered_process_node->fibers_list.list, list, fiber_node_t,
                       fiber_lock);
     fiber_node->id = fibered_process_node->fibers_list.fibers_count;
@@ -288,6 +287,7 @@ int switch_to_fiber(unsigned fid) {
     fibered_process_node_t *fibered_process_node;
     fiber_node_t *current_fiber_node;
     fiber_node_t *requested_fiber_node;
+    struct timespec last_switch;
     // check if process is fiber enabled
     check_if_exists(fibered_process_node, &fibered_processes_list.list, pid, current->tgid, list,
                     fibered_process_node_t, fiber_lock);
@@ -302,6 +302,16 @@ int switch_to_fiber(unsigned fid) {
     if (requested_fiber_node == NULL) return -ERR_FIBER_NOT_EXISTS;
     if (requested_fiber_node->state == RUNNING) return -ERR_FIBER_ALREADY_RUNNING;
     // switch to that fiber
+    // set-up time
+    last_switch = current_fiber_node->time_last_switch;
+    getnstimeofday(&current_fiber_node->time_last_switch);
+    current_fiber_node->total_time +=
+        (current_fiber_node->time_last_switch.tv_nsec - last_switch.tv_nsec) / 1000;
+    printk(KERN_DEBUG MODULE_NAME CORE_LOG "Total running time for fiber node %u is %lu",
+           current_fiber_node->id, current_fiber_node->total_time);
+
+    getnstimeofday(&requested_fiber_node->time_last_switch);
+
     current_fiber_node->state = IDLE;
     requested_fiber_node->state = RUNNING;
     // -> save the current registers

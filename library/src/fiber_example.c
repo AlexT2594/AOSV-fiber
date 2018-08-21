@@ -42,7 +42,7 @@ int main_fiber, thread1_fiber, fiber1, fiber2;
 int main(int argc, char **argv) {
     printf("Starting fiber test!\n");
     main_fiber = ConvertThreadToFiber();
-    long index = FlsAlloc();
+    /*long index = FlsAlloc();
     printf("Index is %ld\n", index);
     long index2 = FlsAlloc();
     printf("Index2 is %ld\n", index2);
@@ -52,10 +52,16 @@ int main(int argc, char **argv) {
 
     long value = FlsGetValue(0);
     printf("Value of index 0 is %ld\n", value);
+*/
+    int a = 5;
+    fiber1 = CreateFiber(STACK_SIZE, (void *)&hello, &a);
+    fiber2 = CreateFiber(STACK_SIZE, (void *)&f11, NULL);
+    printf("Main fiber fid is %d\n", main_fiber);
+    SwitchToFiber(fiber1);
 
-    // int a = 5;
-    // fiber1 = CreateFiber(STACK_SIZE, (void *)&hello, &a);
-    // printf("Main fiber fid is %d\n", main_fiber);
+    printf("Returned from fiber1, can continue\n");
+
+    // SwitchToFiber(fiber2);
     // SwitchToFiber(my_new_fiber);
     // ConvertThreadToFiber();
     // pthread_t t1;
@@ -64,22 +70,22 @@ int main(int argc, char **argv) {
     // sleep(2);
     // pthread_create(&t2, NULL, ConvertThreadToFiber, NULL);
     // pthread_join(t1, NULL);
-    // SwitchToFiber(fiber1);
     // pthread_join(t2, NULL);
     // CreateFiber(&hello);
     exit(EXIT_SUCCESS);
 }
 
 void hello(void *args) {
-    int a = 3;
-    printf("Hello called\n");
-    printf("a is %d\n", a);
+    // int a = 3;
+    printf("Hello called from fiber1\n");
+    SwitchToFiber(0);
+    // printf("a is %d\n", a);
     // exit(EXIT_SUCCESS);
 }
 
 void f11(void *args) {
-    printf("f11 called\n");
-    SwitchToFiber(fiber1);
+    printf("f11 called from fiber2\n");
+    SwitchToFiber(0);
 }
 
 void f1(void *args) {

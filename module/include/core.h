@@ -55,6 +55,7 @@
 #include <linux/semaphore.h>
 #include <linux/signal.h>
 #include <linux/slab.h>
+#include <linux/time.h>
 #include <linux/uaccess.h>
 
 #define CORE_LOG ": CORE: "
@@ -139,6 +140,7 @@ typedef struct fiber {
     unsigned success_activations_count;  /**< Number of successful activation of the fiber */
     unsigned failed_activations_count;   /**< Number of failed activation of the fiber */
     unsigned long total_time;            /**< Total running time of the fiber */
+    struct timespec time_last_switch;    /**< Time of when the last switch occurred*/
     struct list_head list;               /**< List implementation structure */
     fiber_local_storage_t local_storage; /**< Fiber local storage */
 } fiber_node_t;
