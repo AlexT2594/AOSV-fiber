@@ -54,11 +54,12 @@ static fibered_processes_list_t fibered_processes_list = {
  * Kprobe implementation
  */
 int pre_exit_handler(struct kprobe *p, struct pt_regs *regs) {
-    printk(KERN_DEBUG MODULE_NAME CORE_LOG "pre_exit_handler called by tgid %d", current->tgid);
+    exit_fibered();
+    // printk(KERN_DEBUG MODULE_NAME CORE_LOG "pre_exit_handler called by tgid %d", current->tgid);
     return 0;
 }
 void post_exit_handler(struct kprobe *p, struct pt_regs *regs, unsigned long flags) {
-    printk(KERN_DEBUG MODULE_NAME CORE_LOG "pre_exit_handler called");
+    // printk(KERN_DEBUG MODULE_NAME CORE_LOG "pre_exit_handler called");
 }
 
 /**
@@ -71,7 +72,7 @@ int init_core() {
     kp.post_handler = post_exit_handler;
     kp.addr = (kprobe_opcode_t *)kallsyms_lookup_name("do_exit");
     // de-comment the following line to register the kbrobe
-    // register_kprobe(&kp);
+    register_kprobe(&kp);
     return 0;
 }
 
