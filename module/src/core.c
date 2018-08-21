@@ -123,7 +123,6 @@ int convert_thread_to_fiber() {
                     fibered_process_node_t, fiber_lock);
     if (fibered_process_node == NULL) {
         // process has never created a fiber
-        printk(KERN_DEBUG MODULE_NAME CORE_LOG "Fibered process does not exist");
         create_list_entry(fibered_process_node, &fibered_processes_list.list, list,
                           fibered_process_node_t, fiber_lock);
         fibered_processes_list.processes_count++;
@@ -232,6 +231,7 @@ int create_fiber(fiber_params_t *params) {
     fiber_node->id = fibered_process_node->fibers_list.fibers_count;
     printk(KERN_DEBUG MODULE_NAME CORE_LOG "create_fiber Created fiber id is %u", fiber_node->id);
     fiber_node->created_by = current->pid;
+    fiber_node->run_by = -1; // meaning no thread is running it
     fiber_node->state = IDLE;
     // -> Set the registers
     memcpy(&fiber_node->regs, task_pt_regs(current), sizeof(struct pt_regs));
@@ -313,7 +313,9 @@ int switch_to_fiber(unsigned fid) {
     getnstimeofday(&requested_fiber_node->time_last_switch);
 
     current_fiber_node->state = IDLE;
+    current_fiber_node->run_by = -1;
     requested_fiber_node->state = RUNNING;
+    requested_fiber_node->run_by = current->pid;
     // -> save the current registers
     memcpy(&current_fiber_node->regs, task_pt_regs(current), sizeof(struct pt_regs));
     // -> replace pt_regs

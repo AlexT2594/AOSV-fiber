@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
 
     printf("Returned from fiber1, can continue\n");
 
-    // SwitchToFiber(fiber2);
+    SwitchToFiber(fiber2);
     // SwitchToFiber(my_new_fiber);
     // ConvertThreadToFiber();
     // pthread_t t1;
