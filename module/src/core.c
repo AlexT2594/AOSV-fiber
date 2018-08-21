@@ -31,11 +31,6 @@
 #include "core.h"
 
 /*
- * Declarations
- */
-int is_index_set(unsigned long *, long);
-
-/*
  * Variables
  */
 static struct kprobe kp;
@@ -414,10 +409,9 @@ int fls_free(long index) {
                     current->pid, list, fiber_node_t, fiber_lock);
     if (current_fiber_node == NULL) return -ERR_NOT_FIBERED;
 
+    // check if index is valid
     if (index >= MAX_FLS) return -ERR_FLS_INVALID_INDEX;
-    // check if index is 1 in fls_bitmap
-
-    if (!is_index_set(current_fiber_node->local_storage.fls_bitmap, index))
+    if (!test_bit(index, current_fiber_node->local_storage.fls_bitmap))
         return -ERR_FLS_INVALID_INDEX;
 
     bitmap_clear(current_fiber_node->local_storage.fls_bitmap, index, 1);
@@ -436,8 +430,9 @@ long fls_get(long index) {
                     current->pid, list, fiber_node_t, fiber_lock);
     if (current_fiber_node == NULL) return -ERR_NOT_FIBERED;
 
+    // check if index is valid
     if (index >= MAX_FLS) return -ERR_FLS_INVALID_INDEX;
-    if (!is_index_set(current_fiber_node->local_storage.fls_bitmap, index))
+    if (!test_bit(index, current_fiber_node->local_storage.fls_bitmap))
         return -ERR_FLS_INVALID_INDEX;
 
     return current_fiber_node->local_storage.fls[index];
@@ -465,20 +460,8 @@ int fls_set(fls_params_t *params) {
     // check if index is valid
     if (params_kern.idx >= MAX_FLS) return -ERR_FLS_INVALID_INDEX;
     // index must be one that has been previously given to the fiber
-    if (!is_index_set(current_fiber_node->local_storage.fls_bitmap, params_kern.idx))
+    if (!test_bit(params_kern.idx, current_fiber_node->local_storage.fls_bitmap))
         return -ERR_FLS_INVALID_INDEX;
     current_fiber_node->local_storage.fls[params_kern.idx] = params_kern.value;
     return 0;
-}
-
-int is_index_set(unsigned long *bitmap, long index) {
-    DECLARE_BITMAP(and_bitmap, MAX_FLS);
-    DECLARE_BITMAP(check_bitmap, MAX_FLS);
-
-    bitmap_clear(check_bitmap, 0, MAX_FLS);
-    bitmap_clear(and_bitmap, 0, MAX_FLS);
-    bitmap_set(check_bitmap, index, 1);
-    bitmap_and(and_bitmap, check_bitmap, bitmap, MAX_FLS);
-
-    return bitmap_equal(check_bitmap, and_bitmap, MAX_FLS);
 }
