@@ -42,17 +42,28 @@ int main_fiber, thread1_fiber, fiber1, fiber2;
 int main(int argc, char **argv) {
     printf("Starting fiber test!\n");
     main_fiber = ConvertThreadToFiber();
-    int a = 5;
-    fiber1 = CreateFiber((void *)&hello, &a);
-    printf("Main fiber fid is %d\n", main_fiber);
+    long index = FlsAlloc();
+    printf("Index is %ld\n", index);
+    long index2 = FlsAlloc();
+    printf("Index2 is %ld\n", index2);
+    // test set
+    printf("Ret value of FlsSetValue() is %d\n", FlsSetValue(index, 34));
+    printf("Ret value of FlsSetValue() is %d\n", FlsSetValue(32, 34));
+
+    long value = FlsGetValue(0);
+    printf("Value of index 0 is %ld\n", value);
+
+    // int a = 5;
+    // fiber1 = CreateFiber(STACK_SIZE, (void *)&hello, &a);
+    // printf("Main fiber fid is %d\n", main_fiber);
     // SwitchToFiber(my_new_fiber);
     // ConvertThreadToFiber();
-    pthread_t t1;
+    // pthread_t t1;
     // pthread_t t2;
-    pthread_create(&t1, NULL, (void *)f1, NULL);
+    // pthread_create(&t1, NULL, (void *)f1, NULL);
     // sleep(2);
     // pthread_create(&t2, NULL, ConvertThreadToFiber, NULL);
-    pthread_join(t1, NULL);
+    // pthread_join(t1, NULL);
     // SwitchToFiber(fiber1);
     // pthread_join(t2, NULL);
     // CreateFiber(&hello);
@@ -73,7 +84,7 @@ void f11(void *args) {
 
 void f1(void *args) {
     thread1_fiber = ConvertThreadToFiber();
-    int fiber2 = CreateFiber((void *)&f11, NULL);
+    int fiber2 = CreateFiber(STACK_SIZE, (void *)&f11, NULL);
     SwitchToFiber(fiber2);
     printf("Returned from main_fiber, will not call Switch intentionally! \n");
 }

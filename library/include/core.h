@@ -34,12 +34,12 @@
 #include "utils.h"
 
 #include <errno.h>
-#include <fcntl.h>
-#include <linux/ioctl.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stropts.h>
+#include <sys/fcntl.h>
+#include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>

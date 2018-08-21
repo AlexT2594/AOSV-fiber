@@ -22,7 +22,7 @@ INCDIR := include
 BUILDDIR := build
 DOCDIR := doxy
 CFLAGS := -std=gnu11 -Wall -g
-LIBS := -lpthread
+LIBS := -pthread
 INC := -Iinclude
 
 TARGET_BIN_DIR := bin

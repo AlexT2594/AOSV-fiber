@@ -130,16 +130,16 @@ static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) 
     case FIBER_IOC_SWITCHTOFIBER:
         return switch_to_fiber((unsigned)arg);
     case FIBER_IOC_FLS_ALLOC:
-        // call __get_user for getting the passed data structure
+        return fls_alloc();
         break;
     case FIBER_IOC_FLS_FREE:
-        // call __get_user for getting the passed data structure
+        return fls_free((long)arg);
         break;
     case FIBER_IOC_FLS_GET:
-        // call __get_user for getting the passed data structure
+        return fls_get((long)arg);
         break;
     case FIBER_IOC_FLS_SET:
-        // call __get_user for getting the passed data structure
+        return fls_set((fls_params_t *)arg);
         break;
     case FIBER_IOC_EXIT:
         return exit_fibered();
