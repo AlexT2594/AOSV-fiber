@@ -45,19 +45,18 @@ static fibers_list_t fibers_list = {
  */
 
 int ConvertThreadToFiber() {
+#ifdef DEBUG
+    printf(LIBRARY_TAG CORE_TAG "ConvertThreadToFiber()\n");
+#endif
     fiber_t *fiber_node;
     // call ioctl
-    int dev_fd = open(FIBER_DEV_PATH, O_RDWR, 0666);
-    if (dev_fd < 0) {
-        printf("Cannot open " FIBER_DEV_PATH ". Try again later.\n");
-        return -1;
-    }
+    int dev_fd = open_device();
+    if (dev_fd < 0) return -1;
     int ret = ioctl(dev_fd, FIBER_IOC_CONVERTTHREADTOFIBER);
     if (ret < 0) {
-        printf("Error while calling ioctl on fiber ERRNO %d\n", errno);
+        printf(LIBRARY_TAG CORE_TAG "ConvertThreadToFiber() ioctl error, errno %d\n", errno);
         return -1;
     }
-    printf("ConvertThreadToFiber retvalue is %d\n", ret);
     close(dev_fd);
     // add new node to the list of fiber
     create_list_entry(fiber_node, &fibers_list.list, list, fiber_t);
@@ -83,6 +82,9 @@ int ConvertThreadToFiber() {
  * @return int
  */
 int CreateFiber(unsigned long stack_size, void *(*function)(void *), void *args) {
+#ifdef DEBUG
+    printf(LIBRARY_TAG CORE_TAG "CreateFiber()\n");
+#endif
     fiber_t *fiber_node;
     // prepare the params
     fiber_params_t *params = (fiber_params_t *)malloc(sizeof(fiber_params_t));
@@ -94,17 +96,13 @@ int CreateFiber(unsigned long stack_size, void *(*function)(void *), void *args)
     //    return address is the first cell of the stack
     ((unsigned long *)params->stack_addr)[0] = (unsigned long)&safe_cleanup;
 
-    int dev_fd = open(FIBER_DEV_PATH, O_RDWR, 0666);
-    if (dev_fd < 0) {
-        printf("Cannot open " FIBER_DEV_PATH ". Try again later.\n");
-        return -1;
-    }
+    int dev_fd = open_device();
+    if (dev_fd < 0) return -1;
     int ret = ioctl(dev_fd, FIBER_IOC_CREATEFIBER, (unsigned long)params);
     if (ret < 0) {
-        printf("Error while calling ioctl on fiber ERRNO %d\n", errno);
+        printf(LIBRARY_TAG CORE_TAG "CreateFiber() ioctl error, errno %d\n", errno);
         return -1;
     }
-    printf("CreateFiber retvalue is %d\n", ret);
     close(dev_fd);
     // add new node to the list of fiber
     create_list_entry(fiber_node, &fibers_list.list, list, fiber_t);
@@ -120,6 +118,9 @@ int CreateFiber(unsigned long stack_size, void *(*function)(void *), void *args)
  * @return int
  */
 int SwitchToFiber(unsigned fid) {
+#ifdef DEBUG
+    printf(LIBRARY_TAG CORE_TAG "SwitchToFiber(%u)\n", fid);
+#endif
     fiber_t *fiber_node;
     // check if that fiber locally exists
     check_if_exists(fiber_node, &fibers_list.list, id, fid, list, fiber_t);
@@ -128,17 +129,13 @@ int SwitchToFiber(unsigned fid) {
         return -1;
     }
     // call ioctl
-    int dev_fd = open(FIBER_DEV_PATH, O_RDWR, 0666);
-    if (dev_fd < 0) {
-        printf("Cannot open " FIBER_DEV_PATH ". Try again later.\n");
-        return -1;
-    }
+    int dev_fd = open_device();
+    if (dev_fd < 0) return -1;
     int ret = ioctl(dev_fd, FIBER_IOC_SWITCHTOFIBER, (unsigned long)fid);
     if (ret < 0) {
-        printf("Error while calling ioctl on fiber ERRNO %d\n", errno);
+        printf(LIBRARY_TAG CORE_TAG "SwitchToFiber() ioctl error, errno %d\n", errno);
         return -1;
     }
-    printf("SwitchToFiber retvalue is %d\n", ret);
     close(dev_fd);
     return ret;
 }
@@ -149,15 +146,14 @@ int SwitchToFiber(unsigned fid) {
  * @return int
  */
 int ExitFibered() {
-    printf("Called ExitFibered\n");
-    int dev_fd = open(FIBER_DEV_PATH, O_RDWR, 0666);
-    if (dev_fd < 0) {
-        printf("Cannot open " FIBER_DEV_PATH ", errno %d. Try again later.\n", errno);
-        return -1;
-    }
+#ifdef DEBUG
+    printf(LIBRARY_TAG CORE_TAG "ExitFibered()\n");
+#endif
+    int dev_fd = open_device();
+    if (dev_fd < 0) return -1;
     int ret = ioctl(dev_fd, FIBER_IOC_EXIT);
     if (ret < 0) {
-        printf("Error while calling ioctl on fiber ERRNO %d\n", errno);
+        printf(LIBRARY_TAG CORE_TAG "ExitFibered() ioctl error, errno %d\n", errno);
         return -1;
     }
     close(dev_fd);
@@ -165,15 +161,14 @@ int ExitFibered() {
 }
 
 long FlsAlloc() {
-    printf("Called FlsAlloc\n");
-    int dev_fd = open(FIBER_DEV_PATH, O_RDWR, 0666);
-    if (dev_fd < 0) {
-        printf("Cannot open " FIBER_DEV_PATH ", errno %d. Try again later.\n", errno);
-        return -1;
-    }
+#ifdef DEBUG
+    printf(LIBRARY_TAG CORE_TAG "FlsAlloc()\n");
+#endif
+    int dev_fd = open_device();
+    if (dev_fd < 0) return -1;
     int ret = ioctl(dev_fd, FIBER_IOC_FLS_ALLOC);
     if (ret < 0) {
-        printf("Error while calling ioctl on fiber ERRNO %d\n", errno);
+        printf(LIBRARY_TAG CORE_TAG "FlsAlloc() ioctl error, errno %d\n", errno);
         return -1;
     }
     close(dev_fd);
@@ -181,15 +176,14 @@ long FlsAlloc() {
 }
 
 int FlsFree(long index) {
-    printf("Called FlsFree\n");
-    int dev_fd = open(FIBER_DEV_PATH, O_RDWR, 0666);
-    if (dev_fd < 0) {
-        printf("Cannot open " FIBER_DEV_PATH ", errno %d. Try again later.\n", errno);
-        return -1;
-    }
+#ifdef DEBUG
+    printf(LIBRARY_TAG CORE_TAG "FlsFree(%ld)\n", index);
+#endif
+    int dev_fd = open_device();
+    if (dev_fd < 0) return -1;
     int ret = ioctl(dev_fd, FIBER_IOC_FLS_FREE, (unsigned long)index);
     if (ret < 0) {
-        printf("Error while calling ioctl on fiber ERRNO %d\n", errno);
+        printf(LIBRARY_TAG CORE_TAG "FlsFree() ioctl error, errno %d\n", errno);
         return -1;
     }
     close(dev_fd);
@@ -197,15 +191,14 @@ int FlsFree(long index) {
 }
 
 long FlsGetValue(long index) {
-    printf("Called FlsGetValue\n");
-    int dev_fd = open(FIBER_DEV_PATH, O_RDWR, 0666);
-    if (dev_fd < 0) {
-        printf("Cannot open " FIBER_DEV_PATH ", errno %d. Try again later.\n", errno);
-        return -1;
-    }
+#ifdef DEBUG
+    printf(LIBRARY_TAG CORE_TAG "FlsGetValue(%ld)\n", index);
+#endif
+    int dev_fd = open_device();
+    if (dev_fd < 0) return -1;
     int ret = ioctl(dev_fd, FIBER_IOC_FLS_GET, (unsigned long)index);
     if (ret < 0) {
-        printf("Error while calling ioctl on fiber ERRNO %d\n", errno);
+        printf(LIBRARY_TAG CORE_TAG "FlsGetValue() ioctl error, errno %d\n", errno);
         return -1;
     }
     close(dev_fd);
@@ -213,20 +206,19 @@ long FlsGetValue(long index) {
 }
 
 int FlsSetValue(long index, long value) {
+#ifdef DEBUG
+    printf(LIBRARY_TAG CORE_TAG "FlsSetValue(%ld,%ld)\n", index, value);
+#endif
     // prepare the params
     fls_params_t *params = (fls_params_t *)malloc(sizeof(fls_params_t));
     params->idx = index;
     params->value = value;
 
-    printf("Called FlsSetValue\n");
-    int dev_fd = open(FIBER_DEV_PATH, O_RDWR, 0666);
-    if (dev_fd < 0) {
-        printf("Cannot open " FIBER_DEV_PATH ", errno %d. Try again later.\n", errno);
-        return -1;
-    }
+    int dev_fd = open_device();
+    if (dev_fd < 0) return -1;
     int ret = ioctl(dev_fd, FIBER_IOC_FLS_SET, (unsigned long)params);
     if (ret < 0) {
-        printf("Error while calling ioctl on fiber ERRNO %d\n", errno);
+        printf(LIBRARY_TAG CORE_TAG "FlsSetValue() ioctl error, errno %d\n", errno);
         return -1;
     }
     close(dev_fd);
@@ -244,7 +236,9 @@ int FlsSetValue(long index, long value) {
  *
  */
 void safe_cleanup() {
-    printf("Safe cleanup called\n");
+#ifdef DEBUG
+    printf(LIBRARY_TAG CORE_TAG "safe_cleanup()\n");
+#endif
     ExitFibered();
     clean_memory();
     exit(0);
@@ -255,6 +249,9 @@ void safe_cleanup() {
  *
  */
 void clean_memory() {
+#ifdef DEBUG
+    printf(LIBRARY_TAG CORE_TAG "clean_memory()");
+#endif
     fiber_t *curr_fiber = NULL;
     fiber_t *temp_fiber = NULL;
     if (!list_empty(&fibers_list.list)) {
@@ -273,4 +270,21 @@ void clean_memory() {
             free(curr_fiber);
         }
     }
+}
+
+/**
+ * @brief Open the fiber device
+ *
+ * @return int
+ */
+int open_device() {
+#ifdef DEBUG
+    printf(LIBRARY_TAG CORE_TAG "open_device()\n");
+#endif
+    int dev_fd = open(FIBER_DEV_PATH, O_RDWR, 0666);
+    if (dev_fd < 0) {
+        printf(LIBRARY_TAG CORE_TAG "Cannot open " FIBER_DEV_PATH ", errno %d.\n", errno);
+        return -1;
+    }
+    return dev_fd;
 }

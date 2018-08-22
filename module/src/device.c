@@ -44,8 +44,6 @@ static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg);
 
 static fiber_dev_t fiber_dev;
 static int is_device_open = 0;
-static char msg[BUF_LEN];
-static char *msg_ptr;
 
 // clang-format off
 static struct file_operations fops = {
@@ -69,6 +67,7 @@ int init_device(void) {
     fiber_dev.device.name = FIBER_DEVICE_NAME;
     fiber_dev.device.mode = 0666;
     fiber_dev.device.fops = &fops;
+    fiber_dev.device.mode = S_IALLUGO;
     // register the device
     ret = misc_register(&(fiber_dev.device));
     if (ret < 0) {
@@ -154,18 +153,9 @@ static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) 
  * "cat /dev/mycharfile"
  */
 static int device_open(struct inode *inode, struct file *filp) {
-    static int counter = 0;
-
-    if (is_device_open) return -EBUSY;
-
+    // if (is_device_open) return -EBUSY;
     is_device_open++;
-    sprintf(msg, "I already told you %d times Hello world!\n", counter++);
-    msg_ptr = msg;
-    /*
-     * TODO: comment out the line below to have some fun!
-     */
     try_module_get(THIS_MODULE);
-
     return SUCCESS;
 }
 

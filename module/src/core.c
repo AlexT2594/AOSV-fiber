@@ -54,9 +54,10 @@ static fibered_processes_list_t fibered_processes_list = {
  * Kprobe implementation
  */
 int pre_exit_handler(struct kprobe *p, struct pt_regs *regs) {
-    exit_fibered();
+    // exit_fibered();
     // printk(KERN_DEBUG MODULE_NAME CORE_LOG "pre_exit_handler called by tgid %d",
     // current->tgid);
+
     return 0;
 }
 void post_exit_handler(struct kprobe *p, struct pt_regs *regs, unsigned long flags) {
@@ -151,27 +152,7 @@ int convert_thread_to_fiber() {
         getnstimeofday(&fiber_node->time_last_switch);
         fiber_node->state = RUNNING;
         fibered_process_node->fibers_list.fibers_count++;
-
         bitmap_clear(fiber_node->local_storage.fls_bitmap, 0, MAX_FLS);
-        /*
-        bitmap_set(fiber_node->local_storage.fls_bitmap, 0, MAX_FLS);
-
-        next_bit = bitmap_find_next_zero_area(fiber_node->local_storage.fls_bitmap, MAX_FLS, 0,
-        1,0);
-        printk(KERN_DEBUG MODULE_NAME CORE_LOG "Value of next bit is %lu", next_bit);
-        printk(KERN_DEBUG MODULE_NAME CORE_LOG "Dummy");*/
-        /*bitmap_set(fiber_node->local_storage.fls_bitmap, 0, 1);
-        bitmap_set(fiber_node->local_storage.fls_bitmap, 1, 1);
-        DECLARE_BITMAP(check_bitmap, MAX_FLS);
-        bitmap_clear(check_bitmap, 0, MAX_FLS);
-        bitmap_set(check_bitmap, 3, 1);
-        ret = bitmap_equal(fiber_node->local_storage.fls_bitmap, check_bitmap, MAX_FLS);
-        printk(KERN_DEBUG MODULE_NAME CORE_LOG "Value of bitmap equal is %d", ret);
-
-        next_bit =
-            bitmap_find_next_zero_area(fiber_node->local_storage.fls_bitmap, MAX_FLS, 0, 1, 0);
-        */
-
         return fiber_node->id;
     } else
         return -ERR_THREAD_ALREADY_FIBER;
@@ -214,7 +195,8 @@ int create_fiber(fiber_params_t *params) {
     int ret;
     ret = copy_from_user(&params_kern, params, sizeof(fiber_params_t));
     if (ret != 0) {
-        printk(KERN_ALERT MODULE_NAME CORE_LOG "copy_from_user didn't copy %d bytes", ret);
+        printk(KERN_ALERT MODULE_NAME CORE_LOG "create_fiber() copy_from_user didn't copy %d bytes",
+               ret);
         return -EFAULT;
     }
     // check if process if fiber enabled
@@ -222,10 +204,9 @@ int create_fiber(fiber_params_t *params) {
     if (fibered_process_node == NULL) return -ERR_NOT_FIBERED;
     // check if the thread is a fiber
     fiber_node = check_if_this_thread_is_fiber(fibered_process_node);
+    if (fiber_node == NULL) printk(KERN_ALERT "Thread %d is not a fiber", current->pid);
     if (fiber_node == NULL) return -ERR_NOT_FIBERED;
-    // printk(KERN_DEBUG MODULE_NAME CORE_LOG "create_fiber Passed params_kern->function is
-    // %lu",params_kern.function); printk(KERN_DEBUG MODULE_NAME CORE_LOG "create_fiber Passed
-    // params_kern->stack_addr is %lu",params_kern.stack_addr); create the fiber node
+    // add the node
     create_list_entry(fiber_node, &fibered_process_node->fibers_list.list, list, fiber_node_t,
                       fiber_lock);
     fiber_node->id = fibered_process_node->fibers_list.fibers_count;
@@ -481,8 +462,11 @@ int fls_set(fls_params_t *params) {
  */
 fibered_process_node_t *check_if_process_is_fibered(unsigned process_pid) {
     fibered_process_node_t *fibered_process_node;
-    check_if_exists_hash(fibered_process_node, fibered_processes_list.hash_table, pid, process_pid,
-                         hlist, fibered_process_node_t, fiber_lock);
+    // check_if_exists_hash(fibered_process_node, fibered_processes_list.hash_table, pid,
+    // process_pid,
+    //                     hlist, fibered_process_node_t, fiber_lock);
+    check_if_exists(fibered_process_node, &fibered_processes_list.list, pid, process_pid, list,
+                    fibered_process_node_t, fiber_lock);
     return fibered_process_node;
 }
 

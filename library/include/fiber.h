@@ -31,6 +31,8 @@
 #ifndef __FIBER_H
 #define __FIBER_H
 
+#include "common.h"
+
 #define STACK_SIZE 2048 * 8
 
 int ConvertThreadToFiber();

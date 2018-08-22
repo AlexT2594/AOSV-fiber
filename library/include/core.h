@@ -28,7 +28,10 @@
 #ifndef __CORE_H
 #define __CORE_H
 
+#define CORE_TAG "CORE: "
+
 #include "../../module/include/ioctlcmd.h"
+#include "common.h"
 #include "fiber.h"
 #include "list.h"
 #include "utils.h"
@@ -54,6 +57,7 @@
 
 void safe_cleanup();
 void clean_memory();
+int open_device();
 
 /**
  * @brief Single node in a fiber_list_t list

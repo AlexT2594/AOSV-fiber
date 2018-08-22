@@ -33,9 +33,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void hello(void *args);
-void f1(void *args);
-void f11(void *args);
+void fnA(void *args);
+void fnB(void *args);
+void fnC(void *args);
 
 int main_fiber, thread1_fiber, fiber1, fiber2;
 
@@ -54,8 +54,8 @@ int main(int argc, char **argv) {
     printf("Value of index 0 is %ld\n", value);
 */
     int a = 5;
-    fiber1 = CreateFiber(STACK_SIZE, (void *)&hello, &a);
-    fiber2 = CreateFiber(STACK_SIZE, (void *)&f11, NULL);
+    fiber1 = CreateFiber(STACK_SIZE, (void *)&fnA, &a);
+    fiber2 = CreateFiber(STACK_SIZE, (void *)&fnB, NULL);
     printf("Main fiber fid is %d\n", main_fiber);
     SwitchToFiber(fiber1);
 
@@ -64,9 +64,9 @@ int main(int argc, char **argv) {
     SwitchToFiber(fiber2);
     // SwitchToFiber(my_new_fiber);
     // ConvertThreadToFiber();
-    // pthread_t t1;
+    pthread_t t1;
     // pthread_t t2;
-    // pthread_create(&t1, NULL, (void *)f1, NULL);
+    pthread_create(&t1, NULL, (void *)fnC, NULL);
     // sleep(2);
     // pthread_create(&t2, NULL, ConvertThreadToFiber, NULL);
     // pthread_join(t1, NULL);
@@ -75,22 +75,21 @@ int main(int argc, char **argv) {
     exit(EXIT_SUCCESS);
 }
 
-void hello(void *args) {
+void fnA(void *args) {
     // int a = 3;
-    printf("Hello called from fiber1\n");
+    printf("fnA()\n");
     SwitchToFiber(0);
     // printf("a is %d\n", a);
-    // exit(EXIT_SUCCESS);
 }
 
-void f11(void *args) {
-    printf("f11 called from fiber2\n");
+void fnB(void *args) {
+    printf("fnB()\n");
     SwitchToFiber(0);
 }
 
-void f1(void *args) {
+void fnC(void *args) {
     thread1_fiber = ConvertThreadToFiber();
-    int fiber2 = CreateFiber(STACK_SIZE, (void *)&f11, NULL);
+    int fiber2 = CreateFiber(STACK_SIZE, (void *)&fnB, NULL);
     SwitchToFiber(fiber2);
     printf("Returned from main_fiber, will not call Switch intentionally! \n");
 }
