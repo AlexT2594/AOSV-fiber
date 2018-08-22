@@ -33,18 +33,9 @@
  * Static declarations
  */
 static int fiber_proc_open(struct inode *inode, struct file *file);
-static void *fiber_proc_start(struct seq_file *sfile, loff_t *pos);
-static void *fiber_proc_next(struct seq_file *sfile, void *v, loff_t *pos);
-static void fiber_proc_stop(struct seq_file *sfile, void *v);
 static int fiber_proc_show(struct seq_file *sfile, void *v);
 
 // clang-format off
-static struct seq_operations fiber_proc_ops = {
-    .start = fiber_proc_start,
-    .next = fiber_proc_next,
-    .stop = fiber_proc_stop,
-    .show = fiber_proc_show
-};
 
 static struct file_operations fiber_proc_file_ops = {
     .owner = THIS_MODULE,
@@ -98,53 +89,16 @@ void destroy_proc() {
  * @return int
  */
 static int fiber_proc_open(struct inode *inode, struct file *file) {
-    return seq_open(file, &fiber_proc_ops);
+    return single_open(file, fiber_proc_show, NULL);
 }
-
 /**
- * @brief Start of the iterator, we may want here to acquire semaphores/spinlocks
- *
- * @param sfile
- * @param pos
- * @return void*
- */
-static void *fiber_proc_start(struct seq_file *sfile, loff_t *pos) {
-    // let`s say we have only a single item to show
-    if (*pos > 0) return NULL;
-    return pos;
-}
-
-/**
- * @brief Get the next element in the iterator
- *
- * @param sfile
- * @param v
- * @param pos
- * @return void*
- */
-static void *fiber_proc_next(struct seq_file *s, void *v, loff_t *pos) {
-    loff_t *spos = v;
-    *pos = ++*spos;
-    if (*pos > 0) return NULL;
-    return spos;
-}
-
-/**
- * @brief Clean after iterator ending
- *
- * @param sfile
- * @param v
- */
-static void fiber_proc_stop(struct seq_file *sfile, void *v) {}
-
-/**
- * @brief Show the true data at iteartor position
+ * @brief Show the true data at itearator position
  *
  * @param sfile
  * @param v
  * @return int
  */
 static int fiber_proc_show(struct seq_file *sfile, void *v) {
-    seq_printf(sfile, "This proc file is working very well!\n");
+    seq_printf(sfile, "We have n processes!\n");
     return 0;
 }
