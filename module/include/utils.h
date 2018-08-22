@@ -71,3 +71,17 @@
     }                                                                                              \
     mutex_unlock(&mutex);
 #endif
+
+#define check_if_exists_hash(result, hashtable, field, value, member, type, mutex)                 \
+    mutex_lock(&mutex);                                                                            \
+    result = NULL;                                                                                 \
+    if (!hash_empty(hashtable)) {                                                                  \
+        type *__cursor_temp_hash = NULL;                                                           \
+        hash_for_each_possible(hashtable, __cursor_temp_hash, member, value) {                     \
+            if (__cursor_temp_hash->field == value) {                                              \
+                result = __cursor_temp_hash;                                                       \
+                break;                                                                             \
+            }                                                                                      \
+        }                                                                                          \
+    }                                                                                              \
+    mutex_unlock(&mutex);

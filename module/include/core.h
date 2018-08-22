@@ -61,6 +61,7 @@
 #define CORE_LOG ": CORE: "
 
 #define MAX_FLS 64
+#define HASH_KEY_SIZE 22
 
 /*
  * Definitions
@@ -92,6 +93,11 @@ int exit_fibered(void);
 // kprobe handlers
 int pre_exit_handler(struct kprobe *p, struct pt_regs *regs);
 void post_exit_handler(struct kprobe *p, struct pt_regs *regs, unsigned long flags);
+
+// utils
+fibered_process_node_t *check_if_process_is_fibered(unsigned process_pid);
+fiber_node_t *check_if_this_thread_is_fiber(fibered_process_node_t *fibered_process_node);
+fiber_node_t *check_if_fiber_exist(fibered_process_node_t *fibered_process_node, unsigned fid);
 
 /**
  * @brief The state of the fiber
@@ -170,6 +176,7 @@ typedef struct fibered_process {
     pid_t pid; /**< the pid of the main thread, so the tgid of every thread of the process */
     fibers_list_t fibers_list; /**< A list of fibers created in the process environment (so by any
                                   thread in it) */
+    struct hlist_node hlist;   /**< Hashlist implementation structure */
     struct list_head list;     /**< List implementation structure */
 } fibered_process_node_t;
 
@@ -181,6 +188,7 @@ typedef struct fibered_process {
  *
  */
 typedef struct fibered_processes_list {
+    DECLARE_HASHTABLE(hash_table, HASH_KEY_SIZE);
     struct list_head list;
     unsigned processes_count; /**< The number of elements in the list */
 } fibered_processes_list_t;

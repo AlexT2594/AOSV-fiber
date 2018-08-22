@@ -46,16 +46,17 @@ static DEFINE_MUTEX(fiber_lock);
  * @brief The variable of the core part that will contain the **fiber-enabled** processes
  */
 static fibered_processes_list_t fibered_processes_list = {
+    .hash_table = {[0 ...((1 << (HASH_KEY_SIZE)) - 1)] = HLIST_HEAD_INIT},
     .list = LIST_HEAD_INIT(fibered_processes_list.list),
-    .processes_count = 0,
-};
+    .processes_count = 0};
 
 /*
  * Kprobe implementation
  */
 int pre_exit_handler(struct kprobe *p, struct pt_regs *regs) {
     exit_fibered();
-    // printk(KERN_DEBUG MODULE_NAME CORE_LOG "pre_exit_handler called by tgid %d", current->tgid);
+    // printk(KERN_DEBUG MODULE_NAME CORE_LOG "pre_exit_handler called by tgid %d",
+    // current->tgid);
     return 0;
 }
 void post_exit_handler(struct kprobe *p, struct pt_regs *regs, unsigned long flags) {
@@ -120,12 +121,13 @@ int convert_thread_to_fiber() {
     fiber_node_t *fiber_node;
     // check if process if fiber enabled
     // check if process already created at least a fiber
-    check_if_exists(fibered_process_node, &fibered_processes_list.list, pid, current->tgid, list,
-                    fibered_process_node_t, fiber_lock);
+    fibered_process_node = check_if_process_is_fibered(current->tgid);
     if (fibered_process_node == NULL) {
         // process has never created a fiber
         create_list_entry(fibered_process_node, &fibered_processes_list.list, list,
                           fibered_process_node_t, fiber_lock);
+        // hlist
+        hash_add(fibered_processes_list.hash_table, &fibered_process_node->hlist, current->tgid);
         fibered_processes_list.processes_count++;
         fibered_process_node->pid = current->tgid;
         INIT_LIST_HEAD(&fibered_process_node->fibers_list.list);
@@ -133,8 +135,7 @@ int convert_thread_to_fiber() {
     }
 
     // check if the thread is already a fiber
-    check_if_exists(fiber_node, &fibered_process_node->fibers_list.list, run_by, current->pid, list,
-                    fiber_node_t, fiber_lock);
+    fiber_node = check_if_this_thread_is_fiber(fibered_process_node);
     if (fiber_node == NULL) {
         // thread is not a fiber
         create_list_entry(fiber_node, &fibered_process_node->fibers_list.list, list, fiber_node_t,
@@ -217,12 +218,10 @@ int create_fiber(fiber_params_t *params) {
         return -EFAULT;
     }
     // check if process if fiber enabled
-    check_if_exists(fibered_process_node, &fibered_processes_list.list, pid, current->tgid, list,
-                    fibered_process_node_t, fiber_lock);
+    fibered_process_node = check_if_process_is_fibered(current->tgid);
     if (fibered_process_node == NULL) return -ERR_NOT_FIBERED;
     // check if the thread is a fiber
-    check_if_exists(fiber_node, &fibered_process_node->fibers_list.list, run_by, current->pid, list,
-                    fiber_node_t, fiber_lock);
+    fiber_node = check_if_this_thread_is_fiber(fibered_process_node);
     if (fiber_node == NULL) return -ERR_NOT_FIBERED;
     // printk(KERN_DEBUG MODULE_NAME CORE_LOG "create_fiber Passed params_kern->function is
     // %lu",params_kern.function); printk(KERN_DEBUG MODULE_NAME CORE_LOG "create_fiber Passed
@@ -290,16 +289,13 @@ int switch_to_fiber(unsigned fid) {
     fiber_node_t *requested_fiber_node;
     struct timespec last_switch;
     // check if process is fiber enabled
-    check_if_exists(fibered_process_node, &fibered_processes_list.list, pid, current->tgid, list,
-                    fibered_process_node_t, fiber_lock);
+    fibered_process_node = check_if_process_is_fibered(current->tgid);
     if (fibered_process_node == NULL) return -ERR_NOT_FIBERED;
     // check if the thread is a fiber
-    check_if_exists(current_fiber_node, &fibered_process_node->fibers_list.list, run_by,
-                    current->pid, list, fiber_node_t, fiber_lock);
+    current_fiber_node = check_if_this_thread_is_fiber(fibered_process_node);
     if (current_fiber_node == NULL) return -ERR_NOT_FIBERED;
     // find a fiber element with id as fid
-    check_if_exists(requested_fiber_node, &fibered_process_node->fibers_list.list, id, fid, list,
-                    fiber_node_t, fiber_lock);
+    requested_fiber_node = check_if_fiber_exist(fibered_process_node, fid);
     if (requested_fiber_node == NULL) return -ERR_FIBER_NOT_EXISTS;
     if (requested_fiber_node->state == RUNNING) return -ERR_FIBER_ALREADY_RUNNING;
     // switch to that fiber
@@ -340,9 +336,8 @@ int exit_fibered() {
     fiber_node_t *curr_fiber = NULL;
     fiber_node_t *temp_fiber = NULL;
     // get the process node
-    check_if_exists(curr_process, &fibered_processes_list.list, pid, current->tgid, list,
-                    fibered_process_node_t, fiber_lock);
-    if (curr_process == NULL) { return ERR_NOT_FIBERED; }
+    curr_process = check_if_process_is_fibered(current->tgid);
+    if (curr_process == NULL) return ERR_NOT_FIBERED;
 
     mutex_lock(&fiber_lock);
     if (!list_empty(&curr_process->fibers_list.list)) {
@@ -355,6 +350,8 @@ int exit_fibered() {
     }
     // remove process from list
     list_del(&curr_process->list);
+    // remove process from hashlist
+    hash_del(&curr_process->hlist);
     // free process
     kfree(curr_process);
     mutex_unlock(&fiber_lock);
@@ -376,12 +373,10 @@ int fls_alloc() {
     fiber_node_t *current_fiber_node;
     unsigned long index;
     // check if process is fiber enabled
-    check_if_exists(fibered_process_node, &fibered_processes_list.list, pid, current->tgid, list,
-                    fibered_process_node_t, fiber_lock);
+    fibered_process_node = check_if_process_is_fibered(current->tgid);
     if (fibered_process_node == NULL) return -ERR_NOT_FIBERED;
     // check if the thread is a fiber
-    check_if_exists(current_fiber_node, &fibered_process_node->fibers_list.list, run_by,
-                    current->pid, list, fiber_node_t, fiber_lock);
+    current_fiber_node = check_if_this_thread_is_fiber(fibered_process_node);
     if (current_fiber_node == NULL) return -ERR_NOT_FIBERED;
 
     /*bitmap_set(fiber_node->local_storage.fls_bitmap, 0, 1);
@@ -414,12 +409,10 @@ int fls_free(long index) {
     fibered_process_node_t *fibered_process_node;
     fiber_node_t *current_fiber_node;
     // check if process is fiber enabled
-    check_if_exists(fibered_process_node, &fibered_processes_list.list, pid, current->tgid, list,
-                    fibered_process_node_t, fiber_lock);
+    fibered_process_node = check_if_process_is_fibered(current->tgid);
     if (fibered_process_node == NULL) return -ERR_NOT_FIBERED;
     // check if the thread is a fiber
-    check_if_exists(current_fiber_node, &fibered_process_node->fibers_list.list, run_by,
-                    current->pid, list, fiber_node_t, fiber_lock);
+    current_fiber_node = check_if_this_thread_is_fiber(fibered_process_node);
     if (current_fiber_node == NULL) return -ERR_NOT_FIBERED;
 
     // check if index is valid
@@ -435,12 +428,10 @@ long fls_get(long index) {
     fibered_process_node_t *fibered_process_node;
     fiber_node_t *current_fiber_node;
     // check if process is fiber enabled
-    check_if_exists(fibered_process_node, &fibered_processes_list.list, pid, current->tgid, list,
-                    fibered_process_node_t, fiber_lock);
+    fibered_process_node = check_if_process_is_fibered(current->tgid);
     if (fibered_process_node == NULL) return -ERR_NOT_FIBERED;
     //  check if the thread is a fiber
-    check_if_exists(current_fiber_node, &fibered_process_node->fibers_list.list, run_by,
-                    current->pid, list, fiber_node_t, fiber_lock);
+    current_fiber_node = check_if_this_thread_is_fiber(fibered_process_node);
     if (current_fiber_node == NULL) return -ERR_NOT_FIBERED;
 
     // check if index is valid
@@ -457,17 +448,15 @@ int fls_set(fls_params_t *params) {
     int ret;
     ret = copy_from_user(&params_kern, params, sizeof(fls_params_t));
     if (ret != 0) {
-        printk(KERN_ALERT MODULE_NAME CORE_LOG "copy_from_user didn't copy %d bytes", ret);
+        printk(KERN_ALERT MODULE_NAME CORE_LOG "fls_set() copy_from_user didn't copy %d bytes",
+               ret);
         return -EFAULT;
     }
-
     // check if process is fiber enabled
-    check_if_exists(fibered_process_node, &fibered_processes_list.list, pid, current->tgid, list,
-                    fibered_process_node_t, fiber_lock);
+    fibered_process_node = check_if_process_is_fibered(current->tgid);
     if (fibered_process_node == NULL) return -ERR_NOT_FIBERED;
     // check if the thread is a fiber
-    check_if_exists(current_fiber_node, &fibered_process_node->fibers_list.list, run_by,
-                    current->pid, list, fiber_node_t, fiber_lock);
+    current_fiber_node = check_if_this_thread_is_fiber(fibered_process_node);
     if (current_fiber_node == NULL) return -ERR_NOT_FIBERED;
 
     // check if index is valid
@@ -477,4 +466,43 @@ int fls_set(fls_params_t *params) {
         return -ERR_FLS_INVALID_INDEX;
     current_fiber_node->local_storage.fls[params_kern.idx] = params_kern.value;
     return 0;
+}
+
+/*
+ * Utils functions
+ */
+
+/**
+ * @brief Check if a process is fibered
+ *
+ * @param process_pid
+ * @return fibered_process_node_t* The pointer to the @ref fibered_process_node_t or NULL if process
+ * is not fibered
+ */
+fibered_process_node_t *check_if_process_is_fibered(unsigned process_pid) {
+    fibered_process_node_t *fibered_process_node;
+    check_if_exists_hash(fibered_process_node, fibered_processes_list.hash_table, pid, process_pid,
+                         hlist, fibered_process_node_t, fiber_lock);
+    return fibered_process_node;
+}
+
+/**
+ * @brief Chec
+ *
+ * @param fiber_process_node
+ * @param thread_tid
+ * @return fiber_node_t*
+ */
+fiber_node_t *check_if_this_thread_is_fiber(fibered_process_node_t *fibered_process_node) {
+    fiber_node_t *current_fiber_node;
+    check_if_exists(current_fiber_node, &fibered_process_node->fibers_list.list, run_by,
+                    current->pid, list, fiber_node_t, fiber_lock);
+    return current_fiber_node;
+}
+
+fiber_node_t *check_if_fiber_exist(fibered_process_node_t *fibered_process_node, unsigned fid) {
+    fiber_node_t *current_fiber_node;
+    check_if_exists(current_fiber_node, &fibered_process_node->fibers_list.list, id, fid, list,
+                    fiber_node_t, fiber_lock);
+    return current_fiber_node;
 }
