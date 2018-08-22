@@ -11,7 +11,7 @@ CFLAGS = -O3
 EXEC = test
 OBJS := $(SRC:%.c=%.o)
 OBJS := $(OBJS:%.S=%.o)
-LIBS = -lm -lpthread ../library/lib/libfiber.a
+LIBS =  ../library/lib/libfiber.a -lm -lpthread
 
 all: $(EXEC)
 

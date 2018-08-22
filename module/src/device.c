@@ -44,6 +44,18 @@ static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg);
 
 static fiber_dev_t fiber_dev;
 static int is_device_open = 0;
+// commands
+char *cmds[FIBER_IOC_MAXNR + 1] = {
+    "RESET",                   // 0
+    "CONVERT_THREAD_TO_FIBER", // 1
+    "CREATE_FIBER",            // 2
+    "SWITCH_TO_FIBER",         // 3
+    "FLS_ALLOC",               // 4
+    "FLS_FREE",                // 5
+    "FLS_GET",                 // 6
+    "FLS_SET",                 // 7
+    "EXIT"                     // 8
+};
 
 // clang-format off
 static struct file_operations fops = {
@@ -92,6 +104,8 @@ void destroy_device(void) {
  * Implementation of static functions
  */
 
+static DEFINE_MUTEX(fiber_lock);
+
 /**
  * @brief The main ioctl function, dispatcher of all the exposed capabilities of the module - aka
  * syscalls.
@@ -104,8 +118,9 @@ void destroy_device(void) {
  */
 static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
     int err = 0, retval = 0;
-    printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "Called IOCTL with cmd %d", _IOC_NR(cmd));
-
+    mutex_lock(&fiber_lock);
+    printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "IOCTL %s from pid %d, tgid %d", cmds[_IOC_NR(cmd)],
+           current->pid, current->tgid);
     // check correctness of type and command number
     if (_IOC_TYPE(cmd) != FIBER_IOC_MAGIC) return -ENOTTY;
     if (_IOC_NR(cmd) > FIBER_IOC_MAXNR) return -ENOTTY;
@@ -116,35 +131,38 @@ static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) 
         err = !access_ok(VERIFY_READ, (void __user *)arg, _IOC_SIZE(cmd));
     if (err) return -EFAULT;
 
-    printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "Called cmd %d from pid %d, tgid %d", _IOC_NR(cmd),
-           current->pid, current->tgid);
+    printk(KERN_CONT "...mem ok!");
 
     switch (cmd) {
     case FIBER_IOCRESET:
         break;
     case FIBER_IOC_CONVERTTHREADTOFIBER:
-        return convert_thread_to_fiber();
+        retval = convert_thread_to_fiber();
+        break;
     case FIBER_IOC_CREATEFIBER:
-        return create_fiber((fiber_params_t *)arg);
+        retval = create_fiber((fiber_params_t *)arg);
+        break;
     case FIBER_IOC_SWITCHTOFIBER:
-        return switch_to_fiber((unsigned)arg);
+        retval = switch_to_fiber((unsigned)arg);
+        break;
     case FIBER_IOC_FLS_ALLOC:
-        return fls_alloc();
+        retval = fls_alloc();
         break;
     case FIBER_IOC_FLS_FREE:
-        return fls_free((long)arg);
+        retval = fls_free((long)arg);
         break;
     case FIBER_IOC_FLS_GET:
-        return fls_get((long)arg);
+        retval = fls_get((long)arg);
         break;
     case FIBER_IOC_FLS_SET:
-        return fls_set((fls_params_t *)arg);
+        retval = fls_set((fls_params_t *)arg);
         break;
     case FIBER_IOC_EXIT:
-        return exit_fibered();
+        retval = exit_fibered();
     default:
         break;
     }
+    mutex_unlock(&fiber_lock);
     return retval;
 }
 

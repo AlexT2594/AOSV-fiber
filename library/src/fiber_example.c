@@ -42,17 +42,17 @@ int main_fiber, thread1_fiber, fiber1, fiber2;
 int main(int argc, char **argv) {
     printf("Starting fiber test!\n");
     main_fiber = ConvertThreadToFiber();
-    /*long index = FlsAlloc();
-    printf("Index is %ld\n", index);
+    long index = FlsAlloc();
+    printf("FlsAlloc() got %ld\n", index);
     long index2 = FlsAlloc();
-    printf("Index2 is %ld\n", index2);
+    printf("FlsAlloc() got %ld\n", index2);
     // test set
-    printf("Ret value of FlsSetValue() is %d\n", FlsSetValue(index, 34));
-    printf("Ret value of FlsSetValue() is %d\n", FlsSetValue(32, 34));
+    printf("Ret value of FlsSetValue(index,34) is %d\n", FlsSetValue(index, 34));
+    printf("Ret value of FlsSetValue(32,34) is %d\n", FlsSetValue(32, 34));
 
     long value = FlsGetValue(0);
     printf("Value of index 0 is %ld\n", value);
-*/
+
     int a = 5;
     fiber1 = CreateFiber(STACK_SIZE, (void *)&fnA, &a);
     fiber2 = CreateFiber(STACK_SIZE, (void *)&fnB, NULL);

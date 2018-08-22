@@ -30,6 +30,7 @@
 #define __PROC_H
 
 #include "common.h"
+#include "core.h"
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
 

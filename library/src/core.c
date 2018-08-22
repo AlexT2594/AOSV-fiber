@@ -58,6 +58,9 @@ int ConvertThreadToFiber() {
         return -1;
     }
     close(dev_fd);
+#ifdef DEBUG
+    printf(LIBRARY_TAG CORE_TAG "ConvertThreadToFiber() assigned %d to fiber\n", ret);
+#endif
     // add new node to the list of fiber
     create_list_entry(fiber_node, &fibers_list.list, list, fiber_t);
     fiber_node->id = ret;
@@ -104,6 +107,9 @@ int CreateFiber(unsigned long stack_size, void *(*function)(void *), void *args)
         return -1;
     }
     close(dev_fd);
+#ifdef DEBUG
+    printf(LIBRARY_TAG CORE_TAG "CreateFiber() assigned %d to fiber\n", ret);
+#endif
     // add new node to the list of fiber
     create_list_entry(fiber_node, &fibers_list.list, list, fiber_t);
     fiber_node->id = ret;

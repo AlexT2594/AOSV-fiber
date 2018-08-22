@@ -3,6 +3,6 @@
 
 #define DEBUG
 
-#define LIBRARY_TAG "Library: "
+#define LIBRARY_TAG "[Library] "
 
 #endif

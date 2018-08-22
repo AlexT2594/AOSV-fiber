@@ -42,9 +42,7 @@
  */
 #define create_list_entry(new, head, member, type, mutex)                                          \
     new = kmalloc(sizeof(type), GFP_KERNEL);                                                       \
-    mutex_lock(&mutex);                                                                            \
-    list_add_tail(&(new->member), head);                                                           \
-    mutex_unlock(&mutex);
+    list_add_tail(&(new->member), head);
 
 /**
  * @brief Check if exist an entry (of type) in list pointed by head with field equal to value
@@ -58,7 +56,6 @@
  *
  */
 #define check_if_exists(result, head, field, value, member, type, mutex)                           \
-    mutex_lock(&mutex);                                                                            \
     result = NULL;                                                                                 \
     if (!list_empty(head)) {                                                                       \
         type *type_temp__ = NULL;                                                                  \
@@ -68,12 +65,9 @@
                 break;                                                                             \
             }                                                                                      \
         }                                                                                          \
-    }                                                                                              \
-    mutex_unlock(&mutex);
-#endif
+    }
 
 #define check_if_exists_hash(result, hashtable, field, value, member, type, mutex)                 \
-    mutex_lock(&mutex);                                                                            \
     result = NULL;                                                                                 \
     if (!hash_empty(hashtable)) {                                                                  \
         type *__cursor_temp_hash = NULL;                                                           \
@@ -83,5 +77,6 @@
                 break;                                                                             \
             }                                                                                      \
         }                                                                                          \
-    }                                                                                              \
-    mutex_unlock(&mutex);
+    }
+
+#endif

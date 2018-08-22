@@ -40,7 +40,7 @@ static struct kprobe kp;
  * see https://www.kernel.org/doc/htmldocs/kernel-locking/Examples.html
  * It will be used everytime we have to access critical data structures
  */
-static DEFINE_MUTEX(fiber_lock);
+// static DEFINE_MUTEX(fiber_lock);
 
 /**
  * @brief The variable of the core part that will contain the **fiber-enabled** processes
@@ -54,7 +54,7 @@ static fibered_processes_list_t fibered_processes_list = {
  * Kprobe implementation
  */
 int pre_exit_handler(struct kprobe *p, struct pt_regs *regs) {
-    // exit_fibered();
+    exit_fibered();
     // printk(KERN_DEBUG MODULE_NAME CORE_LOG "pre_exit_handler called by tgid %d",
     // current->tgid);
 
@@ -120,6 +120,7 @@ void destroy_core() { unregister_kprobe(&kp); }
 int convert_thread_to_fiber() {
     fibered_process_node_t *fibered_process_node;
     fiber_node_t *fiber_node;
+    int ret;
     // check if process if fiber enabled
     // check if process already created at least a fiber
     fibered_process_node = check_if_process_is_fibered(current->tgid);
@@ -153,9 +154,11 @@ int convert_thread_to_fiber() {
         fiber_node->state = RUNNING;
         fibered_process_node->fibers_list.fibers_count++;
         bitmap_clear(fiber_node->local_storage.fls_bitmap, 0, MAX_FLS);
-        return fiber_node->id;
+        ret = fiber_node->id;
     } else
-        return -ERR_THREAD_ALREADY_FIBER;
+        ret = -ERR_THREAD_ALREADY_FIBER;
+
+    return ret;
 }
 
 /**
@@ -202,15 +205,15 @@ int create_fiber(fiber_params_t *params) {
     // check if process if fiber enabled
     fibered_process_node = check_if_process_is_fibered(current->tgid);
     if (fibered_process_node == NULL) return -ERR_NOT_FIBERED;
+
     // check if the thread is a fiber
     fiber_node = check_if_this_thread_is_fiber(fibered_process_node);
-    if (fiber_node == NULL) printk(KERN_ALERT "Thread %d is not a fiber", current->pid);
+    // if (fiber_node == NULL) printk(KERN_ALERT "Thread %d is not a fiber", current->pid);
     if (fiber_node == NULL) return -ERR_NOT_FIBERED;
     // add the node
     create_list_entry(fiber_node, &fibered_process_node->fibers_list.list, list, fiber_node_t,
                       fiber_lock);
     fiber_node->id = fibered_process_node->fibers_list.fibers_count;
-    printk(KERN_DEBUG MODULE_NAME CORE_LOG "create_fiber Created fiber id is %u", fiber_node->id);
     fiber_node->created_by = current->pid;
     fiber_node->run_by = -1; // meaning no thread is running it
     fiber_node->state = IDLE;
@@ -269,16 +272,20 @@ int switch_to_fiber(unsigned fid) {
     fiber_node_t *current_fiber_node;
     fiber_node_t *requested_fiber_node;
     struct timespec last_switch;
+
     // check if process is fiber enabled
     fibered_process_node = check_if_process_is_fibered(current->tgid);
     if (fibered_process_node == NULL) return -ERR_NOT_FIBERED;
+
     // check if the thread is a fiber
     current_fiber_node = check_if_this_thread_is_fiber(fibered_process_node);
     if (current_fiber_node == NULL) return -ERR_NOT_FIBERED;
+
     // find a fiber element with id as fid
     requested_fiber_node = check_if_fiber_exist(fibered_process_node, fid);
     if (requested_fiber_node == NULL) return -ERR_FIBER_NOT_EXISTS;
-    if (requested_fiber_node->state == RUNNING) return -ERR_FIBER_ALREADY_RUNNING;
+    // if (requested_fiber_node->state == RUNNING) return -ERR_FIBER_ALREADY_RUNNING;
+
     // switch to that fiber
     // set-up time
     last_switch = current_fiber_node->time_last_switch;
@@ -299,9 +306,9 @@ int switch_to_fiber(unsigned fid) {
     // -> replace pt_regs
     memcpy(task_pt_regs(current), &requested_fiber_node->regs, sizeof(struct pt_regs));
     // save current FPU registers
-    copy_fxregs_to_kernel(&current_fiber_node->fpu_regs);
+    // copy_fxregs_to_kernel(&current_fiber_node->fpu_regs);
     // restore requested FPU registers
-    copy_kernel_to_fxregs(&requested_fiber_node->fpu_regs.state.fxsave);
+    // copy_kernel_to_fxregs(&requested_fiber_node->fpu_regs.state.fxsave);
     // close the device descriptor
     close_device_descriptor();
     return 0;
@@ -320,7 +327,6 @@ int exit_fibered() {
     curr_process = check_if_process_is_fibered(current->tgid);
     if (curr_process == NULL) return ERR_NOT_FIBERED;
 
-    mutex_lock(&fiber_lock);
     if (!list_empty(&curr_process->fibers_list.list)) {
         list_for_each_entry_safe(curr_fiber, temp_fiber, &curr_process->fibers_list.list, list) {
             // remove fiber from list
@@ -335,7 +341,6 @@ int exit_fibered() {
     hash_del(&curr_process->hlist);
     // free process
     kfree(curr_process);
-    mutex_unlock(&fiber_lock);
     printk(KERN_DEBUG MODULE_NAME CORE_LOG "Process pid %d exited gracefully for ending thread %d",
            current->tgid, current->pid);
     return 0;
@@ -359,18 +364,6 @@ int fls_alloc() {
     // check if the thread is a fiber
     current_fiber_node = check_if_this_thread_is_fiber(fibered_process_node);
     if (current_fiber_node == NULL) return -ERR_NOT_FIBERED;
-
-    /*bitmap_set(fiber_node->local_storage.fls_bitmap, 0, 1);
-    bitmap_set(fiber_node->local_storage.fls_bitmap, 1, 1);
-    DECLARE_BITMAP(check_bitmap, MAX_FLS);
-    bitmap_clear(check_bitmap, 0, MAX_FLS);
-    bitmap_set(check_bitmap, 3, 1);
-    ret = bitmap_equal(fiber_node->local_storage.fls_bitmap, check_bitmap, MAX_FLS);
-    printk(KERN_DEBUG MODULE_NAME CORE_LOG "Value of bitmap equal is %d", ret);
-
-    next_bit =
-        bitmap_find_next_zero_area(fiber_node->local_storage.fls_bitmap, MAX_FLS, 0, 1, 0);
-    */
     index =
         bitmap_find_next_zero_area(current_fiber_node->local_storage.fls_bitmap, MAX_FLS, 0, 1, 0);
     if (index > MAX_FLS) return -ERR_FLS_FULL;

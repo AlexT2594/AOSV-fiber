@@ -77,3 +77,4 @@ bin/
 build/
 lib/
 doxy/
+.cache.mk
