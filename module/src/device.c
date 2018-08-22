@@ -152,7 +152,7 @@ static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) 
         retval = fls_free((long)arg);
         break;
     case FIBER_IOC_FLS_GET:
-        retval = fls_get((long)arg);
+        retval = fls_get((fls_params_t *)arg);
         break;
     case FIBER_IOC_FLS_SET:
         retval = fls_set((fls_params_t *)arg);
@@ -163,6 +163,8 @@ static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) 
         break;
     }
     mutex_unlock(&fiber_lock);
+    printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "IOCTL %s from pid %d, tgid %d => Retvalue: %d",
+           cmds[_IOC_NR(cmd)], current->pid, current->tgid, retval);
     return retval;
 }
 

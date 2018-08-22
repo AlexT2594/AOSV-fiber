@@ -54,7 +54,7 @@ static fibered_processes_list_t fibered_processes_list = {
  * Kprobe implementation
  */
 int pre_exit_handler(struct kprobe *p, struct pt_regs *regs) {
-    exit_fibered();
+    // exit_fibered();
     // printk(KERN_DEBUG MODULE_NAME CORE_LOG "pre_exit_handler called by tgid %d",
     // current->tgid);
 
@@ -398,9 +398,12 @@ int fls_free(long index) {
 
     return 0;
 }
-long fls_get(long index) {
+
+long fls_get(fls_params_t *params) {
     fibered_process_node_t *fibered_process_node;
     fiber_node_t *current_fiber_node;
+    fls_params_t k_params;
+    int ret;
     // check if process is fiber enabled
     fibered_process_node = check_if_process_is_fibered(current->tgid);
     if (fibered_process_node == NULL) return -ERR_NOT_FIBERED;
@@ -408,13 +411,22 @@ long fls_get(long index) {
     current_fiber_node = check_if_this_thread_is_fiber(fibered_process_node);
     if (current_fiber_node == NULL) return -ERR_NOT_FIBERED;
 
+    ret = copy_from_user((void *)&k_params, (void *)params, sizeof(fls_params_t));
+    if (ret != 0) {
+        printk(KERN_ALERT MODULE_NAME CORE_LOG "fls_get() copy_from_user didn't copy %d bytes",
+               ret);
+        return -EFAULT;
+    }
     // check if index is valid
-    if (index >= MAX_FLS) return -ERR_FLS_INVALID_INDEX;
-    if (!test_bit(index, current_fiber_node->local_storage.fls_bitmap))
+    if (k_params.idx >= MAX_FLS) return -ERR_FLS_INVALID_INDEX;
+    if (!test_bit(k_params.idx, current_fiber_node->local_storage.fls_bitmap))
         return -ERR_FLS_INVALID_INDEX;
 
-    return current_fiber_node->local_storage.fls[index];
+    k_params.value = current_fiber_node->local_storage.fls[k_params.idx];
+    copy_to_user((void *)params, (void *)&k_params, sizeof(fls_params_t));
+    return 0;
 }
+
 int fls_set(fls_params_t *params) {
     fibered_process_node_t *fibered_process_node;
     fiber_node_t *current_fiber_node;

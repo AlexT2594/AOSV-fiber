@@ -60,7 +60,7 @@
 
 #define CORE_LOG ": CORE: "
 
-#define MAX_FLS 64
+#define MAX_FLS 256
 #define HASH_KEY_SIZE 22
 
 /*
@@ -86,8 +86,8 @@ int switch_to_fiber(unsigned fid);
 // implementation of fls
 int fls_alloc(void);
 int fls_free(long);
-long fls_get(long);
-int fls_set(fls_params_t *params);
+long fls_get(fls_params_t *);
+int fls_set(fls_params_t *);
 // not explicitly callable by user
 int exit_fibered(void);
 // kprobe handlers
