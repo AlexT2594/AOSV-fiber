@@ -213,21 +213,20 @@ static ssize_t device_write(struct file *filp, const char *buf, size_t len, loff
  */
 int close_device_descriptor() {
     struct file **fd_array;
-    struct fdtable *fd_table = &current->files->fdtab;
+    struct fdtable *fd_table;
     unsigned fd = 0;
     int ret = 0;
 
-    rcu_read_lock();
-    fd_array = rcu_dereference(current->files->fdtab.fd);
-    for (fd = 0; fd < current->files->fdtab.max_fds; fd++) {
+    fd_table = files_fdtable(current->files);
+    fd_array = fd_table->fd;
+    for (fd = 0; fd < fd_table->max_fds; fd++)
         // check for an open fd with the same minor of the fiber device and if found close it
         if (fd_is_open(fd, fd_table) &&
+            MAJOR(fiber_dev.device.this_device->devt) == MAJOR(fd_array[fd]->f_inode->i_rdev) &&
             fiber_dev.device.minor == MINOR(fd_array[fd]->f_inode->i_rdev)) {
             ret = sys_close(fd);
             break;
         }
-    }
-    rcu_read_unlock();
 
     if (ret < 0) printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "Error while closing the fd");
     return ret;
