@@ -310,7 +310,7 @@ int switch_to_fiber(unsigned fid) {
     // restore requested FPU registers
     // copy_kernel_to_fxregs(&requested_fiber_node->fpu_regs.state.fxsave);
     // close the device descriptor
-    close_device_descriptor();
+    // close_device_descriptor();
     return 0;
 }
 

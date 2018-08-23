@@ -142,7 +142,7 @@ int SwitchToFiber(unsigned fid) {
         printf(LIBRARY_TAG CORE_TAG "SwitchToFiber() ioctl error, errno %d\n", errno);
         return -1;
     }
-    // close(dev_fd);
+    close(dev_fd);
     return ret;
 }
 
@@ -208,7 +208,9 @@ long FlsGetValue(long index) {
     if (dev_fd < 0) return -1;
     int ret = ioctl(dev_fd, FIBER_IOC_FLS_GET, (unsigned long)req_params);
     if (ret < 0) {
-        printf(LIBRARY_TAG CORE_TAG "FlsGetValue(%ld) ioctl error, errno %d\n", index, errno);
+        printf("Is fd#%d valid::%d\n", dev_fd, fcntl(dev_fd, F_GETFD));
+        printf(LIBRARY_TAG CORE_TAG "FlsGetValue(%ld) ioctl to %d error, errno %d\n", index, dev_fd,
+               errno);
         return -1;
     }
     close(dev_fd);
