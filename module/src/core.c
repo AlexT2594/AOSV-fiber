@@ -54,7 +54,7 @@ static fibered_processes_list_t fibered_processes_list = {
  * Kprobe implementation
  */
 int pre_exit_handler(struct kprobe *p, struct pt_regs *regs) {
-    // exit_fibered();
+    exit_fibered();
     // printk(KERN_DEBUG MODULE_NAME CORE_LOG "pre_exit_handler called by tgid %d",
     // current->tgid);
 
@@ -325,7 +325,7 @@ int exit_fibered() {
     fiber_node_t *temp_fiber = NULL;
     // get the process node
     curr_process = check_if_process_is_fibered(current->tgid);
-    if (curr_process == NULL) return ERR_NOT_FIBERED;
+    if (curr_process == NULL) return -ERR_NOT_FIBERED;
 
     if (!list_empty(&curr_process->fibers_list.list)) {
         list_for_each_entry_safe(curr_fiber, temp_fiber, &curr_process->fibers_list.list, list) {
@@ -341,6 +341,8 @@ int exit_fibered() {
     hash_del(&curr_process->hlist);
     // free process
     kfree(curr_process);
+    printk(KERN_DEBUG MODULE_NAME CORE_LOG "Process pid %d exited gracefully for ending thread %d",
+           current->tgid, current->pid);
     printk(KERN_DEBUG MODULE_NAME CORE_LOG "Process pid %d exited gracefully for ending thread %d",
            current->tgid, current->pid);
     return 0;

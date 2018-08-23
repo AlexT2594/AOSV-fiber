@@ -262,7 +262,7 @@ void safe_cleanup() {
  */
 void clean_memory() {
 #ifdef DEBUG
-    printf(LIBRARY_TAG CORE_TAG "clean_memory()");
+    printf(LIBRARY_TAG CORE_TAG "clean_memory()\n");
 #endif
     fiber_t *curr_fiber = NULL;
     fiber_t *temp_fiber = NULL;
@@ -301,4 +301,12 @@ int open_device() {
         }
     }
     return fiber_dev_fd;
+}
+
+__attribute__((destructor)) void end(void) {
+#ifdef DEBUG
+    printf(LIBRARY_TAG CORE_TAG "end() destructor called\n");
+#endif
+    close(fiber_dev_fd);
+    clean_memory();
 }

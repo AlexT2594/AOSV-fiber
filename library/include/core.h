@@ -59,6 +59,8 @@ void safe_cleanup();
 void clean_memory();
 int open_device();
 
+void end(void) __attribute__((destructor));
+
 /**
  * @brief Single node in a fiber_list_t list
  *
