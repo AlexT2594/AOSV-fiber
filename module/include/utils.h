@@ -72,7 +72,9 @@
     result = NULL;                                                                                 \
     if (!hash_empty(hashtable)) {                                                                  \
         type *__cursor_temp_hash = NULL;                                                           \
-        hash_for_each_possible(hashtable, __cursor_temp_hash, member, value) {                     \
+        struct hlist_node *__cursor_temp_hash_safe = NULL;                                         \
+        hash_for_each_possible_safe(hashtable, __cursor_temp_hash, __cursor_temp_hash_safe,        \
+                                    member, value) {                                               \
             if (__cursor_temp_hash->field == value) {                                              \
                 result = __cursor_temp_hash;                                                       \
                 break;                                                                             \

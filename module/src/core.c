@@ -561,11 +561,13 @@ int fls_set(fls_params_t *params) {
  */
 fibered_process_node_t *check_if_process_is_fibered(unsigned process_pid) {
     fibered_process_node_t *fibered_process_node;
-    // check_if_exists_hash(fibered_process_node, fibered_processes_list.hash_table, pid,
-    // process_pid,
-    //                     hlist, fibered_process_node_t, fiber_lock);
+#ifdef USE_HASH_LIST
+    check_if_exists_hash(fibered_process_node, fibered_processes_list.hash_table, pid, process_pid,
+                         hlist, fibered_process_node_t, fiber_lock);
+#else
     check_if_exists(fibered_process_node, &fibered_processes_list.list, pid, process_pid, list,
                     fibered_process_node_t, fiber_lock);
+#endif
     return fibered_process_node;
 }
 
