@@ -60,7 +60,7 @@
 
 #define CORE_LOG ": CORE: "
 
-#define MAX_FLS 256
+#define MAX_FLS 1024
 #define HASH_KEY_SIZE 22
 
 /*

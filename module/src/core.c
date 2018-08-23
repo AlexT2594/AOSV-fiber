@@ -284,7 +284,7 @@ int switch_to_fiber(unsigned fid) {
     // find a fiber element with id as fid
     requested_fiber_node = check_if_fiber_exist(fibered_process_node, fid);
     if (requested_fiber_node == NULL) return -ERR_FIBER_NOT_EXISTS;
-    // if (requested_fiber_node->state == RUNNING) return -ERR_FIBER_ALREADY_RUNNING;
+    if (requested_fiber_node->state == RUNNING) return -ERR_FIBER_ALREADY_RUNNING;
 
     // switch to that fiber
     // set-up time
@@ -423,7 +423,11 @@ long fls_get(fls_params_t *params) {
         return -ERR_FLS_INVALID_INDEX;
 
     k_params.value = current_fiber_node->local_storage.fls[k_params.idx];
-    copy_to_user((void *)params, (void *)&k_params, sizeof(fls_params_t));
+    ret = copy_to_user((void *)params, (void *)&k_params, sizeof(fls_params_t));
+    if (ret != 0) {
+        printk(KERN_ALERT MODULE_NAME CORE_LOG "fls_get() copy_to_user didn't copy %d bytes", ret);
+        return -EFAULT;
+    }
     return 0;
 }
 

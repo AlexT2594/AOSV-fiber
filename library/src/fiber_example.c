@@ -53,6 +53,10 @@ int main(int argc, char **argv) {
 
     long value = FlsGetValue(0);
     printf("Value of index 0 is %lu\n", value);
+    value = FlsGetValue(0);
+    printf("Value of index 0 is %lu\n", value);
+    value = FlsGetValue(0);
+    printf("Value of index 0 is %lu\n", value);
 
     int a = 5;
     fiber1 = CreateFiber(STACK_SIZE, (void *)&fnA, &a);

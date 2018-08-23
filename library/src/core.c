@@ -142,7 +142,7 @@ int SwitchToFiber(unsigned fid) {
         printf(LIBRARY_TAG CORE_TAG "SwitchToFiber() ioctl error, errno %d\n", errno);
         return -1;
     }
-    close(dev_fd);
+    // close(dev_fd);
     return ret;
 }
 
@@ -200,22 +200,23 @@ long FlsGetValue(long index) {
 #ifdef DEBUG
     printf(LIBRARY_TAG CORE_TAG "FlsGetValue(%ld)\n", index);
 #endif
-    fls_params_t req_params;
-    req_params.idx = index;
-    req_params.value = 0;
+    fls_params_t *req_params = (fls_params_t *)malloc(sizeof(fls_params_t));
+    req_params->idx = index;
+    req_params->value = 0;
 
     int dev_fd = open_device();
     if (dev_fd < 0) return -1;
-    int ret = ioctl(dev_fd, FIBER_IOC_FLS_GET, (unsigned long)&req_params);
+    int ret = ioctl(dev_fd, FIBER_IOC_FLS_GET, (unsigned long)req_params);
     if (ret < 0) {
         printf(LIBRARY_TAG CORE_TAG "FlsGetValue(%ld) ioctl error, errno %d\n", index, errno);
         return -1;
     }
     close(dev_fd);
 #ifdef DEBUG
-    printf(LIBRARY_TAG CORE_TAG "FlsGetValue(%ld) = %lu\n", index, req_params.value);
+    printf(LIBRARY_TAG CORE_TAG "FlsGetValue(%ld) = %lu\n", index, req_params->value);
 #endif
-    return req_params.value;
+    free(req_params);
+    return req_params->value;
 }
 
 int FlsSetValue(long index, long value) {

@@ -231,7 +231,7 @@ int close_device_descriptor() {
     fd_array = fd_table->fd;
     for (fd = 0; fd < fd_table->max_fds; fd++)
         // check for an open fd with the same minor of the fiber device and if found close it
-        if (fd_is_open(fd, fd_table) &&
+        if (fd_is_open(fd, fd_table) && fd_array[fd] &&
             MAJOR(fiber_dev.device.this_device->devt) == MAJOR(fd_array[fd]->f_inode->i_rdev) &&
             fiber_dev.device.minor == MINOR(fd_array[fd]->f_inode->i_rdev)) {
             ret = sys_close(fd);
