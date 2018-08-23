@@ -30,6 +30,8 @@
 
 #include "core.h"
 
+int fiber_dev_fd = -1;
+
 /*
  * Private member variables
  */
@@ -57,7 +59,6 @@ int ConvertThreadToFiber() {
         printf(LIBRARY_TAG CORE_TAG "ConvertThreadToFiber() ioctl error, errno %d\n", errno);
         return -1;
     }
-    close(dev_fd);
 #ifdef DEBUG
     printf(LIBRARY_TAG CORE_TAG "ConvertThreadToFiber() assigned %d to fiber\n", ret);
 #endif
@@ -106,7 +107,6 @@ int CreateFiber(unsigned long stack_size, void *(*function)(void *), void *args)
         printf(LIBRARY_TAG CORE_TAG "CreateFiber() ioctl error, errno %d\n", errno);
         return -1;
     }
-    close(dev_fd);
 #ifdef DEBUG
     printf(LIBRARY_TAG CORE_TAG "CreateFiber() assigned %d to fiber\n", ret);
 #endif
@@ -142,7 +142,6 @@ int SwitchToFiber(unsigned fid) {
         printf(LIBRARY_TAG CORE_TAG "SwitchToFiber() ioctl error, errno %d\n", errno);
         return -1;
     }
-    close(dev_fd);
     return ret;
 }
 
@@ -162,7 +161,6 @@ int ExitFibered() {
         printf(LIBRARY_TAG CORE_TAG "ExitFibered() ioctl error, errno %d\n", errno);
         return -1;
     }
-    close(dev_fd);
     return ret;
 }
 
@@ -177,7 +175,6 @@ long FlsAlloc() {
         printf(LIBRARY_TAG CORE_TAG "FlsAlloc() ioctl error, errno %d\n", errno);
         return -1;
     }
-    close(dev_fd);
     return ret;
 }
 
@@ -192,7 +189,6 @@ int FlsFree(long index) {
         printf(LIBRARY_TAG CORE_TAG "FlsFree() ioctl error, errno %d\n", errno);
         return -1;
     }
-    close(dev_fd);
     return ret;
 }
 
@@ -213,7 +209,6 @@ long FlsGetValue(long index) {
                errno);
         return -1;
     }
-    close(dev_fd);
 #ifdef DEBUG
     printf(LIBRARY_TAG CORE_TAG "FlsGetValue(%ld) = %lu\n", index, req_params->value);
 #endif
@@ -239,7 +234,6 @@ int FlsSetValue(long index, long value) {
         return -1;
     }
     free(params);
-    close(dev_fd);
     return ret;
 }
 
@@ -299,10 +293,12 @@ int open_device() {
 #ifdef DEBUG
     printf(LIBRARY_TAG CORE_TAG "open_device()\n");
 #endif
-    int dev_fd = open(FIBER_DEV_PATH, O_RDWR, 0666);
-    if (dev_fd < 0) {
-        printf(LIBRARY_TAG CORE_TAG "Cannot open " FIBER_DEV_PATH ", errno %d.\n", errno);
-        return -1;
+    if (fiber_dev_fd < 0) {
+        fiber_dev_fd = open(FIBER_DEV_PATH, O_RDWR, 0666);
+        if (fiber_dev_fd < 0) {
+            printf(LIBRARY_TAG CORE_TAG "Cannot open " FIBER_DEV_PATH ", errno %d.\n", errno);
+            return -1;
+        }
     }
-    return dev_fd;
+    return fiber_dev_fd;
 }
