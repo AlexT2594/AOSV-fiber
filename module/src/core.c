@@ -40,7 +40,7 @@ static struct kprobe kp;
  * see https://www.kernel.org/doc/htmldocs/kernel-locking/Examples.html
  * It will be used everytime we have to access critical data structures
  */
-// static DEFINE_MUTEX(fiber_lock);
+static DEFINE_MUTEX(fiber_lock);
 
 /**
  * @brief The variable of the core part that will contain the **fiber-enabled** processes
@@ -314,6 +314,7 @@ int switch_to_fiber(unsigned fid) {
     return 0;
 }
 
+static int exited = 0;
 /**
  * @brief Called when a process ends
  *
@@ -326,6 +327,13 @@ int exit_fibered() {
     // get the process node
     curr_process = check_if_process_is_fibered(current->tgid);
     if (curr_process == NULL) return -ERR_NOT_FIBERED;
+
+    mutex_lock(&fiber_lock);
+
+    if (exited) {
+        return 0;
+        mutex_unlock(&fiber_lock);
+    }
 
     if (!list_empty(&curr_process->fibers_list.list)) {
         list_for_each_entry_safe(curr_fiber, temp_fiber, &curr_process->fibers_list.list, list) {
@@ -345,6 +353,10 @@ int exit_fibered() {
            current->tgid, current->pid);
     printk(KERN_DEBUG MODULE_NAME CORE_LOG "Process pid %d exited gracefully for ending thread %d",
            current->tgid, current->pid);
+
+    exited = 1;
+    mutex_unlock(&fiber_lock);
+
     return 0;
 }
 
