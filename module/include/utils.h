@@ -59,7 +59,8 @@
     result = NULL;                                                                                 \
     if (!list_empty(head)) {                                                                       \
         type *type_temp__ = NULL;                                                                  \
-        list_for_each_entry(type_temp__, head, member) {                                           \
+        type *type_temp_safe__ = NULL;                                                             \
+        list_for_each_entry_safe(type_temp__, type_temp_safe__, head, member) {                    \
             if (type_temp__->field == value) {                                                     \
                 result = type_temp__;                                                              \
                 break;                                                                             \

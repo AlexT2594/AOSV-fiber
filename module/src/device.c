@@ -118,7 +118,7 @@ static DEFINE_MUTEX(fiber_lock);
  */
 static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
     int err = 0, retval = 0;
-    mutex_lock(&fiber_lock);
+    // mutex_lock(&fiber_lock);
     printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "IOCTL %s from pid %d, tgid %d", cmds[_IOC_NR(cmd)],
            current->pid, current->tgid);
     // check correctness of type and command number
@@ -162,7 +162,7 @@ static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) 
     default:
         break;
     }
-    mutex_unlock(&fiber_lock);
+    // mutex_unlock(&fiber_lock);
     printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "IOCTL %s from pid %d, tgid %d => Retvalue: %d",
            cmds[_IOC_NR(cmd)], current->pid, current->tgid, retval);
     return retval;
