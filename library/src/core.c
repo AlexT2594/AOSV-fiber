@@ -53,7 +53,7 @@ int ConvertThreadToFiber() {
     fiber_t *fiber_node;
     // call ioctl
     int dev_fd = open_device();
-    if (dev_fd < 0) return -1;
+    if (dev_fd < 0 || fcntl(dev_fd, F_GETFD) < 0) return -1;
     int ret = ioctl(dev_fd, FIBER_IOC_CONVERTTHREADTOFIBER);
     if (ret < 0) {
         printf(LIBRARY_TAG CORE_TAG "ConvertThreadToFiber() ioctl error, errno %d\n", errno);
@@ -101,7 +101,7 @@ int CreateFiber(unsigned long stack_size, void *(*function)(void *), void *args)
     ((unsigned long *)params->stack_addr)[0] = (unsigned long)&safe_cleanup;
 
     int dev_fd = open_device();
-    if (dev_fd < 0) return -1;
+    if (dev_fd < 0 || fcntl(dev_fd, F_GETFD) < 0) return -1;
     int ret = ioctl(dev_fd, FIBER_IOC_CREATEFIBER, (unsigned long)params);
     if (ret < 0) {
         printf(LIBRARY_TAG CORE_TAG "CreateFiber() ioctl error, errno %d\n", errno);
@@ -136,7 +136,7 @@ int SwitchToFiber(unsigned fid) {
     }
     // call ioctl
     int dev_fd = open_device();
-    if (dev_fd < 0) return -1;
+    if (dev_fd < 0 || fcntl(dev_fd, F_GETFD) < 0) return -1;
     int ret = ioctl(dev_fd, FIBER_IOC_SWITCHTOFIBER, (unsigned long)fid);
     if (ret < 0) {
         printf(LIBRARY_TAG CORE_TAG "SwitchToFiber() ioctl error, errno %d\n", errno);
@@ -155,7 +155,7 @@ int ExitFibered() {
     printf(LIBRARY_TAG CORE_TAG "ExitFibered()\n");
 #endif
     int dev_fd = open_device();
-    if (dev_fd < 0) return -1;
+    if (dev_fd < 0 || fcntl(dev_fd, F_GETFD) < 0) return -1;
     int ret = ioctl(dev_fd, FIBER_IOC_EXIT);
     if (ret < 0) {
         printf(LIBRARY_TAG CORE_TAG "ExitFibered() ioctl error, errno %d\n", errno);
@@ -169,7 +169,7 @@ long FlsAlloc() {
     printf(LIBRARY_TAG CORE_TAG "FlsAlloc()\n");
 #endif
     int dev_fd = open_device();
-    if (dev_fd < 0) return -1;
+    if (dev_fd < 0 || fcntl(dev_fd, F_GETFD) < 0) return -1;
     int ret = ioctl(dev_fd, FIBER_IOC_FLS_ALLOC);
     if (ret < 0) {
         printf(LIBRARY_TAG CORE_TAG "FlsAlloc() ioctl error, errno %d\n", errno);
@@ -183,7 +183,7 @@ int FlsFree(long index) {
     printf(LIBRARY_TAG CORE_TAG "FlsFree(%ld)\n", index);
 #endif
     int dev_fd = open_device();
-    if (dev_fd < 0) return -1;
+    if (dev_fd < 0 || fcntl(dev_fd, F_GETFD) < 0) return -1;
     int ret = ioctl(dev_fd, FIBER_IOC_FLS_FREE, (unsigned long)index);
     if (ret < 0) {
         printf(LIBRARY_TAG CORE_TAG "FlsFree() ioctl error, errno %d\n", errno);
@@ -201,7 +201,7 @@ long FlsGetValue(long index) {
     req_params->value = 0;
 
     int dev_fd = open_device();
-    if (dev_fd < 0) return -1;
+    if (dev_fd < 0 || fcntl(dev_fd, F_GETFD) < 0) return -1;
     int ret = ioctl(dev_fd, FIBER_IOC_FLS_GET, (unsigned long)req_params);
     if (ret < 0) {
         printf("Is fd#%d valid::%d\n", dev_fd, fcntl(dev_fd, F_GETFD));
@@ -226,7 +226,7 @@ int FlsSetValue(long index, long value) {
     params->value = value;
 
     int dev_fd = open_device();
-    if (dev_fd < 0) return -1;
+    if (dev_fd < 0 || fcntl(dev_fd, F_GETFD) < 0) return -1;
     int ret = ioctl(dev_fd, FIBER_IOC_FLS_SET, (unsigned long)params);
     if (ret < 0) {
         printf(LIBRARY_TAG CORE_TAG "FlsSetValue(%ld,%ld) ioctl error, errno %d\n", index, value,
