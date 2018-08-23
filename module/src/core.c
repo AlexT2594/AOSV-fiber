@@ -306,9 +306,9 @@ int switch_to_fiber(unsigned fid) {
     // -> replace pt_regs
     memcpy(task_pt_regs(current), &requested_fiber_node->regs, sizeof(struct pt_regs));
     // save current FPU registers
-    // copy_fxregs_to_kernel(&current_fiber_node->fpu_regs);
+    fpu__save(&current_fiber_node->fpu_regs);
     // restore requested FPU registers
-    // copy_kernel_to_fxregs(&requested_fiber_node->fpu_regs.state.fxsave);
+    fpu__restore(&requested_fiber_node->fpu_regs);
     // close the device descriptor
     // close_device_descriptor();
     return 0;
