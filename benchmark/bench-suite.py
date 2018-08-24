@@ -15,8 +15,8 @@ def main(num_process, num_fibers):
         # run time
         run_time_regex = r"Time to run do the work \(per-fiber\):[0-9 ^\.]*\.[0-9]*"
         run_time_found = re.search(run_time_regex, str(out))
-        run_time_line = run_time_found.group(0)
-        if run_time_line != None:
+        if run_time_found != None:
+            run_time_line = run_time_found.group(0)
             run_time = float(run_time_line.split(":")[1].strip())
             #print("Process#%d time: %f" % (tid, run_time))
             run_timings[tid] = run_time
@@ -25,8 +25,8 @@ def main(num_process, num_fibers):
         # Init time
         init_time_regex = r"Time to initialize fibers:[0-9 ^\.]*\.[0-9]*"
         init_time_found = re.search(init_time_regex, str(out))
-        init_time_line = init_time_found.group(0)
-        if init_time_line != None:
+        if init_time_found != None:
+            init_time_line = init_time_found.group(0)
             init_time = float(init_time_line.split(":")[1].strip())
             #print("Process#%d init time: %f" % (tid, init_time))
             init_timings[tid] = init_time
