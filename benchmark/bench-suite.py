@@ -3,8 +3,8 @@ from threading import Thread
 import re
 import sys
 
-def main(num_process, num_fibers):
-    print("=== Fibers benchmark suite ===")
+def do_bench(num_process, num_fibers, silent=True):
+    print("Starting bench (%d,%d)" % (num_process, num_fibers))
     processes = []
     threads = []
     run_timings = [0.0 for i in range(num_process)]
@@ -33,7 +33,8 @@ def main(num_process, num_fibers):
         else:
             print("Process#%d has no init time line!" % tid)
 
-        print("Process#%d terminated" % tid)
+        if not silent:
+            print("Process#%d terminated" % tid)
         return 
     
     def print_timings():
@@ -53,19 +54,48 @@ def main(num_process, num_fibers):
     for i in range(num_process):
         threads[i].join()
 
+    print("Bench (%d,%d) terminated" % (num_process, num_fibers))
+
     average_run_time = sum(run_timings) / num_process
     averate_init_time = sum(init_timings) / num_process
 
-    print()
-    print("==> Timings")
-    print_timings()
-    print()
-    print("With %d processes and %d fibers:" % (num_process, num_fibers))
-    print("- Average fiber run time is %f" % average_run_time)
-    print("- Average initialization time is %f" % averate_init_time)
+    if not silent:
+        print()
+        print("==> Timings")
+        print_timings()
+        print()
+        print("With %d processes and %d fibers:" % (num_process, num_fibers))
+        print("- Average fiber run time is %f" % average_run_time)
+        print("- Average initialization time is %f" % averate_init_time)
 
+    print()
+    return average_run_time
+
+def run_suite(processes_from, processes_to, processes_step ,fibers_from, fibers_to, fibers_step):
+    def print_m(mat):
+        for row in mat:
+            for col in row:
+                print("%3.3f " % col, end="")
+            print()
+    
+    res_matrix = []
+    i = 0
+    j = 0
+    for pr_n in range(processes_from, processes_to + processes_step, processes_step):
+        res_matrix.append([])
+        for f_n in range(fibers_from, fibers_to +fibers_step, fibers_step):
+            res_matrix[i].append(do_bench(pr_n, f_n))
+            j =+1
+        i+=1
+    
+    print_m(res_matrix)
+
+run_suite(1,9,2,3,5,2)    
+
+"""
 if __name__ == "__main__":
     if len(sys.argv) == 3:
-        main(int(sys.argv[1]), int(sys.argv[2]))
+        do_bench(int(sys.argv[1]), int(sys.argv[2]), False)
     else:
         print("Usage: python bench-suite.py <num_processes> <num_fibers>")
+"""
