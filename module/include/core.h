@@ -110,21 +110,21 @@ typedef enum fiber_state {
 } fiber_state_t;
 
 /**
- * @brief Simplistic implementation of fiber local storage based on the benchmark userspace fibers
+ * @brief Implementation of fiber local storage for fibers
  *
- * Each fiber has its own storage made of an array of longs. Also each fiber has an index which is
- * used to access its array, which is incrementally increased with use.
+ * Each fiber has its own storage made of an array of longs, for knowing if a position of the array
+ * is allocated or not, a bitmap is used.
  */
 typedef struct fiber_local_storage {
-    DECLARE_BITMAP(fls_bitmap, MAX_FLS);
-    long fls[MAX_FLS];
+    DECLARE_BITMAP(fls_bitmap, MAX_FLS); /**< The bitmap for the local storage, used for knowning
+                                            which cells of the array are set*/
+    long fls[MAX_FLS];                   /**< The actual array of the local storage */
 } fiber_local_storage_t;
 
 /**
  * @brief A node in the @ref fibers_list. This type fully represent a @c fiber
  *
  * This is the complete description of a fiber.
- *
  */
 typedef struct fiber {
     unsigned id;                        /**< Unique if of the fiber, used for ... */

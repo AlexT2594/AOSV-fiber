@@ -78,6 +78,10 @@ int init_core() {
     return 0;
 }
 
+/**
+ * @brief Destroy the core module
+ *
+ */
 void destroy_core() { unregister_kprobe(&kp); }
 
 /*
@@ -109,6 +113,7 @@ void destroy_core() { unregister_kprobe(&kp); }
  * - fiber::entry_point is set to fiber::regs::ip;
  * - fiber::state is set to fiber_state::RUNNING;
  * - fiber::created_by is set to `current->pid`;
+ * - fiber::run_by is set to to `current->pid`;
  * - fiber::success_activations_count is set to 1 if success else 0;
  * - fiber::failed_activations_count is set to 1 if fail else 0;
  * - fiber::total_time is set to 0;
@@ -176,6 +181,7 @@ int convert_thread_to_fiber() {
  * memory using @c kmalloc;
  * - fiber::starting_function is set to fiber::regs::ip;
  * - fiber::state is set to fiber_state::IDLE;
+ * - fiber::run_by is set to -1, indicating that no thread is running the fiber
  * - fiber::base_user_stack_addr is set to fiber_params::stack_addr - for setting the stack base
  * address
  * - fiber::regs::ip is set to fiber_params::function - for setting the starting instruction of the
@@ -183,6 +189,7 @@ int convert_thread_to_fiber() {
  * - fiber::regs::di is set to fiber_params::function_args - for setting the first parameter of the
  * function that the user passed as starting point of the fiber
  * - fiber::created_by is set to `current->pid`;
+ * - fiber::local_storage::fls_bitmap is cleared;
  * - fiber::success_activations_count is set 0;
  * - fiber::failed_activations_count is set 0;
  * - fiber::total_time is set to 0;
@@ -266,8 +273,8 @@ int create_fiber(fiber_params_t *params) {
  *
  * The context of the currently running fiber has to be saved. This means:
  * - the @c pt_regs structure has to be saved to the current @ref fiber::regs
- * - TODO FPU @see https://wiki.osdev.org/SSE
- * - To save FPU registers kernel mode @see https://lwn.net/Articles/643235/
+ * - FPU register are saved in the field @ref fiber::fpu_regs with the functions `fpu__save` and
+ * `fpu__restore`
  *
  * Afterwards we'll get replace the current @c pt_regs structure with the one previously
  * saved.
@@ -276,8 +283,8 @@ int create_fiber(fiber_params_t *params) {
  * - ERR_NOT_FIBERED if the the process is not fibered enabled, which means that none of its
  * threads has ever called @ref convert_thread_to_fiber
  * - ERR_NOT_FIBERED if the thread has never done @ref convert_thread_to_fiber
- * - ERR_FIBER_NOT_EXISTS
- * - ERR_FIBER_ALREADY_RUNNING
+ * - ERR_FIBER_NOT_EXISTS if the fiber is not existing
+ * - ERR_FIBER_ALREADY_RUNNING if the fiber is already running by another thread
  */
 int switch_to_fiber(unsigned fid) {
     fibered_process_node_t *fibered_process_node;
@@ -343,7 +350,20 @@ int switch_to_fiber(unsigned fid) {
 /**
  * @brief Called when a process ends
  *
- * @return int
+ * # Implementation
+ * When a process ends we need to clear all the data structures that are associated with it, in
+ * particular we need to remove all the @c fiber_node_t in the list of fibers of the process
+ * @ref fibered_process_node_t::fibers_list and at the end the given @c fiber_node_t in the global
+ * variable of type @ref fibers_list_t::list containing the list of all processes that are fiber
+ * enabled. When a process ends, all of these operations need to be done automatically by the kernel
+ * module. For this reason this function is used as a handler of a `kprobe` to the function
+ * `do_exit`. Since this kind of handler cannot sleep, and we need to synchronize the access to
+ * shared memory (essentially for checking if the process is a fiber), only the main threads of
+ * every process that calls `do_exit` can enter here. Moreover race conditions that may affect
+ * multiple fibered-processes are avoided since we loop on the fibered-processes list with the
+ * utility function @ref list_for_each_entry_safe that is safe against removal while looping.
+ *
+ * @return int 0 if everything OK, otherwise @red ERR_NOT_FIBERED if the process is not a fiber
  */
 int exit_fibered() {
     fibered_process_node_t *curr_process = NULL;
@@ -383,12 +403,16 @@ int exit_fibered() {
 }
 
 /**
- * @brief This method returns to the user the correct index to be used
+ * @brief Allocate a new index if the local storage array
  *
- * It checks if the current index is available and returns it. Afterwards it increases its value.
+ * # Implementation
+ * The function simply check which is the first zero element in the fiber::local_storage::fls_bitmap
+ * and if this element is within the maximum size of the local storage array, it sets it to 1 and
+ * returns it.
  *
- * If all runs well it returns the available index
- * @return int
+ * @return int The available index to be used for storage if everything OK otherwise:
+ * - @ref ERR_NOT_FIBERED if the process is not fiber-enabled or the thread is not a fiber
+ * - @ref ERR_FLS_FULL if there are no available position to be used for the fiber local storage
  */
 int fls_alloc() {
     fibered_process_node_t *fibered_process_node;
@@ -408,6 +432,8 @@ int fls_alloc() {
         mutex_unlock(&fiber_lock);
         return -ERR_NOT_FIBERED;
     }
+
+    // find the first zero element in the bitmap
     index =
         bitmap_find_next_zero_area(current_fiber_node->local_storage.fls_bitmap, MAX_FLS, 0, 1, 0);
     if (index > MAX_FLS) {
@@ -423,9 +449,13 @@ int fls_alloc() {
 /**
  * @brief Allows for reusing the passed index by clearing it in the bitmap.
  *
- * Returns 0 if all good, otherwise < 0;
- * @param index
- * @return int
+ * # Implementation
+ *
+ * @param index The index of the fls entry to be freed
+ * @return int 0 if everything OK, otherwise:
+ * - @ref ERR_NOT_FIBERED if the process is not fiber-enabled or the thread is not a fiber
+ * - @ref ERR_FLS_INVALID_INDEX if the index passed exceed the maximum size of the local storage or
+ * it is associated to an entry that is not allocated
  */
 int fls_free(long index) {
     fibered_process_node_t *fibered_process_node;
@@ -460,6 +490,27 @@ int fls_free(long index) {
     return 0;
 }
 
+/**
+ * @brief Get the value of the fiber local storage at the given index
+ *
+ * # Implementation
+ * The get of a local storage value is done by filling a data structure that is passed by the
+ * userspace as @param params. For doing this we need to:
+ * 1. Check the process and the thread are fibered
+ * 2. Copy the passed data structure into kernel memory by using `copy_from_user`
+ * 3. Check if the position is valid
+ * 4. Get the value and update the local copy of the data structure
+ * 5. Copy the local structure to the userspace with the function `copy_to_user`
+ *
+ * @param params @ref fls_params_t that need to have as @ref fls_params_t::idx the requested
+ * position in the local storage. The field @ref fls_params_t::value will be filled by the kernel
+ * with the corresponding value if everything is OK
+ * @return long 0 if everything is OK, otherwise:
+ * - @ref ERR_NOT_FIBERED if the process is not fiber-enabled or the thread is not a fiber
+ * - @ref EFAULT if there was an error while reading the passed structure from userspace
+ * - @ref ERR_FLS_INVALID_INDEX if the index passed exceed the maximum size of the local storage or
+ * it is associated to an entry that is not allocated
+ */
 long fls_get(fls_params_t *params) {
     fibered_process_node_t *fibered_process_node;
     fiber_node_t *current_fiber_node;
@@ -507,6 +558,22 @@ long fls_get(fls_params_t *params) {
     return 0;
 }
 
+/**
+ * @brief Set the value of the local storage at given index
+ *
+ * # Implementation
+ * When setting a value in the local storage we need to read a data structure passed from the user
+ * space, so we need to:
+ * 1. Copy the data structure in the kernel memory with `copy_from_user`
+ * 2. Read the data and set the value in the local storage array
+ *
+ * @param params
+ * @return int  long 0 if everything is OK, otherwise:
+ * - @ref ERR_NOT_FIBERED if the process is not fiber-enabled or the thread is not a fiber
+ * - @ref EFAULT if there was an error while reading the passed structure from userspace
+ * - @ref ERR_FLS_INVALID_INDEX if the index passed exceed the maximum size of the local storage or
+ * it is associated to an entry that is not allocated
+ */
 int fls_set(fls_params_t *params) {
     fibered_process_node_t *fibered_process_node;
     fiber_node_t *current_fiber_node;
@@ -555,7 +622,16 @@ int fls_set(fls_params_t *params) {
 /**
  * @brief Check if a process is fibered
  *
- * @param process_pid
+ * # Implementation
+ * For checking if the process is a fiber we need to find in the the @fibered_processes_list data
+ * structure. This module implements the list of fibered process both as a linked structure than an
+ * hash table. If `#define USE_HASH_TABLE` is present the hash table is used for checking if the
+ * process is fibered, this means that the macro @ref check_if_exists_hash (that relies on kernel
+ * built-in function `hash_for_each_possible_safe`) is used, otherwise we loop in a the linked list
+ * of fibered processes by using the macro @ref check_if_exists (that relies on
+ * `list_for_each_entry_safe`).
+ *
+ * @param process_pid The pid of the process to check
  * @return fibered_process_node_t* The pointer to the @ref fibered_process_node_t or NULL if process
  * is not fibered
  */
@@ -572,11 +648,14 @@ fibered_process_node_t *check_if_process_is_fibered(unsigned process_pid) {
 }
 
 /**
- * @brief Chec
+ * @brief Check if the current thread is a fiber
  *
- * @param fiber_process_node
- * @param thread_tid
- * @return fiber_node_t*
+ * # Implementation
+ * For checking if the current thread is a fiber we search for it in the linked list of fibers
+ * belonging to the process. For doing this, the macro @ref check_if_exists is used.
+ *
+ * @param fiber_process_node The pointer to the element representing the current fibered process
+ * @return fiber_node_t* A pointer to the fiber element in the list of fibers
  */
 fiber_node_t *check_if_this_thread_is_fiber(fibered_process_node_t *fibered_process_node) {
     fiber_node_t *current_fiber_node;
@@ -585,6 +664,17 @@ fiber_node_t *check_if_this_thread_is_fiber(fibered_process_node_t *fibered_proc
     return current_fiber_node;
 }
 
+/**
+ * @brief Check if the given @param fid is associated with an existing fiber
+ *
+ * # Implementation
+ * For checking if a fiber exists we search for it in the linked list of fibers belonging to the
+ * process passed as input. For doing this, the macro @ref check_if_exists is used.
+ *
+ * @param fibered_process_node The pointer to the element representing the current fibered process
+ * @param fid The fiber id to check
+ * @return fiber_node_t* A pointer to the fiber element in the list of fibers
+ */
 fiber_node_t *check_if_fiber_exist(fibered_process_node_t *fibered_process_node, unsigned fid) {
     fiber_node_t *current_fiber_node;
     check_if_exists(current_fiber_node, &fibered_process_node->fibers_list.list, id, fid, list,

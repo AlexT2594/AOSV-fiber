@@ -68,6 +68,16 @@
         }                                                                                          \
     }
 
+/**
+ * @brief Check if a node exists in the hash table
+ *
+ * @param result pointer that will be assigned to the found entry, or NULL
+ * @param hashtable pointer to the hashtable
+ * @param field name of the field for checking the condition _equal to_ `value`
+ * @param value value of the `field` for the condition
+ * @param member name of the `struct hlist_node` inside the entries
+ * @param type name of the type of the entries
+ */
 #define check_if_exists_hash(result, hashtable, field, value, member, type, mutex)                 \
     result = NULL;                                                                                 \
     if (!hash_empty(hashtable)) {                                                                  \
