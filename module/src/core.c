@@ -133,7 +133,7 @@ int convert_thread_to_fiber() {
     if (fibered_process_node == NULL) {
         // process has never created a fiber
         create_list_entry(fibered_process_node, &fibered_processes_list.list, list,
-                          fibered_process_node_t, fiber_lock);
+                          fibered_process_node_t);
         // hlist
         hash_add(fibered_processes_list.hash_table, &fibered_process_node->hlist, current->tgid);
         fibered_processes_list.processes_count++;
@@ -146,8 +146,7 @@ int convert_thread_to_fiber() {
     fiber_node = check_if_this_thread_is_fiber(fibered_process_node);
     if (fiber_node == NULL) {
         // thread is not a fiber
-        create_list_entry(fiber_node, &fibered_process_node->fibers_list.list, list, fiber_node_t,
-                          fiber_lock);
+        create_list_entry(fiber_node, &fibered_process_node->fibers_list.list, list, fiber_node_t);
         fiber_node->id = fibered_process_node->fibers_list.fibers_count;
         fiber_node->created_by = current->pid;
         fiber_node->run_by = current->pid;
@@ -228,8 +227,7 @@ int create_fiber(fiber_params_t *params) {
         return -ERR_NOT_FIBERED;
     }
     // add the node
-    create_list_entry(fiber_node, &fibered_process_node->fibers_list.list, list, fiber_node_t,
-                      fiber_lock);
+    create_list_entry(fiber_node, &fibered_process_node->fibers_list.list, list, fiber_node_t);
     fiber_node->id = fibered_process_node->fibers_list.fibers_count;
     fiber_node->created_by = current->pid;
     fiber_node->run_by = -1; // meaning no thread is running it
@@ -642,7 +640,7 @@ fibered_process_node_t *check_if_process_is_fibered(unsigned process_pid) {
                          hlist, fibered_process_node_t, fiber_lock);
 #else
     check_if_exists(fibered_process_node, &fibered_processes_list.list, pid, process_pid, list,
-                    fibered_process_node_t, fiber_lock);
+                    fibered_process_node_t);
 #endif
     return fibered_process_node;
 }
@@ -660,7 +658,7 @@ fibered_process_node_t *check_if_process_is_fibered(unsigned process_pid) {
 fiber_node_t *check_if_this_thread_is_fiber(fibered_process_node_t *fibered_process_node) {
     fiber_node_t *current_fiber_node;
     check_if_exists(current_fiber_node, &fibered_process_node->fibers_list.list, run_by,
-                    current->pid, list, fiber_node_t, fiber_lock);
+                    current->pid, list, fiber_node_t);
     return current_fiber_node;
 }
 
@@ -678,6 +676,6 @@ fiber_node_t *check_if_this_thread_is_fiber(fibered_process_node_t *fibered_proc
 fiber_node_t *check_if_fiber_exist(fibered_process_node_t *fibered_process_node, unsigned fid) {
     fiber_node_t *current_fiber_node;
     check_if_exists(current_fiber_node, &fibered_process_node->fibers_list.list, id, fid, list,
-                    fiber_node_t, fiber_lock);
+                    fiber_node_t);
     return current_fiber_node;
 }
