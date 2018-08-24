@@ -20,6 +20,8 @@
 #ifndef __COMMON_H
 #define __COMMON_H
 
+//#define DEBUG
+
 #define MODULE_NAME "fiber"
 
 #define SUCCESS 0

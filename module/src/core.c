@@ -326,9 +326,10 @@ int switch_to_fiber(unsigned fid) {
     getnstimeofday(&current_fiber_node->time_last_switch);
     current_fiber_node->total_time +=
         (current_fiber_node->time_last_switch.tv_nsec - last_switch.tv_nsec) / 1000;
+#ifdef DEBUG
     printk(KERN_DEBUG MODULE_NAME CORE_LOG "Total running time for fiber node %u is %lu",
            current_fiber_node->id, current_fiber_node->total_time);
-
+#endif
     getnstimeofday(&requested_fiber_node->time_last_switch);
 
     current_fiber_node->state = IDLE;
@@ -379,8 +380,10 @@ int exit_fibered() {
     curr_process = check_if_process_is_fibered(current->tgid);
     if (curr_process == NULL) return -ERR_NOT_FIBERED;
 
+#ifdef DEBUG
     printk(KERN_DEBUG MODULE_NAME CORE_LOG "Process pid %d request exit_fibered (tid#%d)",
            current->tgid, current->pid);
+#endif
 
     if (!list_empty(&curr_process->fibers_list.list)) {
         list_for_each_entry_safe(curr_fiber, temp_fiber, &curr_process->fibers_list.list, list) {
@@ -400,10 +403,11 @@ int exit_fibered() {
 #endif
     // free process
     kfree(curr_process);
+
+#ifdef DEBUG
     printk(KERN_DEBUG MODULE_NAME CORE_LOG "Process pid %d exited gracefully for ending thread %d",
            current->tgid, current->pid);
-    printk(KERN_DEBUG MODULE_NAME CORE_LOG "Process pid %d exited gracefully for ending thread %d",
-           current->tgid, current->pid);
+#endif
 
     return 0;
 }

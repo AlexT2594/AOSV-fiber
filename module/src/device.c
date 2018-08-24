@@ -118,9 +118,11 @@ static DEFINE_MUTEX(fiber_lock);
  */
 static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
     int err = 0, retval = 0;
-    // mutex_lock(&fiber_lock);
+// mutex_lock(&fiber_lock);
+#ifdef DEBUG
     printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "IOCTL %s from pid %d, tgid %d", cmds[_IOC_NR(cmd)],
            current->pid, current->tgid);
+#endif
     // check correctness of type and command number
     if (_IOC_TYPE(cmd) != FIBER_IOC_MAGIC) return -ENOTTY;
     if (_IOC_NR(cmd) > FIBER_IOC_MAXNR) return -ENOTTY;
@@ -131,7 +133,9 @@ static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) 
         err = !access_ok(VERIFY_READ, (void __user *)arg, _IOC_SIZE(cmd));
     if (err) return -EFAULT;
 
+#ifdef DEBUG
     printk(KERN_CONT "...mem ok!");
+#endif
 
     switch (cmd) {
     case FIBER_IOCRESET:
@@ -163,8 +167,10 @@ static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) 
         break;
     }
     // mutex_unlock(&fiber_lock);
+#ifdef DEBUG
     printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "IOCTL %s from pid %d, tgid %d => Retvalue: %d",
            cmds[_IOC_NR(cmd)], current->pid, current->tgid, retval);
+#endif
     return retval;
 }
 
