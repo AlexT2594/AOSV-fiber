@@ -138,7 +138,7 @@ int convert_thread_to_fiber() {
                           current->tgid);
 #else
         create_list_entry(fibered_process_node, &fibered_processes_list.list, list,
-                          fibered_process_node_t, fiber_lock);
+                          fibered_process_node_t);
 #endif
         fibered_processes_list.processes_count++;
         fibered_process_node->pid = current->tgid;
@@ -150,8 +150,7 @@ int convert_thread_to_fiber() {
     fiber_node = check_if_this_thread_is_fiber(fibered_process_node);
     if (fiber_node == NULL) {
         // thread is not a fiber
-        create_list_entry(fiber_node, &fibered_process_node->fibers_list.list, list, fiber_node_t,
-                          fiber_lock);
+        create_list_entry(fiber_node, &fibered_process_node->fibers_list.list, list, fiber_node_t);
         fiber_node->id = fibered_process_node->fibers_list.fibers_count;
         fiber_node->created_by = current->pid;
         fiber_node->run_by = current->pid;
@@ -232,8 +231,7 @@ int create_fiber(fiber_params_t *params) {
         return -ERR_NOT_FIBERED;
     }
     // add the node
-    create_list_entry(fiber_node, &fibered_process_node->fibers_list.list, list, fiber_node_t,
-                      fiber_lock);
+    create_list_entry(fiber_node, &fibered_process_node->fibers_list.list, list, fiber_node_t);
     fiber_node->id = fibered_process_node->fibers_list.fibers_count;
     fiber_node->created_by = current->pid;
     fiber_node->run_by = -1; // meaning no thread is running it
@@ -392,8 +390,8 @@ int exit_fibered() {
             kfree(curr_fiber);
         }
     }
-    
-#ifdef USE_HASH_LIST    
+
+#ifdef USE_HASH_LIST
     // remove process from hashlist
     hash_del(&curr_process->hlist);
 #else
@@ -647,10 +645,10 @@ fibered_process_node_t *check_if_process_is_fibered(unsigned process_pid) {
     fibered_process_node_t *fibered_process_node;
 #ifdef USE_HASH_LIST
     check_if_exists_hash(fibered_process_node, fibered_processes_list.hash_table, pid, process_pid,
-                         hlist, fibered_process_node_t, fiber_lock);
+                         hlist, fibered_process_node_t);
 #else
     check_if_exists(fibered_process_node, &fibered_processes_list.list, pid, process_pid, list,
-                    fibered_process_node_t, fiber_lock);
+                    fibered_process_node_t);
 #endif
     return fibered_process_node;
 }
@@ -668,7 +666,7 @@ fibered_process_node_t *check_if_process_is_fibered(unsigned process_pid) {
 fiber_node_t *check_if_this_thread_is_fiber(fibered_process_node_t *fibered_process_node) {
     fiber_node_t *current_fiber_node;
     check_if_exists(current_fiber_node, &fibered_process_node->fibers_list.list, run_by,
-                    current->pid, list, fiber_node_t, fiber_lock);
+                    current->pid, list, fiber_node_t);
     return current_fiber_node;
 }
 
@@ -686,6 +684,6 @@ fiber_node_t *check_if_this_thread_is_fiber(fibered_process_node_t *fibered_proc
 fiber_node_t *check_if_fiber_exist(fibered_process_node_t *fibered_process_node, unsigned fid) {
     fiber_node_t *current_fiber_node;
     check_if_exists(current_fiber_node, &fibered_process_node->fibers_list.list, id, fid, list,
-                    fiber_node_t, fiber_lock);
+                    fiber_node_t);
     return current_fiber_node;
 }

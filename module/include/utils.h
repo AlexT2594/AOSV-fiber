@@ -40,7 +40,7 @@
  * @param type the type of the entry to create
  *
  */
-#define create_list_entry(new, head, member, type, mutex)                                          \
+#define create_list_entry(new, head, member, type)                                          \
     new = kmalloc(sizeof(type), GFP_KERNEL);                                                       \
     list_add_tail(&(new->member), head);
 
@@ -63,7 +63,7 @@
  * @param type name of the type of the entries
  *
  */
-#define check_if_exists(result, head, field, value, member, type, mutex)                           \
+#define check_if_exists(result, head, field, value, member, type)                           \
     result = NULL;                                                                                 \
     if (!list_empty(head)) {                                                                       \
         type *type_temp__ = NULL;                                                                  \
@@ -86,7 +86,7 @@
  * @param member name of the `struct hlist_node` inside the entries
  * @param type name of the type of the entries
  */
-#define check_if_exists_hash(result, hashtable, field, value, member, type, mutex)                 \
+#define check_if_exists_hash(result, hashtable, field, value, member, type)                 \
     result = NULL;                                                                                 \
     if (!hash_empty(hashtable)) {                                                                  \
         type *__cursor_temp_hash = NULL;                                                           \
