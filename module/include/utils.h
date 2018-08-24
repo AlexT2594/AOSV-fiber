@@ -45,6 +45,14 @@
     list_add_tail(&(new->member), head);
 
 /**
+ * @brief Create a list entry of the `type` specified and assign it to new
+ *
+ */
+#define create_hash_entry(new, type, hashtable, node, key)                                         \
+    new = kmalloc(sizeof(type), GFP_KERNEL);                                                       \
+    hash_add(hashtable, node, key);
+
+/**
  * @brief Check if exist an entry (of type) in list pointed by head with field equal to value
  *
  * @param result pointer that will be assigned to the found entry, or NULL

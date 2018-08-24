@@ -132,10 +132,14 @@ int convert_thread_to_fiber() {
     fibered_process_node = check_if_process_is_fibered(current->tgid);
     if (fibered_process_node == NULL) {
         // process has never created a fiber
+#ifdef USE_HASH_LIST
+        create_hash_entry(fibered_process_node, fibered_process_node_t,
+                          fibered_processes_list.hash_table, &fibered_process_node->hlist,
+                          current->tgid);
+#else
         create_list_entry(fibered_process_node, &fibered_processes_list.list, list,
                           fibered_process_node_t, fiber_lock);
-        // hlist
-        hash_add(fibered_processes_list.hash_table, &fibered_process_node->hlist, current->tgid);
+#endif
         fibered_processes_list.processes_count++;
         fibered_process_node->pid = current->tgid;
         INIT_LIST_HEAD(&fibered_process_node->fibers_list.list);
@@ -388,10 +392,14 @@ int exit_fibered() {
             kfree(curr_fiber);
         }
     }
-    // remove process from list
-    list_del(&curr_process->list);
+    
+#ifdef USE_HASH_LIST    
     // remove process from hashlist
     hash_del(&curr_process->hlist);
+#else
+    // remove process from list
+    list_del(&curr_process->list);
+#endif
     // free process
     kfree(curr_process);
     printk(KERN_DEBUG MODULE_NAME CORE_LOG "Process pid %d exited gracefully for ending thread %d",
