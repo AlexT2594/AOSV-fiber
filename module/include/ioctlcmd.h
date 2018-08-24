@@ -71,7 +71,7 @@
  *
  */
 typedef struct fiber_params {
-    unsigned long stack_size;
+    unsigned long stack_size; /**< The size of the stack as reference */
     unsigned long stack_addr; /**< The stack starting address allocated by the library */
     unsigned long function; /**< The function pointer passed by the user, that will be the starting
                                point of the fiber */

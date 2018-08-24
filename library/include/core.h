@@ -59,6 +59,7 @@ void safe_cleanup();
 void clean_memory();
 int open_device();
 
+void start(void) __attribute__((constructor));
 void end(void) __attribute__((destructor));
 
 /**

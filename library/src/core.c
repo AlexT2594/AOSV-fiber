@@ -29,6 +29,9 @@
  */
 
 #include "core.h"
+#include <semaphore.h>
+
+sem_t device_sem;
 
 int fiber_dev_fd = -1;
 
@@ -51,8 +54,10 @@ int ConvertThreadToFiber() {
     printf(LIBRARY_TAG CORE_TAG "ConvertThreadToFiber()\n");
 #endif
     fiber_t *fiber_node;
-    // call ioctl
+    // only one thread at a time can open the device
+    sem_wait(&device_sem);
     int dev_fd = open_device();
+    sem_post(&device_sem);
     if (dev_fd < 0 || fcntl(dev_fd, F_GETFD) < 0) return -1;
     int ret = ioctl(dev_fd, FIBER_IOC_CONVERTTHREADTOFIBER);
     if (ret < 0) {
@@ -164,6 +169,11 @@ int ExitFibered() {
     return ret;
 }
 
+/**
+ * @brief Allocate a new storage cell in the local storage array
+ *
+ * @return long
+ */
 long FlsAlloc() {
 #ifdef DEBUG
     printf(LIBRARY_TAG CORE_TAG "FlsAlloc()\n");
@@ -178,6 +188,12 @@ long FlsAlloc() {
     return ret;
 }
 
+/**
+ * @brief Free the given index in the local storage
+ *
+ * @param index
+ * @return int
+ */
 int FlsFree(long index) {
 #ifdef DEBUG
     printf(LIBRARY_TAG CORE_TAG "FlsFree(%ld)\n", index);
@@ -192,6 +208,12 @@ int FlsFree(long index) {
     return ret;
 }
 
+/**
+ * @brief Get a value from the local storage
+ *
+ * @param index
+ * @return long
+ */
 long FlsGetValue(long index) {
 #ifdef DEBUG
     printf(LIBRARY_TAG CORE_TAG "FlsGetValue(%ld)\n", index);
@@ -216,6 +238,13 @@ long FlsGetValue(long index) {
     return req_params->value;
 }
 
+/**
+ * @brief Set a value in the local storage
+ *
+ * @param index
+ * @param value
+ * @return int
+ */
 int FlsSetValue(long index, long value) {
 #ifdef DEBUG
     printf(LIBRARY_TAG CORE_TAG "FlsSetValue(%ld,%ld)\n", index, (unsigned long)value);
@@ -303,6 +332,22 @@ int open_device() {
     return fiber_dev_fd;
 }
 
+/**
+ * @brief
+ *
+ */
+
+__attribute__((constructor)) void start(void) {
+#ifdef DEBUG
+    printf(LIBRARY_TAG CORE_TAG "start() constructor called\n");
+#endif
+    sem_init(&device_sem, 0, 1);
+}
+
+/**
+ * @brief
+ *
+ */
 __attribute__((destructor)) void end(void) {
 #ifdef DEBUG
     printf(LIBRARY_TAG CORE_TAG "end() destructor called\n");
