@@ -37,6 +37,7 @@
 void fnA(void *args);
 void fnB(void *args);
 void fnC(void *args);
+void fnD(void *args);
 
 int main_fiber, thread1_fiber, fiber1, fiber2;
 
@@ -63,17 +64,18 @@ int main(int argc, char **argv) {
     fiber1 = CreateFiber(STACK_SIZE, (void *)&fnA, &a);
     fiber2 = CreateFiber(STACK_SIZE, (void *)&fnB, NULL);
     printf("Main fiber fid is %d\n", main_fiber);
-    SwitchToFiber(fiber1);
+    // SwitchToFiber(fiber1);
 
-    printf("Returned from fiber1, can continue\n");
+    // printf("Returned from fiber1, can continue\n");
 
-    SwitchToFiber(fiber2);
+    // SwitchToFiber(fiber2);
     // SwitchToFiber(my_new_fiber);
     // ConvertThreadToFiber();
     pthread_t t1;
     // pthread_t t2;
+    printf("Creating thread..");
     pthread_create(&t1, NULL, (void *)fnC, NULL);
-    // sleep(60);
+    sleep(60);
     // pthread_create(&t2, NULL, ConvertThreadToFiber, NULL);
     // pthread_join(t1, NULL);
     // pthread_join(t2, NULL);
@@ -94,8 +96,18 @@ void fnB(void *args) {
 }
 
 void fnC(void *args) {
+    printf("I`m in the thread\n");
     thread1_fiber = ConvertThreadToFiber();
-    int fiber2 = CreateFiber(STACK_SIZE, (void *)&fnB, NULL);
+    int fiber2 = CreateFiber(STACK_SIZE, (void *)&fnD, NULL);
+    if (fiber2 < 0) {
+        printf("ERROR Im not a fiber!");
+        exit(EXIT_FAILURE);
+    }
     SwitchToFiber(fiber2);
     printf("Returned from main_fiber, will not call Switch intentionally! \n");
+}
+
+void fnD(void *args) {
+    printf("fnD()\n");
+    // SwitchToFiber(0);
 }
