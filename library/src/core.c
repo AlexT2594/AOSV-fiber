@@ -99,11 +99,19 @@ int CreateFiber(unsigned long stack_size, void *(*function)(void *), void *args)
     fiber_params_t *params = (fiber_params_t *)malloc(sizeof(fiber_params_t));
     params->function = (unsigned long)function;
     params->function_args = (unsigned long)args;
-    params->stack_addr = (unsigned long)malloc(stack_size) + stack_size;
+    // params->stack_addr = (unsigned long)malloc(stack_size) + stack_size;
+    params->stack_addr = (unsigned long)aligned_alloc(16, stack_size) + stack_size;
+#ifdef DEBUG
+    printf("Is stack aligned: %d\n", params->stack_addr % 16 == 0);
+    printf("Stack addr is %lu\n", params->stack_addr);
+#endif
     params->stack_size = stack_size;
     // -> set the return address to the desired cleanup function,
-    //    return address is the first cell of the stack
+    //    return address is the first cell of the stack, this an implementation what the call
+    //    instruction should have done. The following two lines are equivalent to the push of the
+    //    ret address
     ((unsigned long *)params->stack_addr)[0] = (unsigned long)&safe_cleanup;
+    params->stack_addr -= 8;
 
     int dev_fd = open_device();
     if (dev_fd < 0 || fcntl(dev_fd, F_GETFD) < 0) return -1;
@@ -300,8 +308,11 @@ void clean_memory() {
             // check if fiber is created with conver_thread_to_fiber
             if (curr_fiber->params != NULL) {
                 // free stack
-                if (curr_fiber->params->stack_addr != 0)
-                    free((void *)(curr_fiber->params->stack_addr - STACK_SIZE));
+                if (curr_fiber->params->stack_addr != 0) {
+                    // emulates the pop %rbp
+                    curr_fiber->params->stack_addr += 8;
+                    free((void *)(curr_fiber->params->stack_addr - curr_fiber->params->stack_size));
+                }
                 // free params
                 free(curr_fiber->params);
             }
