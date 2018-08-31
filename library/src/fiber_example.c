@@ -39,6 +39,10 @@ void fnB(void *args);
 void fnC(void *args);
 void fnD(void *args);
 
+int is_aligned(unsigned long p, unsigned bytes, unsigned long reg) {
+    return (reg - (unsigned long)p) % bytes == 0;
+}
+
 int main_fiber, thread1_fiber, fiber1, fiber2;
 
 int main(int argc, char **argv) {
@@ -64,18 +68,22 @@ int main(int argc, char **argv) {
     fiber1 = CreateFiber(STACK_SIZE, (void *)&fnA, &a);
     fiber2 = CreateFiber(STACK_SIZE, (void *)&fnB, NULL);
     printf("Main fiber fid is %d\n", main_fiber);
-    // SwitchToFiber(fiber1);
+    printf("main_thread &a = %lu\n", (unsigned long)&a);
+    register unsigned long __rbp asm("rbp");
+    printf("is aligned 8 &a = %d\n", is_aligned((unsigned long)&a, 8, __rbp));
+    printf("rbp mod 16 = %lu\n", __rbp % 16);
+    SwitchToFiber(fiber1);
 
     // printf("Returned from fiber1, can continue\n");
 
     // SwitchToFiber(fiber2);
     // SwitchToFiber(my_new_fiber);
     // ConvertThreadToFiber();
-    pthread_t t1;
+    // pthread_t t1;
     // pthread_t t2;
-    printf("Creating thread..");
-    pthread_create(&t1, NULL, (void *)fnC, NULL);
-    sleep(60);
+    // printf("Creating thread..");
+    // pthread_create(&t1, NULL, (void *)fnC, NULL);
+    // sleep(60);
     // pthread_create(&t2, NULL, ConvertThreadToFiber, NULL);
     // pthread_join(t1, NULL);
     // pthread_join(t2, NULL);
@@ -84,8 +92,13 @@ int main(int argc, char **argv) {
 }
 
 void fnA(void *args) {
-    // int a = 3;
+    register unsigned long __rbp asm("rbp");
+    int a = 3;
     printf("fnA()\n");
+    printf("fnA() a = %d\n", a);
+    printf("fnA() sis aligned 16 &a = %d\n", is_aligned((unsigned long)&a, 16, __rbp));
+    printf("fnA() rbp mod 16 = %lu\n", __rbp % 16);
+    printf("fnA() rbp is %lu\n", __rbp);
     SwitchToFiber(0);
     // printf("a is %d\n", a);
 }

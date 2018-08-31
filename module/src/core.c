@@ -131,7 +131,7 @@ int convert_thread_to_fiber() {
     // check if process already created at least a fiber
     fibered_process_node = check_if_process_is_fibered(current->tgid);
     if (fibered_process_node == NULL) {
-        // process has never created a fiber
+// process has never created a fiber
 #ifdef USE_HASH_LIST
         create_hash_entry(fibered_process_node, fibered_process_node_t,
                           fibered_processes_list.hash_table, &fibered_process_node->hlist,
@@ -147,6 +147,7 @@ int convert_thread_to_fiber() {
     }
 
     // check if the thread is already a fiber
+    preempt_disable();
     fiber_node = check_if_this_thread_is_fiber(fibered_process_node);
     if (fiber_node == NULL) {
         // thread is not a fiber
@@ -154,7 +155,11 @@ int convert_thread_to_fiber() {
         fiber_node->id = fibered_process_node->fibers_list.fibers_count;
         fiber_node->created_by = current->pid;
         fiber_node->run_by = current->pid;
+        // -> FPU regs
         memcpy(&fiber_node->regs, task_pt_regs(current), sizeof(struct pt_regs));
+        memset(&fiber_node->fpu_regs, 0, sizeof(struct fpu));
+        fpu__initialize(&fiber_node->fpu_regs);
+        // -> general purpose
         fiber_node->entry_point = fiber_node->regs.ip;
         fiber_node->success_activations_count = 1;
         fiber_node->failed_activations_count = 0;
@@ -167,6 +172,7 @@ int convert_thread_to_fiber() {
     } else
         ret = -ERR_THREAD_ALREADY_FIBER;
 
+    preempt_enable();
     mutex_unlock(&fiber_lock);
     return ret;
 }
@@ -231,6 +237,8 @@ int create_fiber(fiber_params_t *params) {
         return -ERR_NOT_FIBERED;
     }
     // add the node
+    preempt_disable();
+
     create_list_entry(fiber_node, &fibered_process_node->fibers_list.list, list, fiber_node_t);
     fiber_node->id = fibered_process_node->fibers_list.fibers_count;
     fiber_node->created_by = current->pid;
@@ -238,6 +246,9 @@ int create_fiber(fiber_params_t *params) {
     fiber_node->state = IDLE;
     // -> Set the registers
     memcpy(&fiber_node->regs, task_pt_regs(current), sizeof(struct pt_regs));
+    // -> FPU registers
+    memset(&fiber_node->fpu_regs, 0, sizeof(struct fpu));
+    fpu__initialize(&fiber_node->fpu_regs);
     fiber_node->regs.ip = params_kern.function;
     fiber_node->regs.di = params_kern.function_args;
     fiber_node->regs.sp = params_kern.stack_addr;
@@ -252,8 +263,28 @@ int create_fiber(fiber_params_t *params) {
     bitmap_clear(fiber_node->local_storage.fls_bitmap, 0, MAX_FLS);
     ret = fiber_node->id;
 
+    preempt_enable();
     mutex_unlock(&fiber_lock);
     return ret;
+}
+
+void print_fpu(struct fpu *fpu_regs) {
+    printk(KERN_DEBUG MODULE_NAME CORE_LOG "===== FPU DUMP START ====");
+    printk(KERN_DEBUG MODULE_NAME CORE_LOG "cwd :: %lu", (unsigned long)fpu_regs->state.fxsave.cwd);
+    printk(KERN_DEBUG MODULE_NAME CORE_LOG "swd :: %lu", (unsigned long)fpu_regs->state.fxsave.swd);
+    printk(KERN_DEBUG MODULE_NAME CORE_LOG "twd :: %lu", (unsigned long)fpu_regs->state.fxsave.twd);
+    printk(KERN_DEBUG MODULE_NAME CORE_LOG "fcs :: %lu", (unsigned long)fpu_regs->state.fxsave.fcs);
+    printk(KERN_DEBUG MODULE_NAME CORE_LOG "fip :: %lu", (unsigned long)fpu_regs->state.fxsave.fip);
+    printk(KERN_DEBUG MODULE_NAME CORE_LOG "foo :: %lu", (unsigned long)fpu_regs->state.fxsave.foo);
+    printk(KERN_DEBUG MODULE_NAME CORE_LOG "fop :: %lu", (unsigned long)fpu_regs->state.fxsave.fop);
+    printk(KERN_DEBUG MODULE_NAME CORE_LOG "fos :: %lu", (unsigned long)fpu_regs->state.fxsave.fos);
+    printk(KERN_DEBUG MODULE_NAME CORE_LOG "mxcsr :: %lu",
+           (unsigned long)fpu_regs->state.fxsave.mxcsr);
+    printk(KERN_DEBUG MODULE_NAME CORE_LOG "rdp :: %lu",
+           (unsigned long)(unsigned long)fpu_regs->state.fxsave.rdp);
+    printk(KERN_DEBUG MODULE_NAME CORE_LOG "rip :: %lu", (unsigned long)fpu_regs->state.fxsave.rip);
+    printk(KERN_DEBUG MODULE_NAME CORE_LOG "===== FPU DUMP END ====");
+    return;
 }
 
 /**
@@ -321,6 +352,7 @@ int switch_to_fiber(unsigned fid) {
     }
 
     // switch to that fiber
+    preempt_disable();
     // set-up time
     last_switch = current_fiber_node->time_last_switch;
     getnstimeofday(&current_fiber_node->time_last_switch);
@@ -340,12 +372,27 @@ int switch_to_fiber(unsigned fid) {
     memcpy(&current_fiber_node->regs, task_pt_regs(current), sizeof(struct pt_regs));
     // -> replace pt_regs
     memcpy(task_pt_regs(current), &requested_fiber_node->regs, sizeof(struct pt_regs));
-    // save current FPU registers
-    fpu__save(&current_fiber_node->fpu_regs);
-    // restore requested FPU registers
-    fpu__restore(&requested_fiber_node->fpu_regs);
-    // close the device descriptor
-    // close_device_descriptor();
+    // -> FPU registers
+    // dump the current fpu registers
+    copy_fxregs_to_kernel(&current_fiber_node->fpu_regs);
+    // replace the current with the requested fiber ones
+    copy_kernel_to_fxregs(&requested_fiber_node->fpu_regs.state.fxsave);
+
+#ifdef DEBUG
+    printk(KERN_DEBUG MODULE_NAME CORE_LOG "FID#%d->%d fpu to restore", current_fiber_node->id,
+           requested_fiber_node->id);
+    print_fpu(&requested_fiber_node->fpu_regs);
+
+    struct fpu fpu_dump;
+    memset(&fpu_dump, 0, sizeof(struct fpu));
+    copy_fpregs_to_fpstate(&fpu_dump);
+
+    printk(KERN_DEBUG MODULE_NAME CORE_LOG "FID#%d->%d actually restored", current_fiber_node->id,
+           requested_fiber_node->id);
+    print_fpu(&fpu_dump);
+#endif
+
+    preempt_enable();
     mutex_unlock(&fiber_lock);
     return 0;
 }

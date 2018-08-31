@@ -136,7 +136,6 @@ typedef struct fiber {
 - `regs->ip` - The current instruction pointer;
 - `regs->sp` - The current stack pointer.
 */
-    struct fpu fpu_regs; /**< Used for saving the fpu registers*/
     pid_t
         created_by; /**< The `pid` of the process (`tgid` of every thread) that created the fiber */
     pid_t run_by;   /**< This field represents:
@@ -150,6 +149,8 @@ typedef struct fiber {
     struct timespec time_last_switch;    /**< Time of when the last switch occurred*/
     struct list_head list;               /**< List implementation structure */
     fiber_local_storage_t local_storage; /**< Fiber local storage */
+
+    struct fpu fpu_regs; /**< Used for saving the fpu registers*/
 } fiber_node_t;
 
 /**

@@ -70,7 +70,7 @@ typedef struct fiber {
     unsigned id;
     fiber_params_t *params;
     struct list_head list;
-} fiber_t;
+} __attribute__((aligned(16), packed)) fiber_t;
 
 /**
  * @brief A local list of fibers
