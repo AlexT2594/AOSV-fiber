@@ -57,6 +57,11 @@ unsigned long ___sdata;
 unsigned long cr0;
 
 // backup value
+typedef asmlinkage void (*original_do_exit_t)(long);
+original_do_exit_t original_do_exit;
+int original_do_exit_offset;
+unsigned long original_do_exit_pos;
+
 typedef asmlinkage struct dentry *(*original_proc_pident_lookup_t)(struct inode *, struct dentry *,
                                                                    const struct pid_entry *,
                                                                    unsigned int);
@@ -64,7 +69,7 @@ original_proc_pident_lookup_t original_proc_pident_lookup;
 
 unsigned long original_proc_pident_lookup_pos; // position inside the table
 int original_proc_pident_lookup_offset;        // value in the kallsyms_offsets table
-int *kallsyms_offsets;                         // to find
+static int *kallsyms_offsets;                  // to find
 
 static inline void protect_memory(void) { write_cr0(cr0); }
 static inline void unprotect_memory(void) { write_cr0(cr0 & ~0x00010000); }
@@ -112,6 +117,7 @@ void destroy_proc() {
     remove_proc_entry(PROC_ENTRY, NULL);
     unprotect_memory();
     kallsyms_offsets[original_proc_pident_lookup_pos] = original_proc_pident_lookup_offset;
+    kallsyms_offsets[original_do_exit_offset] = original_do_exit_offset;
     protect_memory();
     printk(KERN_DEBUG MODULE_NAME PROC_LOG "/proc/" PROC_ENTRY " destroyed");
 }
@@ -120,19 +126,26 @@ void destroy_proc() {
  * Kallsyms hacking part
  */
 
-struct dentry *fiber_proc_pident_lookup(struct inode *dir, struct dentry *dentry,
-                                        const struct pid_entry *ents, unsigned int nents) {
+static struct dentry *fiber_proc_pident_lookup(struct inode *dir, struct dentry *dentry,
+                                               const struct pid_entry *ents, unsigned int nents) {
     struct dentry *res = original_proc_pident_lookup(dir, dentry, ents, nents);
     printk(KERN_DEBUG MODULE_NAME PROC_LOG
-           "fiber_proc_pident_lookup(). Hacking success, you're great");
+           "fiber_proc_pident_lookup(). Hacking success, you're a genius");
     return res;
 }
 
+static void hacked_do_exit(long code) {
+    printk(KERN_DEBUG MODULE_NAME PROC_LOG
+           "fiber_proc_pident_lookup(). Hacking success, you're a genius");
+    original_do_exit(code);
+}
+
 int replace_proc_pident_lookup() {
-    int ret = 0, reversed_off;
+    int ret = 0, reversed_off, reversed_do_exit_off;
     unsigned long off;
     // get addresses
     unsigned long proc_pidentry_lookup_addr = kallsyms_lookup_name("proc_pident_lookup");
+    unsigned long do_exit_addr = kallsyms_lookup_name("do_exit");
     unsigned long get_symbol_pos_addr = kallsyms_lookup_name("get_symbol_pos");
     // we can see that proc_pident_lookup is near to the inat_primary_table declaration
     unsigned long inat_primary_table_addr = kallsyms_lookup_name("inat_primary_table");
@@ -141,16 +154,20 @@ int replace_proc_pident_lookup() {
         (unsigned long (*)(unsigned long, unsigned long, unsigned long))get_symbol_pos_addr;
     // the pos in the table is the following
     original_proc_pident_lookup_pos = get_symbol_pos(proc_pidentry_lookup_addr, 0, 0);
+    original_do_exit_pos = get_symbol_pos(do_exit_addr, 0, 0);
     // our desire
     kallsyms_offsets = 0;
 
     // backup the value
     original_proc_pident_lookup = (original_proc_pident_lookup_t)proc_pidentry_lookup_addr;
+    original_do_exit = (original_do_exit_t)do_exit_addr;
 
     printk(KERN_DEBUG "proc_pidentry_lookup_addr = %#lx", proc_pidentry_lookup_addr);
     printk(KERN_DEBUG "original_proc_pident_lookup_pos = %lu", original_proc_pident_lookup_pos);
     printk(KERN_DEBUG "inat_primary_table_addr = %#lx", inat_primary_table_addr);
     printk(KERN_DEBUG "&fiber_proc_pident_lookup = %#lx", (unsigned long)&fiber_proc_pident_lookup);
+    printk(KERN_DEBUG "&hacked_do_exit = %#lx", (unsigned long)&hacked_do_exit);
+    printk(KERN_DEBUG "do_exit_pos = %lu", original_do_exit_pos);
 
     for (off = inat_primary_table_addr; off < ULONG_MAX; off += sizeof(void *)) {
         if (!is_ksym_addr(off)) continue;
@@ -165,8 +182,10 @@ int replace_proc_pident_lookup() {
 
     // backup the offset
     original_proc_pident_lookup_offset = kallsyms_offsets[original_proc_pident_lookup_pos];
+    original_do_exit_offset = kallsyms_offsets[original_do_exit_pos];
     // compute the reverse
     reversed_off = kallsyms_reverse_addr(___stext, (unsigned long)&fiber_proc_pident_lookup);
+    reversed_do_exit_off = kallsyms_reverse_addr(___stext, (unsigned long)&hacked_do_exit);
 
     printk(KERN_DEBUG "kallsyms_offsets = %#lx", (unsigned long)kallsyms_offsets);
     printk(KERN_DEBUG "reversed off is %d", reversed_off);
@@ -175,13 +194,14 @@ int replace_proc_pident_lookup() {
 
     // modify original entry
     unprotect_memory();
-    kallsyms_offsets[original_proc_pident_lookup_pos] =
-        kallsyms_reverse_addr(___stext, (unsigned long)&fiber_proc_pident_lookup);
+    kallsyms_offsets[original_proc_pident_lookup_pos] = reversed_off;
+    kallsyms_offsets[original_do_exit_pos] = reversed_do_exit_off;
     protect_memory();
 
     proc_pidentry_lookup_addr = kallsyms_lookup_name("proc_pident_lookup");
     printk(KERN_DEBUG "Now proc_pidentry_lookup_addr = %#lx", proc_pidentry_lookup_addr);
-
+    do_exit_addr = kallsyms_lookup_name("do_exit");
+    printk(KERN_DEBUG "Now do_exit_addr = %#lx", do_exit_addr);
     return ret;
 }
 
