@@ -31,6 +31,9 @@
 
 #include "common.h"
 #include "core.h"
+#include <asm/sections.h>
+#include <linux/kallsyms.h>
+#include <linux/mm.h>
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
 
@@ -43,7 +46,36 @@
 int init_proc(void);
 void destroy_proc(void);
 
+int replace_proc_pident_lookup(void);
+void test_fn(void);
+
+inline int is_kernel_inittext(unsigned long addr);
+inline int is_kernel_text(unsigned long addr);
+inline int is_kernel(unsigned long addr);
+int is_ksym_addr(unsigned long addr);
+unsigned long kallsyms_sym_address(int *kallsyms_offsets, unsigned long kallsyms_relative_base,
+                                   int idx);
+int kallsyms_reverse_addr(unsigned long kallsyms_relative_base, unsigned long addr_to_reverse);
+
 #define PROC_FOLDER "fibers"
 #define PROC_ENTRY "fiber"
+
+/*
+ * Needed structs
+ */
+union proc_op {
+    int (*proc_get_link)(struct dentry *, struct path *);
+    int (*proc_show)(struct seq_file *m, struct pid_namespace *ns, struct pid *pid,
+                     struct task_struct *task);
+};
+
+struct pid_entry {
+    const char *name;
+    unsigned int len;
+    umode_t mode;
+    const struct inode_operations *iop;
+    const struct file_operations *fop;
+    union proc_op op;
+};
 
 #endif
