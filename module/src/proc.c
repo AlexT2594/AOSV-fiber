@@ -281,8 +281,19 @@ err:
     printk(KERN_ALERT MODULE_NAME PROC_LOG "generate_fibers_dir_stuff() error");
     ret = -1;
 out:
-    printk(KERN_DEBUG MODULE_NAME PROC_LOG "generate_fibers_dir_stuff() OK!");
     return ret;
+}
+
+/**
+ * @brief Destroy fibers dir stuff
+ *
+ * @param fibers_stuff
+ * @param nents
+ */
+void destroy_fibers_dir_stuff(struct pid_entry *fibers_stuff, int nents) {
+    int i;
+    for (i = 0; i < nents; i++) kfree(fibers_stuff[i].name);
+    kfree(fibers_stuff);
 }
 
 /**
@@ -305,7 +316,7 @@ static struct dentry *proc_fibers_dir_lookup(struct inode *dir, struct dentry *d
     // call the original
     res = original_proc_pident_lookup(dir, dentry, fibers_dir_stuff, nents);
 
-    kfree(fibers_dir_stuff);
+    destroy_fibers_dir_stuff(fibers_dir_stuff, nents);
 out:
     return res;
 }
@@ -326,7 +337,7 @@ static int proc_fibers_dir_readdir(struct file *file, struct dir_context *ctx) {
     // call the original readdir
     ret = original_proc_pident_readdir(file, ctx, fibers_dir_stuff, nents);
 
-    kfree(fibers_dir_stuff);
+    destroy_fibers_dir_stuff(fibers_dir_stuff, nents);
 out:
     return ret;
 }
@@ -342,7 +353,27 @@ out:
  * @return int
  */
 static int fiber_proc_open(struct inode *inode, struct file *file) {
-    return single_open(file, fiber_proc_show, NULL);
+    int ret;
+    unsigned long pid, fid;
+    fibered_process_node_t *fibered_process;
+    fiber_node_t *fiber_node;
+
+    // we are in /proc/<PID>/fibers/<FID>
+    if (kstrtoul(file->f_path.dentry->d_name.name, 10, &fid) != 0) goto err;
+    if (kstrtoul(file->f_path.dentry->d_parent->d_parent->d_name.name, 10, &pid) != 0) goto err;
+
+    fibered_process = check_if_process_is_fibered(pid);
+    if (fibered_process == NULL) goto err;
+    fiber_node = check_if_fiber_exist(fibered_process, fid);
+    if (fiber_node == NULL) goto err;
+
+    ret = single_open(file, fiber_proc_show, fiber_node);
+    goto out;
+err:
+    ret = -1;
+    printk(KERN_ALERT MODULE_NAME PROC_LOG "fiber_proc_open() error");
+out:
+    return ret;
 }
 /**
  * @brief Show the true data at itearator position
@@ -351,7 +382,20 @@ static int fiber_proc_open(struct inode *inode, struct file *file) {
  * @param v
  * @return int
  */
-static int fiber_proc_show(struct seq_file *sfile, void *v) {
-    seq_printf(sfile, "We have n processes!\n");
+static int fiber_proc_show(struct seq_file *sfile, void *p) {
+    fiber_node_t *fiber_node = (fiber_node_t *)sfile->private;
+    seq_printf(sfile, "fiber #%u\n", fiber_node->id);
+    seq_printf(sfile, "%-30s : %#lx\n", "entry point", fiber_node->entry_point);
+    seq_printf(sfile, "%-30s : %s\n", "state", fiber_node->state == 0 ? "IDLE" : "RUNNING");
+    if (fiber_node->state == 1)
+        seq_printf(sfile, "%-30s : %u\n", "running Thread id", (unsigned)fiber_node->run_by);
+    seq_printf(sfile, "%-30s : %u\n", "initiator Thread id", (unsigned)fiber_node->created_by);
+    seq_printf(sfile, "%-30s : %lu\n", "total execution time (ms)",
+               get_actual_fiber_time(fiber_node));
+    seq_printf(sfile, "%-30s : %u\n", "successful activations",
+               fiber_node->success_activations_count);
+    seq_printf(sfile, "%-30s : %u\n", "failed activations", fiber_node->failed_activations_count);
+    // seq_printf(sfile, "\nAdvanced Information\n---------------------\n");
+    // seq_printf(sfile, "%-30s : %#lx\n", "stack address", fiber_node->base_user_stack_addr);
     return 0;
 }

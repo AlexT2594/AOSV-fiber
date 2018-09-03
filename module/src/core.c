@@ -330,7 +330,6 @@ int switch_to_fiber(unsigned fid) {
     fibered_process_node_t *fibered_process_node;
     fiber_node_t *current_fiber_node;
     fiber_node_t *requested_fiber_node;
-    struct timespec last_switch;
 
     mutex_lock(&fiber_lock);
     // check if process is fiber enabled
@@ -355,26 +354,31 @@ int switch_to_fiber(unsigned fid) {
     }
     if (requested_fiber_node->state == RUNNING) {
         mutex_unlock(&fiber_lock);
+        requested_fiber_node->failed_activations_count += 1;
         return -ERR_FIBER_ALREADY_RUNNING;
     }
 
     // switch to that fiber
     preempt_disable();
-    // set-up time
-    last_switch = current_fiber_node->time_last_switch;
+    // update the total time, current fiber is always running
+    current_fiber_node->total_time = get_actual_fiber_time(current_fiber_node);
+    // update the switch time
     getnstimeofday(&current_fiber_node->time_last_switch);
-    current_fiber_node->total_time +=
-        (current_fiber_node->time_last_switch.tv_nsec - last_switch.tv_nsec) / 1000;
 #ifdef DEBUG
     printk(KERN_DEBUG MODULE_NAME CORE_LOG "Total running time for fiber node %u is %lu",
            current_fiber_node->id, current_fiber_node->total_time);
 #endif
+    // update the fiber-to-come time, only if it was running
+    if (requested_fiber_node->state == RUNNING)
+        requested_fiber_node->total_time = get_actual_fiber_time(requested_fiber_node);
+    // update the last switch for the fiber-to-come
     getnstimeofday(&requested_fiber_node->time_last_switch);
 
     current_fiber_node->state = IDLE;
     current_fiber_node->run_by = -1;
     requested_fiber_node->state = RUNNING;
     requested_fiber_node->run_by = current->pid;
+    requested_fiber_node->success_activations_count += 1;
     // -> save the current registers
     memcpy(&current_fiber_node->regs, task_pt_regs(current), sizeof(struct pt_regs));
     // -> replace pt_regs
@@ -744,4 +748,28 @@ fiber_node_t *check_if_fiber_exist(fibered_process_node_t *fibered_process_node,
     check_if_exists(current_fiber_node, &fibered_process_node->fibers_list.list, id, fid, list,
                     fiber_node_t);
     return current_fiber_node;
+}
+
+/**
+ * @brief Compute the actual live total time for fiber
+ *
+ * @param current_fiber_node
+ * @return unsigned long
+ */
+unsigned long get_actual_fiber_time(fiber_node_t *current_fiber_node) {
+    struct timespec current_time_s;
+    unsigned long current_time, fiber_time;
+    // if the fiber is idle no need to compute time
+    if (current_fiber_node->state == IDLE) return current_fiber_node->total_time;
+    // if the fiber is currently running, compute the time from the last switch to now
+    getnstimeofday(&current_time_s);
+    // compute times in millis
+    current_time = current_time_s.tv_sec * 1000 + current_time_s.tv_nsec / 1000000;
+    fiber_time = current_fiber_node->time_last_switch.tv_sec * 1000 +
+                 current_fiber_node->time_last_switch.tv_nsec / 1000000;
+    printk("INIT");
+    printk("current_time = %lu", current_time);
+    printk("fiber_time = %lu", fiber_time);
+    printk("END");
+    return current_fiber_node->total_time + (current_time - fiber_time);
 }
