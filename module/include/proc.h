@@ -31,10 +31,58 @@
 
 #include "common.h"
 #include "core.h"
+#include <linux/ftrace.h>
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
 
 #define PROC_LOG ": PROC: "
+
+#define PROC_FOLDER "fibers"
+#define PROC_ENTRY "fiber"
+
+union proc_op {
+    int (*proc_get_link)(struct dentry *, struct path *);
+    int (*proc_show)(struct seq_file *m, struct pid_namespace *ns, struct pid *pid,
+                     struct task_struct *task);
+};
+
+struct pid_entry {
+    const char *name;
+    unsigned int len;
+    umode_t mode;
+    const struct inode_operations *iop;
+    const struct file_operations *fop;
+    union proc_op op;
+};
+
+struct ftrace_hook {
+    const char *name;
+    void *function;
+    void *original;
+
+    unsigned long address;
+    struct ftrace_ops ops;
+};
+
+// clang-format off
+#define HOOK(_name, _function, _original)                                                          \
+    { .name = (_name), .function = (_function), .original = (_original) }
+
+#define NOD(NAME, MODE, IOP, FOP, OP) {			\
+	.name = (NAME),					\
+	.len  = sizeof(NAME) - 1,			\
+	.mode = MODE,					\
+	.iop  = IOP,					\
+	.fop  = FOP,					\
+	.op   = OP,					\
+}
+
+#define DIR(NAME, MODE, iops, fops)	\
+	NOD(NAME, (S_IFDIR|(MODE)), &iops, &fops, {} )
+
+#define REG(NAME, MODE, fops)				\
+	NOD(NAME, (S_IFREG|(MODE)), NULL, &fops, {})
+// clang-format on
 
 /*
  * Exposed methods
@@ -43,7 +91,7 @@
 int init_proc(void);
 void destroy_proc(void);
 
-#define PROC_FOLDER "fibers"
-#define PROC_ENTRY "fiber"
+int fh_install_hook(struct ftrace_hook *hook);
+void fh_remove_hook(struct ftrace_hook *hook);
 
 #endif

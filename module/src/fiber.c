@@ -46,17 +46,17 @@ static int __init init_fiber(void) {
     // init the char device
     printk(KERN_INFO MODULE_NAME FIBER_LOG "loading module\n");
     err |= init_device();
-    if (err) goto device_err;
-    err |= init_proc();
     if (err) goto proc_err;
     err |= init_core();
+    if (err) goto device_err;
+    err |= init_proc();
     if (err) goto core_err;
     printk(KERN_INFO MODULE_NAME FIBER_LOG "loaded successfully\n");
     return SUCCESS;
-core_err:
-    destroy_core();
 proc_err:
     destroy_proc();
+core_err:
+    destroy_core();
 device_err:
     destroy_device();
     printk(KERN_ALERT MODULE_NAME FIBER_LOG "loading error\n");
@@ -69,8 +69,8 @@ device_err:
  * This function deallocate all memory and deregister every service used
  */
 static void __exit destroy_fiber(void) {
-    destroy_core();
     destroy_proc();
+    destroy_core();
     destroy_device();
     printk(KERN_INFO MODULE_NAME FIBER_LOG "unloaded successfully\n");
 }

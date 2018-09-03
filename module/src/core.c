@@ -45,10 +45,17 @@ static DEFINE_MUTEX(fiber_lock);
 /**
  * @brief The variable of the core part that will contain the **fiber-enabled** processes
  */
+// clang-format off
 static fibered_processes_list_t fibered_processes_list = {
+#ifdef USE_HASH_TABLE
     .hash_table = {[0 ...((1 << (HASH_KEY_SIZE)) - 1)] = HLIST_HEAD_INIT},
+#else
     .list = LIST_HEAD_INIT(fibered_processes_list.list),
-    .processes_count = 0};
+#endif
+    .processes_count = 0
+};
+// clang-format on
+EXPORT_SYMBOL(fibered_processes_list);
 
 /*
  * Kprobe implementation
