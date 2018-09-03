@@ -275,25 +275,6 @@ int create_fiber(fiber_params_t *params) {
     return ret;
 }
 
-void print_fpu(struct fpu *fpu_regs) {
-    printk(KERN_DEBUG MODULE_NAME CORE_LOG "===== FPU DUMP START ====");
-    printk(KERN_DEBUG MODULE_NAME CORE_LOG "cwd :: %lu", (unsigned long)fpu_regs->state.fxsave.cwd);
-    printk(KERN_DEBUG MODULE_NAME CORE_LOG "swd :: %lu", (unsigned long)fpu_regs->state.fxsave.swd);
-    printk(KERN_DEBUG MODULE_NAME CORE_LOG "twd :: %lu", (unsigned long)fpu_regs->state.fxsave.twd);
-    printk(KERN_DEBUG MODULE_NAME CORE_LOG "fcs :: %lu", (unsigned long)fpu_regs->state.fxsave.fcs);
-    printk(KERN_DEBUG MODULE_NAME CORE_LOG "fip :: %lu", (unsigned long)fpu_regs->state.fxsave.fip);
-    printk(KERN_DEBUG MODULE_NAME CORE_LOG "foo :: %lu", (unsigned long)fpu_regs->state.fxsave.foo);
-    printk(KERN_DEBUG MODULE_NAME CORE_LOG "fop :: %lu", (unsigned long)fpu_regs->state.fxsave.fop);
-    printk(KERN_DEBUG MODULE_NAME CORE_LOG "fos :: %lu", (unsigned long)fpu_regs->state.fxsave.fos);
-    printk(KERN_DEBUG MODULE_NAME CORE_LOG "mxcsr :: %lu",
-           (unsigned long)fpu_regs->state.fxsave.mxcsr);
-    printk(KERN_DEBUG MODULE_NAME CORE_LOG "rdp :: %lu",
-           (unsigned long)(unsigned long)fpu_regs->state.fxsave.rdp);
-    printk(KERN_DEBUG MODULE_NAME CORE_LOG "rip :: %lu", (unsigned long)fpu_regs->state.fxsave.rip);
-    printk(KERN_DEBUG MODULE_NAME CORE_LOG "===== FPU DUMP END ====");
-    return;
-}
-
 /**
  * @brief Switch to a chosen fiber
  *
@@ -330,55 +311,48 @@ int switch_to_fiber(unsigned fid) {
     fibered_process_node_t *fibered_process_node;
     fiber_node_t *current_fiber_node;
     fiber_node_t *requested_fiber_node;
+    int ret = 0;
 
     mutex_lock(&fiber_lock);
     // check if process is fiber enabled
     fibered_process_node = check_if_process_is_fibered(current->tgid);
-    if (fibered_process_node == NULL) {
-        mutex_unlock(&fiber_lock);
-        return -ERR_NOT_FIBERED;
-    }
-
+    if (fibered_process_node == NULL) ret = -ERR_NOT_FIBERED;
+    if (ret < 0) goto err_precheck;
     // check if the thread is a fiber
     current_fiber_node = check_if_this_thread_is_fiber(fibered_process_node);
-    if (current_fiber_node == NULL) {
-        mutex_unlock(&fiber_lock);
-        return -ERR_NOT_FIBERED;
-    }
-
+    if (current_fiber_node == NULL) ret = -ERR_NOT_FIBERED;
+    if (ret < 0) goto err_precheck;
     // find a fiber element with id as fid
     requested_fiber_node = check_if_fiber_exist(fibered_process_node, fid);
-    if (requested_fiber_node == NULL) {
-        mutex_unlock(&fiber_lock);
-        return -ERR_FIBER_NOT_EXISTS;
-    }
+    if (requested_fiber_node == NULL) ret = -ERR_FIBER_NOT_EXISTS;
+    if (ret < 0) goto err_precheck;
+
+    // check if fiber is running
     if (requested_fiber_node->state == RUNNING) {
-        mutex_unlock(&fiber_lock);
+        ret = -ERR_FIBER_ALREADY_RUNNING;
         requested_fiber_node->failed_activations_count += 1;
-        return -ERR_FIBER_ALREADY_RUNNING;
+        goto err_precheck;
     }
 
-    // switch to that fiber
+    // perform the switch to that fiber
     preempt_disable();
-    // update the total time, current fiber is always running
+    // time
+    // -> update the total time, current fiber is always running
     current_fiber_node->total_time = get_actual_fiber_time(current_fiber_node);
-    // update the switch time
+    // -> update the switch time for the current
     getnstimeofday(&current_fiber_node->time_last_switch);
-#ifdef DEBUG
-    printk(KERN_DEBUG MODULE_NAME CORE_LOG "Total running time for fiber node %u is %lu",
-           current_fiber_node->id, current_fiber_node->total_time);
-#endif
-    // update the fiber-to-come time, only if it was running
+    // -> update the fiber-to-come time, only if it was running
     if (requested_fiber_node->state == RUNNING)
         requested_fiber_node->total_time = get_actual_fiber_time(requested_fiber_node);
-    // update the last switch for the fiber-to-come
+    // -> update the last switch for the fiber-to-come
     getnstimeofday(&requested_fiber_node->time_last_switch);
-
+    // params
     current_fiber_node->state = IDLE;
     current_fiber_node->run_by = -1;
     requested_fiber_node->state = RUNNING;
     requested_fiber_node->run_by = current->pid;
     requested_fiber_node->success_activations_count += 1;
+    // registers
     // -> save the current registers
     memcpy(&current_fiber_node->regs, task_pt_regs(current), sizeof(struct pt_regs));
     // -> replace pt_regs
@@ -389,23 +363,10 @@ int switch_to_fiber(unsigned fid) {
     // replace the current with the requested fiber ones
     copy_kernel_to_fxregs(&requested_fiber_node->fpu_regs.state.fxsave);
 
-#ifdef DEBUG
-    printk(KERN_DEBUG MODULE_NAME CORE_LOG "FID#%d->%d fpu to restore", current_fiber_node->id,
-           requested_fiber_node->id);
-    print_fpu(&requested_fiber_node->fpu_regs);
-
-    struct fpu fpu_dump;
-    memset(&fpu_dump, 0, sizeof(struct fpu));
-    copy_fpregs_to_fpstate(&fpu_dump);
-
-    printk(KERN_DEBUG MODULE_NAME CORE_LOG "FID#%d->%d actually restored", current_fiber_node->id,
-           requested_fiber_node->id);
-    print_fpu(&fpu_dump);
-#endif
-
     preempt_enable();
+err_precheck:
     mutex_unlock(&fiber_lock);
-    return 0;
+    return ret;
 }
 
 /**

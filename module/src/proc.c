@@ -384,12 +384,12 @@ out:
  */
 static int fiber_proc_show(struct seq_file *sfile, void *p) {
     fiber_node_t *fiber_node = (fiber_node_t *)sfile->private;
-    seq_printf(sfile, "fiber #%u\n", fiber_node->id);
+    seq_printf(sfile, "%-30s : %u\n", "fiber id", fiber_node->id);
     seq_printf(sfile, "%-30s : %#lx\n", "entry point", fiber_node->entry_point);
     seq_printf(sfile, "%-30s : %s\n", "state", fiber_node->state == 0 ? "IDLE" : "RUNNING");
     if (fiber_node->state == 1)
-        seq_printf(sfile, "%-30s : %u\n", "running Thread id", (unsigned)fiber_node->run_by);
-    seq_printf(sfile, "%-30s : %u\n", "initiator Thread id", (unsigned)fiber_node->created_by);
+        seq_printf(sfile, "%-30s : %u\n", "running thread id", (unsigned)fiber_node->run_by);
+    seq_printf(sfile, "%-30s : %u\n", "initiator thread id", (unsigned)fiber_node->created_by);
     seq_printf(sfile, "%-30s : %lu\n", "total execution time (ms)",
                get_actual_fiber_time(fiber_node));
     seq_printf(sfile, "%-30s : %u\n", "successful activations",
