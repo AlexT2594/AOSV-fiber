@@ -728,9 +728,5 @@ unsigned long get_actual_fiber_time(fiber_node_t *current_fiber_node) {
     current_time = current_time_s.tv_sec * 1000 + current_time_s.tv_nsec / 1000000;
     fiber_time = current_fiber_node->time_last_switch.tv_sec * 1000 +
                  current_fiber_node->time_last_switch.tv_nsec / 1000000;
-    printk("INIT");
-    printk("current_time = %lu", current_time);
-    printk("fiber_time = %lu", fiber_time);
-    printk("END");
     return current_fiber_node->total_time + (current_time - fiber_time);
 }
