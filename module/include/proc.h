@@ -94,4 +94,6 @@ void destroy_proc(void);
 int fh_install_hook(struct ftrace_hook *hook);
 void fh_remove_hook(struct ftrace_hook *hook);
 
+extern fibered_processes_list_t fibered_processes_list;
+
 #endif

@@ -47,8 +47,6 @@ original_proc_setattr_t original_proc_setattr;
 /*
  * Static declarations
  */
-static struct dentry *fiber_proc_pident_lookup(struct inode *dir, struct dentry *dentry,
-                                               const struct pid_entry *ents, unsigned int nents);
 static int fiber_proc_pident_readdir(struct file *file, struct dir_context *ctx,
                                      const struct pid_entry *ents, unsigned int nents);
 
@@ -85,14 +83,14 @@ static struct file_operations fiber_proc_file_ops = {
 };
 // clang-format on
 
+/*
 static const struct pid_entry fibers_dir_stuff[] = {
     REG("hello1", S_IRUGO | S_IWUGO, fiber_proc_file_ops),
     REG("hello2", S_IRUGO | S_IWUGO, fiber_proc_file_ops)};
+*/
 
 static struct ftrace_hook hooked_functions[] = {
-    HOOK("proc_pident_readdir", fiber_proc_pident_readdir, &original_proc_pident_readdir),
-    // HOOK("proc_pident_lookup", fiber_proc_pident_lookup, &original_proc_pident_lookup),
-};
+    HOOK("proc_pident_readdir", fiber_proc_pident_readdir, &original_proc_pident_readdir)};
 
 /*
  * Implementations
@@ -105,12 +103,15 @@ static struct ftrace_hook hooked_functions[] = {
  */
 int init_proc() {
     struct proc_dir_entry *entry;
+    int ret = 0;
     entry = proc_create(PROC_ENTRY, 0, NULL, &fiber_proc_file_ops);
     if (!entry) {
         printk(KERN_ALERT MODULE_NAME PROC_LOG "registering /proc/" PROC_ENTRY " failed");
         return -1;
     }
     printk(KERN_DEBUG MODULE_NAME PROC_LOG "registering /proc/" PROC_ENTRY " success");
+
+    // fill getattr, setattr functions
     original_proc_pident_lookup =
         (original_proc_pident_lookup_t)kallsyms_lookup_name("proc_pident_lookup");
     original_proc_setattr = (original_proc_setattr_t)kallsyms_lookup_name("proc_setattr");
@@ -118,8 +119,9 @@ int init_proc() {
     proc_fibers_folder_inode_operations.lookup = proc_fibers_dir_lookup;
     proc_fibers_folder_inode_operations.getattr = original_pid_getattr;
     proc_fibers_folder_inode_operations.setattr = original_proc_setattr;
-    fh_install_hook(&hooked_functions[0]);
-    return 0;
+
+    ret = fh_install_hook(&hooked_functions[0]);
+    return ret;
 }
 
 /**
@@ -136,44 +138,35 @@ static int fiber_proc_pident_readdir(struct file *file, struct dir_context *ctx,
                                      const struct pid_entry *ents, unsigned int nents) {
     int res;
     struct pid_entry *ents_copy;
-    // our dir
+    unsigned long curr_pid; // the currently displayed pid, if it is the case
+    fibered_process_node_t *fibered_process_node;
     struct pid_entry fibers_dir =
         DIR(PROC_FOLDER, S_IRUGO | S_IXUGO, proc_fibers_folder_inode_operations,
-            proc_fibers_folder_operations);
-    // check if we are not in /proc
+            proc_fibers_folder_operations); // our dir, if it is the case
+
     printk(KERN_DEBUG MODULE_NAME PROC_LOG "Dir is %s", file->f_path.dentry->d_iname);
-    // copy the ents array
+
+    // check if we are in a /<PID> directory
+    if (kstrtoul(file->f_path.dentry->d_iname, 10, &curr_pid) != 0) goto original;
+    // check if process is fibered
+    fibered_process_node = check_if_process_is_fibered(curr_pid);
+    // if process is not fibered we do not display the /proc/<PID>/fibers folder
+    if (fibered_process_node == NULL) goto original;
+    // otherwise add the /fibers entry
+    // -> copy the ents array
     ents_copy = kzalloc((nents + 1) * sizeof(struct pid_entry), GFP_KERNEL);
     memcpy(ents_copy, ents, nents * sizeof(struct pid_entry));
-    // add our entry
+    // -> add our entry
     memcpy(&ents_copy[nents], &fibers_dir, sizeof(struct pid_entry));
     res = original_proc_pident_readdir(file, ctx, ents_copy, nents + 1);
     kfree(ents_copy);
+    goto out;
+
+original:
+    res = original_proc_pident_readdir(file, ctx, ents, nents);
+out:
     return res;
 }
-
-static struct dentry *fiber_proc_pident_lookup(struct inode *dir, struct dentry *dentry,
-                                               const struct pid_entry *ents, unsigned int nents) {
-    struct dentry *res;
-    struct pid_entry *ents_copy;
-    // our dir
-    struct pid_entry fibers_dir =
-        DIR(PROC_FOLDER, S_IRUGO | S_IXUGO, proc_fibers_folder_inode_operations,
-            proc_fibers_folder_operations);
-    // check if we are not in /proc
-    printk(
-        KERN_DEBUG MODULE_NAME PROC_LOG "Dir is %s",
-        ((struct dentry *)container_of(dir->i_dentry.first, struct dentry, d_u.d_alias))->d_iname);
-    // copy the ents array
-    ents_copy = kzalloc((nents + 1) * sizeof(struct pid_entry), GFP_KERNEL);
-    memcpy(ents_copy, ents, nents * sizeof(struct pid_entry));
-    // add our entry
-    memcpy(&ents_copy[nents], &fibers_dir, sizeof(struct pid_entry));
-    res = original_proc_pident_lookup(dir, dentry, ents_copy, nents + 1);
-    kfree(ents_copy);
-    return res;
-}
-
 /*
  * Ftrace area
  */
@@ -237,6 +230,62 @@ void fh_remove_hook(struct ftrace_hook *hook) {
  */
 
 /**
+ * @brief
+ *
+ * Caller needs to free memory!
+ *
+ * @param pid
+ * @return struct pid_entry*
+ */
+static int generate_fibers_dir_stuff(char *pid_str, struct pid_entry **to_out) {
+    fibered_process_node_t *fibered_process_node;
+    fiber_node_t *fiber_cursor_temp, *fiber_cursor_temp_safe;
+    char namebuf[NAME_MAX]; // buffer for filenames
+    char *temp_name;
+    unsigned long pid;
+
+    int i = 0;
+    int ret = 0;
+
+    // check if pid is valid
+    if (kstrtoul(pid_str, 10, &pid) != 0) goto err;
+
+    // checks
+    fibered_process_node = check_if_process_is_fibered(pid);
+    if (fibered_process_node == NULL) goto err;
+    if (fibered_process_node->fibers_list.fibers_count == 0) goto out;
+    *to_out = kzalloc(sizeof(struct pid_entry) * fibered_process_node->fibers_list.fibers_count,
+                      GFP_KERNEL);
+
+    list_for_each_entry_safe(fiber_cursor_temp, fiber_cursor_temp_safe,
+                             &fibered_process_node->fibers_list.list, list) {
+        // copy the name
+        ret = snprintf(namebuf, NAME_MAX, "%d", fiber_cursor_temp->id);
+        if (ret <= 0) continue;
+        temp_name = kmalloc(ret + 1, GFP_KERNEL);
+        memcpy(temp_name, namebuf, ret + 1);
+        (*to_out)[i].name = temp_name;
+        (*to_out)[i].len = ret;
+        // other params
+        (*to_out)[i].mode = S_IFREG | S_IRUGO | S_IWUGO;
+        (*to_out)[i].iop = NULL;
+        (*to_out)[i].fop = &fiber_proc_file_ops;
+
+        i++;
+    }
+
+    ret = (int)fibered_process_node->fibers_list.fibers_count;
+    goto out;
+
+err:
+    printk(KERN_ALERT MODULE_NAME PROC_LOG "generate_fibers_dir_stuff() error");
+    ret = -1;
+out:
+    printk(KERN_DEBUG MODULE_NAME PROC_LOG "generate_fibers_dir_stuff() OK!");
+    return ret;
+}
+
+/**
  * @brief Implements the assignment to every entry in dir /proc/<PID>/fibers
  *
  * @param dir
@@ -246,7 +295,19 @@ void fh_remove_hook(struct ftrace_hook *hook) {
  */
 static struct dentry *proc_fibers_dir_lookup(struct inode *dir, struct dentry *dentry,
                                              unsigned int flags) {
-    return original_proc_pident_lookup(dir, dentry, fibers_dir_stuff, ARRAY_SIZE(fibers_dir_stuff));
+    int ret, nents = 0;
+    struct dentry *res = NULL;
+    struct pid_entry *fibers_dir_stuff;
+    struct dentry *curr_dentry = container_of(dir->i_dentry.first, struct dentry, d_u.d_alias);
+    struct dentry *parent_dentry = curr_dentry->d_parent;
+    nents = ret = generate_fibers_dir_stuff(parent_dentry->d_iname, &fibers_dir_stuff);
+    if (ret < 0) goto out;
+    // call the original
+    res = original_proc_pident_lookup(dir, dentry, fibers_dir_stuff, nents);
+
+    kfree(fibers_dir_stuff);
+out:
+    return res;
 }
 
 /**
@@ -257,7 +318,17 @@ static struct dentry *proc_fibers_dir_lookup(struct inode *dir, struct dentry *d
  * @return int
  */
 static int proc_fibers_dir_readdir(struct file *file, struct dir_context *ctx) {
-    return original_proc_pident_readdir(file, ctx, fibers_dir_stuff, ARRAY_SIZE(fibers_dir_stuff));
+    int ret, nents;
+    struct pid_entry *fibers_dir_stuff;
+    char *pid_str = file->f_path.dentry->d_parent->d_iname;
+    nents = ret = generate_fibers_dir_stuff(pid_str, &fibers_dir_stuff);
+    if (ret < 0) goto out;
+    // call the original readdir
+    ret = original_proc_pident_readdir(file, ctx, fibers_dir_stuff, nents);
+
+    kfree(fibers_dir_stuff);
+out:
+    return ret;
 }
 
 /**
