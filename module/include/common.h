@@ -24,6 +24,11 @@
 
 #define MODULE_NAME "fiber"
 
+// config
+#define MAX_FLS 1024
+#define USE_HASH_LIST
+#define HASH_KEY_SIZE 5
+
 #define SUCCESS 0
 #define ERROR -1
 

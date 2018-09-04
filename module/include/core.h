@@ -60,10 +60,6 @@
 
 #define CORE_LOG ": CORE: "
 
-#define MAX_FLS 1024
-#define USE_HASH_LIST
-#define HASH_KEY_SIZE 5
-
 /*
  * Definitions
  */
@@ -99,14 +95,15 @@ void post_exit_handler(struct kprobe *p, struct pt_regs *regs, unsigned long fla
 fibered_process_node_t *check_if_process_is_fibered(unsigned process_pid);
 fiber_node_t *check_if_this_thread_is_fiber(fibered_process_node_t *fibered_process_node);
 fiber_node_t *check_if_fiber_exist(fibered_process_node_t *fibered_process_node, unsigned fid);
+unsigned long get_actual_fiber_time(fiber_node_t *current_fiber_node);
 
 /**
  * @brief The state of the fiber
  *
  */
 typedef enum fiber_state {
-    RUNNING, /**< The fiber is running since the thread switched to it */
-    IDLE     /**< The fiber is created but no thread switched to it */
+    IDLE,   /**< The fiber is created but no thread switched to it */
+    RUNNING /**< The fiber is running since the thread switched to it */
 } fiber_state_t;
 
 /**
