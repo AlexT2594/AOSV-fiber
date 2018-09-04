@@ -24,12 +24,15 @@
     language=C,
     numbers=left,
     breaklines=true,
+    %breakatwhitespace=true,
     basicstyle=\ttfamily\color{black},
     keywordstyle=\color{mymauve}\bfseries, 
     numberstyle=\color{black},
     stringstyle=\color{orange},
     commentstyle=\color{grey},
-    identifierstyle=\color{black}
+    identifierstyle=\color{black},
+    postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+    literate={\_}{}{0\discretionary{\_}{}{\_}}%
 }
 
 \usepackage{paratype}
@@ -99,8 +102,8 @@ We chose to represent a fiber with the following attributes:
 
 To correctly access and handle fibers, we use two lists:
 \begin{itemize}
-	\item \lstinline{fibered_processes_list}: a list of processes which are fiber-enabled. Each fibered\_process is identified by its tgid and contains a list of fibers
-	\item \lstinline{fibers_list}: a list of fibers for each fibered\_process
+	\item \lstinline{fibered_processes_list_t fibered_processes_list}: a list of processes which are fiber-enabled. Each fibered\_process is identified by its tgid and contains a list of fibers
+	\item \lstinline{fibers_list_t fibers_list}: a list of fibers for each fibered\_process
 \end{itemize}
 
 To manage the fiber local storage, for each fiber we declare:
@@ -111,7 +114,7 @@ To manage the fiber local storage, for each fiber we declare:
 
 \subsubsection{Workflows}
 \paragraph{Converting a standard thread to a fiber}
-The first function that need to be called for starting using fibers is \lstinline{ConvertThreadToFiber}, since only a thread that is a fiber can create other fibers and switch to them. When a thread of a process calls for the first time \lstinline{ConvertThreadToFiber} we say that the process becomes \textit{fiber-enabled} or \textit{fibered}, meaning that we have added it our list of fibered processes (\lstinline{fibered_processes_list_t}). Therefore \lstinline{ConvertThreadToFiber} needs to add the process to the list and then create an entry in the fibers list of the same process, representing the thread that has been converted to a fiber.
+The first function that need to be called for starting using fibers is \lstinline{ConvertThreadToFiber}, since only a thread that is a fiber can create other fibers and switch to them. When a thread of a process calls for the first time \lstinline{ConvertThreadToFiber} we say that the process becomes \textit{fiber-enabled} or \textit{fibered}, meaning that we have added it our list of fibered processes \lstinline{fibered_processes_list_t}. Therefore \lstinline{ConvertThreadToFiber} needs to add the process to the list and then create an entry in the fibers list of the same process, representing the thread that has been converted to a fiber.
 
 \paragraph{Creating fibers}
 At this point the thread can call any other function offered by the module. The function \lstinline{CreateFiber} creates a brand new fiber node to the list of fibers of the current process. The kernel module expects the library to pass a series of parameters for the fiber, as the \textbf{memory address} of the stack, the address of the \textbf{starting function} of the fiber and also a pointer to its \textbf{arguments}. These parameters are used for configuring the registers that will be restored in the CPU when some thread will switch to that fiber. In particular we set Stack Pointer (\texttt{SP}) and the Stack Base Pointer (\texttt{BP}) to the memory address of the stack passed by the library, Intruction Pointer (\texttt{IP}) to the address of the starting function of the fiber and Destrination Index (\texttt{DI}) to arguments’ memory address. Every other parameter is then initialized, as the activation count, the total time, the state, the id and so on (see Section~\ref{subsubsec:kern-datas}).
@@ -125,16 +128,16 @@ To be able to use the Fiber Local Storage the user has to call \lstinline{FlsAll
 \subsubsection{\texttt{\/proc} filesystem}
 The implementation of the \texttt{/proc} specification does not follow the canonical strategy that is requested for creating directory and files in the \texttt{procfs}. This because directories that can be found in \lstinline{/proc/<PID>} are not \textit{statically} created, on the contrary, they are generated ``on the fly'', only when they are requested, mainly due to optimization reasons\footnote{A process can, for example, live for only few milliseconds and as a consequence it would be not efficient to build an entire directory tree}. As a consequence, for achieveing the specification we needed to design a sort of ``hacking plan'' aimed to add the desired folder \lstinline{/proc/<PID>/fibers}.
 
-First of all, we must know that the set of files and directories that are displayed in \lstinline{/proc/<PID>} are described by an array of \lstinline{struct pid_entry}, called \lstinline{tgid_base_stuff}~\cite{kern_tgid_base_stuff}. This array has fixed size, and every entry is filled so we have not spare slots that can be filled, therefore the only way to add things to it is to create an ``hook'' towards that functions that use it. In particular, found that \lstinline{proc_pident_readdir} takes as input \lstinline{tgid_base_stuff} and it instantiates every entry in the array, thus allowing them to be accessed. 
+First of all, we must know that the set of files and directories that are displayed in \lstinline{/proc/<PID>} are described by an array of \lstinline{struct pid_entry}, called \lstinline{tgid_base_stuff}~\cite{kern_tgid_base_stuff}. This array has fixed size, and every entry is filled so we have not spare slots that can be filled, therefore the only way to add things to it is to create an ``hook'' towards that functions that use it. In particular, found that \lstinline{proc_pident_readdir} takes as input \lstinline{tgid_base_stuff} and it instantiates every entry in the array, thus allowing them to be accessed.
 
 A valid way for replacing the address of a function used by the kernel is using the \lstinline{ftrace} subsystem. So we created a customized version of the function \lstinline{proc_pident_readdir} that before calling the real function it simply adds one entry in the array of \lstinline{struct pid_entry} passed as parameter\footnote{Since the \lstinline{proc_pident_readdir} function is also called when accessing subfolders in \lstinline{/proc/<PID>} we firstly check if the name of the current directory is a PID, otherwise the fallback to the original version of the function}. This particular entry of array represents the \texttt{fibers} directory.
 
-The next step of the implementation is aimed to allow the user to navigate the \texttt{fibers} folder, more specifically we wanted to have a file for every created fiber, like \lstinline{/proc/<PID>/fibers/<FID>} where \texttt{FID} is actually the fiber id. For implementing this, we must admit that \texttt{fibers} is, after all, a directory of the VFS, even if it is wrapped in a \lstinline{pid_entry} structure. Therefore we only needed to implement the standard functions: 
+The next step of the implementation is aimed to allow the user to navigate the \texttt{fibers} folder, more specifically we wanted to have a file for every created fiber, like \lstinline{/proc/<PID>/fibers/<FID>} where \texttt{FID} is actually the fiber id. For implementing this, we must admit that \texttt{fibers} is, after all, a directory of the VFS, even if it is wrapped in a \lstinline{pid_entry} structure. Therefore we only needed to implement the standard functions:
 \begin{itemize}
-  \item \lstinline{iterate_shared()} in the \lstinline{struct file_operations}, whose purpose is to instantiate the actual items of a directory. We mapped it to our custom function \lstinline{proc_fibers_dir_readdir()};
-  \item \lstinline{lookup()} in the \lstinline{struct inode_operations} whose purpose is to retrieve the desired item inside a directory. We mapped it to our custom function \lstinline{proc_fibers_dir_lookup()}.
+	\item \lstinline{iterate_shared()}~\cite{kern_file_ops_iterate} in the \lstinline{struct file_operations}, whose purpose is to instantiate the actual items of a directory. We mapped it to our custom function \lstinline{proc_fibers_dir_readdir()};
+	\item \lstinline{lookup()}~\cite{kern_inode_ops_lookup} in the \lstinline{struct inode_operations} whose purpose is to retrieve the desired item inside a directory. We mapped it to our custom function \lstinline{proc_fibers_dir_lookup()}.
 \end{itemize}
-Both \lstinline{proc_fibers_dir_readdir()} and \lstinline{proc_fibers_dir_lookup()} takes as input an array of \lstinline{struct pid_entry} (like \lstinline{tgid_base_stuff}) but now this array will be requested to have an entry, representing a regular file, for each created fiber. So we implemented a function for this purpose, \lstinline{generate_fibers_dir_stuff} that given the directory automatically generates an array of \lstinline{pid_entry} in which every file has as name the id of the fiber and its \lstinline{read()} function is associated to the one that prints all the needed information\footnote{This last part is the only one that is compliant to the standard strategy of creating regular files in \texttt{procfs}}.
+Both \lstinline{proc_fibers_dir_readdir()} and \lstinline{proc_fibers_dir_lookup()} takes as input an array of \lstinline{pid_entry} (like \lstinline{tgid_base_stuff}) but now this array will be requested to have an entry, representing a regular file, for each created fiber. So we implemented a function for this purpose, \lstinline{generate_fibers_dir_stuff()}, that given the directory automatically generates an array of \lstinline{pid_entry} in which every file has as name the id of the fiber and its \lstinline{read()} function is associated to the one that prints all the needed information\footnote{This last part is the only one that is compliant to the standard strategy of creating regular files in \texttt{procfs}}.
 
 
 \subsection{Userspace Library}
@@ -196,16 +199,26 @@ To develop this project we used:
 \section{Benchmark assessment}
 
 \begin{thebibliography}{9}
-  
-  \bibitem{kern_tgid_base_stuff}
-  \lstinline{tgid_base_stuff}, \lstinline{/fs/proc/base.c#2921}, Linux Kernel v4.14.38.
 
-  \url{https://elixir.bootlin.com/linux/v4.14.38/source/fs/proc/base.c#L2921}
+	\bibitem{kern_tgid_base_stuff}
+	\lstinline{tgid_base_stuff}, \lstinline{/fs/proc/base.c#2921}, Linux Kernel v4.14.38.
 
-  \bibitem{kern_proc_pident_readdir}
-  \lstinline{proc_pident_readdir}, \lstinline{/fs/proc/base.c#2489}, Linux Kernel v4.14.38.
+	\url{https://elixir.bootlin.com/linux/v4.14.38/source/fs/proc/base.c#L2921}
 
-  \url{https://elixir.bootlin.com/linux/v4.14.38/source/fs/proc/base.c#L2489}
+	\bibitem{kern_proc_pident_readdir}
+	\lstinline{proc_pident_readdir}, \lstinline{/fs/proc/base.c#2489}, Linux Kernel v4.14.38.
+
+	\url{https://elixir.bootlin.com/linux/v4.14.38/source/fs/proc/base.c#L2489}
+
+	\bibitem{kern_file_ops_iterate}
+	\lstinline{file_operations::iterate_shared}, \lstinline{/include/linux/fs.h#1701}, Linux Kernel v4.14.38.
+
+	\url{https://elixir.bootlin.com/linux/v4.14.38/source/include/linux/fs.h#L1701}
+
+	\bibitem{kern_inode_ops_lookup}
+	\lstinline{inode_operations::lookup}, \lstinline{/include/linux/fs.h#1734}, Linux Kernel v4.14.38.
+
+	\url{https://elixir.bootlin.com/linux/v4.14.38/source/include/linux/fs.h#L1734}
 
 \end{thebibliography}
 
