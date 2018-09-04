@@ -73,14 +73,14 @@ In order to make the programs using threads faster, they should be implemented a
 With this project we try to implement User-Level Threads through the use of the kernel. As a guide we have used the information provided by Windows, which states that a fiber is a unit of execution that must be manually scheduled by the application. This means that a fiber is not preemptively scheduled, but one schedules a fiber by switching to it from another fiber. This doesn’t mean or imply that one application using fibers doesn’t make use of normal threads. When using fibers, the fiber assumes the identity of the thread that runs it, implying that if a thread running fibers is preempted, its currently running fiber is preempted but remains selected. This grants the possibility for handling concurrency in a much more fine-grained manner since the user can establish the schedule of the fibers by himself and not assign this task to a system that does this in a non-deterministic fashion.
 In order to start using fibers and make a thread fiber-enabled, it must call the \lstinline{ConvertThreadToFiber} function which:
 \begin{itemize}
-	\item makes the thread into a fiber
-	\item gives this fiber the capability of creating other fibers
+	\item makes the thread into a fiber;
+	\item gives this fiber the capability of creating other fibers;
 \end{itemize}
 To create a new fiber from an existing one, the CreateFiber function is to be used. The needed data for a fiber to run is:
 \begin{itemize}
-	\item function to execute, which is called the fiber function
-	\item stack size
-	\item fiber data, input for the fiber function
+	\item function to execute, which is called the fiber function;
+	\item stack size;
+	\item fiber data, input for the fiber function;
 \end{itemize}
 
 Once a fiber has been newly created, the user can switch to it by using the SwitchToFiber function.
@@ -95,16 +95,17 @@ This is the general approach that we used for implementing the fiber logic. Obvi
 \subsubsection{Data Structures}\label{subsubsec:kern-datas}
 We chose to represent a fiber with the following attributes:
 \begin{itemize}
-	\item \lstinline{int id}: unique for each fiber, that we’ll reference also as fid (fiber id)
-	\item \lstinline{struct pt_regs registers}: snapshot of the CPU registers. The internal state of a fiber is represented through the content in the registers. To change the execution flow, thus changing from one fiber to another, we swap the registers. The most important ones here are the instruction pointer (\texttt{IP}) and stack pointer (\texttt{SP})
-	\item \lstinline{fiber_state_t state}: RUNNING/IDLE
+	\item \lstinline{int id}: unique for each fiber, that we’ll reference also as fid (fiber id);
+	\item \lstinline{struct pt_regs registers}: snapshot of the CPU registers. The internal state of a fiber is represented through the content in the registers. To change the execution flow, thus changing from one fiber to another, we swap the registers. The most important ones here are the instruction pointer (\texttt{IP}) and stack pointer (\texttt{SP});
+	\item \lstinline{fiber_state_t state}: an enumeration that represents the current state of fiber \lstinline{RUNNING} or \lstinline{IDLE};
 	\item \lstinline{unsigned long entry point}: starting function of the fiber
-	\item \lstinline{unsigned created_by}: pid of the thread that created the fiber
-	\item \lstinline{unsigned run_by}: pid of the thread that is currently running this fiber. If no thread is running it, we recur to the default value of -1.
-	      success/failed activations
+	\item \lstinline{unsigned created_by}: pid of the thread that created the fiber;
+	\item \lstinline{unsigned run_by}: pid of the thread that is currently running this fiber. If no thread is running it, we recur to the default value of -1;
+	\item \lstinline{unsigned success_activations} number of times the fiber has been switch to successfully;
+	\item \lstinline{unsigned failed_activations} number of times the fiber activation failed, for example when we try to switch to an already running fiber;
 	\item \lstinline{unsigned long total_time}: total running time of the fiber
-	\item \lstinline{struct timespec time_last_switch}: time of when the last switch from one fiber to another occurred
-	\item \lstinline{fiber_fls_t local_storage}: fiber local storage
+	\item \lstinline{struct timespec time_last_switch}: time of when the last switch from one fiber to another occurred;
+	\item \lstinline{fiber_fls_t local_storage}: a structure that represents the fiber local storage.
 \end{itemize}
 
 To correctly access and handle fibers, we use two lists:
@@ -186,10 +187,10 @@ The \textbf{library} worktree is made up by:
 \end{itemize}
 and as headers:
 \begin{itemize}
-  \item \lstinline{fiber.h} contains the prototype of all the set of the functions requested by the specification of the project, as: \lstinline{CreateFiber}, \lstinline{SwitchToFiber}, and so on;
-  \item \lstinline{list.h} contains the userspace implementation of the linked list data structures used in the kernel (it consists of only macros, all the architecture-dependent optimization has been removed~\cite{klists}).
-  \item \lstinline{utils.h} contains utilities for accessing linked lists, as in the kernel module;
-  \item \lstinline{common.h} general configuration file.
+	\item \lstinline{fiber.h} contains the prototype of all the set of the functions requested by the specification of the project, as: \lstinline{CreateFiber}, \lstinline{SwitchToFiber}, and so on;
+	\item \lstinline{list.h} contains the userspace implementation of the linked list data structures used in the kernel (it consists of only macros, all the architecture-dependent optimization has been removed~\cite{klists}).
+	\item \lstinline{utils.h} contains utilities for accessing linked lists, as in the kernel module;
+	\item \lstinline{common.h} general configuration file.
 \end{itemize}
 
 
@@ -224,12 +225,12 @@ This project has been developed and tested to be working with the following envi
 	\bibitem{kern_inode_ops_lookup}
 	\lstinline{inode_operations::lookup}, \lstinline{/include/linux/fs.h#1734}, Linux Kernel v4.14.38.
 
-  \url{https://elixir.bootlin.com/linux/v4.14.38/source/include/linux/fs.h#L1734}
-  
-  \bibitem{klists}
-  Linux Kernel Linked List Explained, NYU University.
+	\url{https://elixir.bootlin.com/linux/v4.14.38/source/include/linux/fs.h#L1734}
 
-  \url{https://isis.poly.edu/kulesh/stuff/src/klist/}
+	\bibitem{klists}
+	Linux Kernel Linked List Explained, NYU University.
+
+	\url{https://isis.poly.edu/kulesh/stuff/src/klist/}
 
 \end{thebibliography}
 
