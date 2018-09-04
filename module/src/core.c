@@ -342,9 +342,6 @@ int switch_to_fiber(unsigned fid) {
     current_fiber_node->total_time = get_actual_fiber_time(current_fiber_node);
     // -> update the switch time for the current
     getnstimeofday(&current_fiber_node->time_last_switch);
-    // -> update the fiber-to-come time, only if it was running
-    if (requested_fiber_node->state == RUNNING)
-        requested_fiber_node->total_time = get_actual_fiber_time(requested_fiber_node);
     // -> update the last switch for the fiber-to-come
     getnstimeofday(&requested_fiber_node->time_last_switch);
     // params
