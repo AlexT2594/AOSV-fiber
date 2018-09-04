@@ -70,7 +70,7 @@ static struct inode_operations proc_fibers_folder_inode_operations; /* = {
 
 static const struct file_operations proc_fibers_folder_operations = {
     .read = generic_read_dir,
-    .iterate_shared = proc_fibers_dir_readdir, 
+    .iterate_shared = proc_fibers_dir_readdir,
     .llseek = generic_file_llseek
 };
 
@@ -102,25 +102,33 @@ static struct ftrace_hook hooked_functions[] = {
  * @return int
  */
 int init_proc() {
-    struct proc_dir_entry *entry;
+    unsigned long original_proc_pident_lookup_addr, original_pid_getattr_addr,
+        original_proc_setattr_addr;
     int ret = 0;
-    entry = proc_create(PROC_ENTRY, 0, NULL, &fiber_proc_file_ops);
-    if (!entry) {
-        printk(KERN_ALERT MODULE_NAME PROC_LOG "registering /proc/" PROC_ENTRY " failed");
-        return -1;
-    }
-    printk(KERN_DEBUG MODULE_NAME PROC_LOG "registering /proc/" PROC_ENTRY " success");
-
     // fill getattr, setattr functions
-    original_proc_pident_lookup =
-        (original_proc_pident_lookup_t)kallsyms_lookup_name("proc_pident_lookup");
-    original_proc_setattr = (original_proc_setattr_t)kallsyms_lookup_name("proc_setattr");
-    original_pid_getattr = (original_pid_getattr_t)kallsyms_lookup_name("pid_getattr");
+    original_proc_pident_lookup_addr = kallsyms_lookup_name("proc_pident_lookup");
+    if (original_proc_pident_lookup_addr == 0) goto err;
+    original_proc_setattr_addr = kallsyms_lookup_name("proc_setattr");
+    if (original_proc_setattr_addr == 0) goto err;
+    original_pid_getattr_addr = kallsyms_lookup_name("pid_getattr");
+    if (original_pid_getattr_addr == 0) goto err;
+    // assign methods
+    original_proc_pident_lookup = (original_proc_pident_lookup_t)original_proc_pident_lookup_addr;
+    original_proc_setattr = (original_proc_setattr_t)original_proc_setattr_addr;
+    original_pid_getattr = (original_pid_getattr_t)original_pid_getattr_addr;
     proc_fibers_folder_inode_operations.lookup = proc_fibers_dir_lookup;
     proc_fibers_folder_inode_operations.getattr = original_pid_getattr;
     proc_fibers_folder_inode_operations.setattr = original_proc_setattr;
-
+    // install hook with ftrace
     ret = fh_install_hook(&hooked_functions[0]);
+    if (ret < 0) goto err;
+    printk(KERN_DEBUG MODULE_NAME PROC_LOG "/proc/<PID>/" PROC_ENTRY " registering success");
+    goto out;
+
+err:
+    printk(KERN_ALERT MODULE_NAME PROC_LOG "/proc/<PID>/" PROC_ENTRY " registering error");
+    if (ret == 0) ret = -1;
+out:
     return ret;
 }
 
@@ -143,8 +151,6 @@ static int fiber_proc_pident_readdir(struct file *file, struct dir_context *ctx,
     struct pid_entry fibers_dir =
         DIR(PROC_FOLDER, S_IRUGO | S_IXUGO, proc_fibers_folder_inode_operations,
             proc_fibers_folder_operations); // our dir, if it is the case
-
-    printk(KERN_DEBUG MODULE_NAME PROC_LOG "Dir is %s", file->f_path.dentry->d_iname);
 
     // check if we are in a /<PID> directory
     if (kstrtoul(file->f_path.dentry->d_iname, 10, &curr_pid) != 0) goto original;
@@ -169,6 +175,7 @@ out:
 }
 /*
  * Ftrace area
+ * @see https://www.apriorit.com/dev-blog/546-hooking-linux-functions-2
  */
 
 static void notrace fh_ftrace_thunk(unsigned long ip, unsigned long parent_ip,
