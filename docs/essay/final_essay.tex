@@ -1,13 +1,20 @@
 \documentclass[a4paper,10pt]{article}
 \usepackage[margin=0.9in]{geometry}
+\usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage{enumitem} % enum styles
+\usepackage{listings}
 \setitemize{itemsep=0pt,parsep=2pt,topsep=2pt,partopsep=0pt}
 \setenumerate{itemsep=0pt,parsep=2pt,topsep=2pt,partopsep=0pt}
+
+\usepackage{paratype}
+\renewcommand*\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
+\usepackage[T1]{fontenc}
 
 \title{
   \huge \textbf{Fibers} \\
   \Large Final Project Essay \\
+  \noindent \rule{9cm}{0.2pt} \\
   \large Advanced Operating Systems and Virtualization \\
   \large \textit{Sapienza University of Rome} 
 }
@@ -44,7 +51,7 @@ Once a fiber has been newly created, the user can switch to it by using the Swit
 To store information related to a precise fiber, the user can use the Fiber Local Storage which, through the use of the FLS functions (FlsAlloc, FlsFree, FlsGetValue, FlsSetValue), allows for the manipulation of values associated to single fibers.
 
 \section{Design Choices}
-The project consists of two sides: the kernel module that represents the kernel side (that we will call fiber module) and the library (that we will call fiber library) that represents the userspace side of the framework. This kind of approach is the simplest one for implementing system calls: the module exposes a device in /dev/fiber and whenever the library needs to call a function exposed by the module it uses the system call ioctl, that given the fiber device file and a function integer id, it performs the call as it was a standard system call.
+The project consists of two sides: the kernel module that represents the kernel side (that we will call \textit{fiber module}) and the library (that we will call \texttt{fiber library}) that represents the userspace side of the framework. This kind of approach is the simplest one for implementing system calls: the module exposes a device in /dev/fiber and whenever the library needs to call a function exposed by the module it uses the system call ioctl, that given the fiber device file and a function integer id, it performs the call as it was a standard system call.
 
 This is the general approach that we used for implementing the fiber logic. Obviously the library and module needs different kind of data to be stored and they have different workflows, for this reason in the following sections we will see them in detail.
 
@@ -93,10 +100,10 @@ In order to respect the directive of the project, which is showing details about
 \subsubsection{Data Structures}
 The information needed for representing fibers in the library is less than the one needed in the kernel. Here we use the following attributes for handling them:
 \begin{itemize}
-  \item stack\_size: size of the stack that will be used by the execution flow of the fiber
-\item stack\_addr: the stack starting address allocated by the library
-\item function: the function pointer passed by the user, that will be the starting point of the fiber
-\item function\_args: arguments for the fiber function
+	\item stack\_size: size of the stack that will be used by the execution flow of the fiber
+	\item stack\_addr: the stack starting address allocated by the library
+	\item function: the function pointer passed by the user, that will be the starting point of the fiber
+	\item function\_args: arguments for the fiber function
 \end{itemize}
 
 The purpose of this data structure is to avoid to call the kernel module when is not needed, for example when switching to a fiber is useless to call the module if the requested fiber does not exists, indeed we first check if the fiber exists in our data structure and if not we avoid calling ioctl on the fiber device.
@@ -138,10 +145,10 @@ and as headers:
 \subsection{OS \& tools}
 To develop this project we used:
 \begin{itemize}
-\item Fedora, Arch Linux but module has also been tested with Debian and Ubuntu
-\item Linux Kernel (v. 4.14.38)
-\item gcc (v. 7.3.0/1)
-\item Visual Studio Code
+	\item Fedora, Arch Linux but module has also been tested with Debian and Ubuntu
+	\item Linux Kernel (v. 4.14.38)
+	\item gcc (v. 7.3.0/1)
+	\item Visual Studio Code
 \end{itemize}
 
 \section{Benchmark assessment}
