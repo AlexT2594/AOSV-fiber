@@ -165,7 +165,8 @@ int convert_thread_to_fiber() {
         // -> FPU regs
         memcpy(&fiber_node->regs, task_pt_regs(current), sizeof(struct pt_regs));
         memset(&fiber_node->fpu_regs, 0, sizeof(struct fpu));
-        fpu__initialize(&fiber_node->fpu_regs);
+        // fpu__initialize(&fiber_node->fpu_regs);
+        copy_fxregs_to_kernel(&fiber_node->fpu_regs);
         // -> general purpose
         fiber_node->entry_point = fiber_node->regs.ip;
         fiber_node->success_activations_count = 1;
@@ -255,7 +256,8 @@ int create_fiber(fiber_params_t *params) {
     memcpy(&fiber_node->regs, task_pt_regs(current), sizeof(struct pt_regs));
     // -> FPU registers
     memset(&fiber_node->fpu_regs, 0, sizeof(struct fpu));
-    fpu__initialize(&fiber_node->fpu_regs);
+    // fpu__initialize(&fiber_node->fpu_regs);
+    copy_fxregs_to_kernel(&fiber_node->fpu_regs);
     fiber_node->regs.ip = params_kern.function;
     fiber_node->regs.di = params_kern.function_args;
     fiber_node->regs.sp = params_kern.stack_addr;

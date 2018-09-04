@@ -3,6 +3,8 @@ from threading import Thread
 import re
 import sys
 
+use_xterm = False
+
 def do_bench(num_process, num_fibers, silent=True):
     print("Starting bench (%d,%d)" % (num_process, num_fibers))
     processes = []
@@ -47,7 +49,10 @@ def do_bench(num_process, num_fibers, silent=True):
         
 
     for i in range(num_process):
-        processes.append(subprocess.Popen(["./test", str(num_fibers)], stdout=subprocess.PIPE))
+        simple_args = ["./test", str(num_fibers)]
+        xterm_arg = "gdb -ex=r --args ./test " + str(num_fibers)
+        xterm_params = ["xterm", "-e", xterm_arg]
+        processes.append(subprocess.Popen(xterm_params if(use_xterm) else simple_args, stdout=subprocess.PIPE))
         threads.append(Thread(target=threaded_fun, args=[i, processes[i]]))
     for i in range(num_process):
         threads[i].start()

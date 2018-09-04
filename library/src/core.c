@@ -152,7 +152,7 @@ int SwitchToFiber(unsigned fid) {
     if (dev_fd < 0 || fcntl(dev_fd, F_GETFD) < 0) return -1;
     int ret = ioctl(dev_fd, FIBER_IOC_SWITCHTOFIBER, (unsigned long)fid);
     if (ret < 0) {
-        printf(LIBRARY_TAG CORE_TAG "SwitchToFiber() ioctl error, errno %d\n", errno);
+        // printf(LIBRARY_TAG CORE_TAG "SwitchToFiber() ioctl error, errno %d\n", errno);
         return -1;
     }
     return ret;

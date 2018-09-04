@@ -137,7 +137,6 @@ out:
  *
  */
 void destroy_proc() {
-    remove_proc_entry(PROC_ENTRY, NULL);
     fh_remove_hook(&hooked_functions[0]);
     printk(KERN_DEBUG MODULE_NAME PROC_LOG "/proc/" PROC_ENTRY " destroyed");
 }

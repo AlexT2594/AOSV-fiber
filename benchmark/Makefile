@@ -7,7 +7,7 @@ SRC = 	src/calqueue.c \
 		src/thread.c \
 		src/ult.c
 		
-CFLAGS = -O3
+CFLAGS = -g #-O3
 EXEC = test
 OBJS := $(SRC:%.c=%.o)
 OBJS := $(OBJS:%.S=%.o)
