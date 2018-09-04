@@ -1,0 +1,149 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{graphicx}
+\usepackage{enumitem} % enum styles
+\setitemize{itemsep=0pt,parsep=2pt,topsep=2pt,partopsep=0pt}
+\setenumerate{itemsep=0pt,parsep=2pt,topsep=2pt,partopsep=0pt}
+
+\title{
+  \huge \textbf{Fibers} \\
+  \Large Final Project Essay \\
+  \large Advanced Operating Systems and Virtualization \\
+  \large \textit{Sapienza University of Rome} 
+}
+\author{
+  Gabriele Proietti Mattia \\ 1645351 \and Alexandru Daniel Tufa \\ 1628927
+}
+\date{\today\ (A.Y. 17/18)}
+
+
+\begin{document}
+\maketitle
+
+%\tableofcontents
+
+\section{Introduction}
+Fibers are the Windows kernel-level implementation of User-Level Threads. To perfectly understand them, let’s see the difference with kernel level threads. Kernel-Level Threads are implemented when the Operating System manages the execution aspect of a process, which is separated into threads. These threads managed by the OS are called kernel-level threads or lightweight processes. The advantages here are that the kernel has full knowledge of all threads, meaning that it can optimize them, for example by assigning more time to a process having a large number of threads rather than a process with a small number of threads. On the other side, kernel-level threads are slow and inefficient, requiring an additional data structure (Thread Control Block) for each thread to maintain information about them. This results in a significant overhead.
+
+In order to make the programs using threads faster, they should be implemented at user level, where User-Level Threads are managed entirely by the user-level library. This results in the kernel knowing nothing about user-level threads and it will manage them as if they were single-threaded processes. In this way, each user-level thread is represented by its set of registers and stack. This methodology allows for offering threads to an Operating System that could not support threads and don’t require the modification of the OS for supporting them; has simple representation and management and can be considered fast and efficient since thread switching is not much more expensive than a procedure call.
+
+With this project we try to implement User-Level Threads through the use of the kernel. As a guide we have used the information provided by Windows, which states that a fiber is a unit of execution that must be manually scheduled by the application. This means that a fiber is not preemptively scheduled, but one schedules a fiber by switching to it from another fiber. This doesn’t mean or imply that one application using fibers doesn’t make use of normal threads. When using fibers, the fiber assumes the identity of the thread that runs it, implying that if a thread running fibers is preempted, its currently running fiber is preempted but remains selected. This grants the possibility for handling concurrency in a much more fine-grained manner since the user can establish the schedule of the fibers by himself and not assign this task to a system that does this in a non-deterministic fashion.
+In order to start using fibers and make a thread fiber-enabled, it must call the ConvertThreadToFiber function which:
+\begin{itemize}
+	\item makes the thread into a fiber
+	\item gives this fiber the capability of creating other fibers
+\end{itemize}
+To create a new fiber from an existing one, the CreateFiber function is to be used. The needed data for a fiber to run is:
+\begin{itemize}
+	\item function to execute, which is called the fiber function
+	\item stack size
+	\item fiber data, input for the fiber function
+\end{itemize}
+
+Once a fiber has been newly created, the user can switch to it by using the SwitchToFiber function.
+To store information related to a precise fiber, the user can use the Fiber Local Storage which, through the use of the FLS functions (FlsAlloc, FlsFree, FlsGetValue, FlsSetValue), allows for the manipulation of values associated to single fibers.
+
+\section{Design Choices}
+The project consists of two sides: the kernel module that represents the kernel side (that we will call fiber module) and the library (that we will call fiber library) that represents the userspace side of the framework. This kind of approach is the simplest one for implementing system calls: the module exposes a device in /dev/fiber and whenever the library needs to call a function exposed by the module it uses the system call ioctl, that given the fiber device file and a function integer id, it performs the call as it was a standard system call.
+
+This is the general approach that we used for implementing the fiber logic. Obviously the library and module needs different kind of data to be stored and they have different workflows, for this reason in the following sections we will see them in detail.
+
+\subsection{Kernel Module}
+\subsubsection{Data Structures}
+We chose to represent a fiber with the following attributes:
+\begin{itemize}
+	\item id: unique for each fiber, that we’ll reference also as fid (fiber id)
+	\item registers: snapshot of the CPU registers.The internal state of a fiber is represented through the content in the registers. To change the execution flow, thus changing from one fiber to another, we swap the registers. The most important ones here are the instruction pointer (IP) and stack pointer (SP)
+	\item state: RUNNING/IDLE
+	\item entry point: starting function of the fiber
+	\item created\_by: pid of the thread that created the fiber
+	\item run\_by: pid of the thread that is currently running this fiber. If no thread is running it, we recur to the default value of -1.
+	      success/failed activations
+	\item total\_time: total running time of the fiber
+	\item time\_last\_switch: time of when the last switch from one fiber to another occurred
+	\item local\_storage: fiber local storage
+\end{itemize}
+
+To correctly access and handle fibers, we use two lists:
+\begin{itemize}
+	\item fibered\_processes\_list: a list of processes which are fiber-enabled. Each fibered\_process is identified by its tgid and contains a list of fibers
+	\item fibers\_list: a list of fibers for each fibered\_process
+\end{itemize}
+
+To manage the fiber local storage, for each fiber we declare:
+\begin{itemize}
+	\item an array of an established maximum dimension
+	\item a bitmap which allows for handling in a fast and efficient way the allocation, freeing, setting and getting of values
+\end{itemize}
+
+\subsubsection{Workflows}
+The first function that need to be called for starting using fibers is ConvertThreadToFiber, since only a thread that is a fiber can create other fibers and switch to them. When a thread of a process calls for the first time ConvertThreadToFiber we say that the process becomes fiber-enabled or fibered, meaning that we have added it our list of fibered processes (fibered\_processes\_list\_t). Therefore ConvertThreadToFiber needs to add the process to the list and then create an entry in the fibers list of the same process, representing the thread that has been converted to a fiber.
+
+At this point the thread can call any other function offered by the module. The function CreateFiber creates a brand new fiber node to the list of fiber of the current process. The kernel module expects the library to pass a series of parameters for the fiber, as the memory address of the stack, the starting function of the fiber and also a pointer to its arguments. These parameters are used for configuring the registers that will be restored in the cpu when some thread will switch to that fiber. In particular we set SP and BP to the memory address of the stack passed by the library, IP to the address of the starting function of the fiber and DI to arguments’ memory address. Every other parameter is then initialized, as the activation count, the total time, the state, the id and so on.
+
+The function that makes a fiber running is SwitchToFiber. Any fiber can switch to any other non-running fiber. This function is achieved by actually realizing a context switch between fibers. The current state of the cpu of the current fiber is saved in the fiber data structure, and then we restore the cpu state (including the fpu registers) of the requested fibers thus changing the flow of the execution of the current thread. In this moment also other metadata are set: the current fiber state is set to IDLE, while the requested fiber state is set to RUNNING and updated with the pid of the current thread, then we also update the total running time of the left fiber.
+
+To be able to use the Fiber Local Storage the user has to call FlsAlloc. In this way the system will give to the user a way to access its requested space, which is done through the returned index, retrieved through the use of the bitmap. This index is used to store a value inside the FLS, by using the function FlsSetValue, and to retrieve it through the function FlsGetValue. To check if the index is a valid one, the kernel uses the functionalities offered by the bitmap. When the space associated with a certain index is no longer needed, it’s enough for the user to call FlsFree and passing the not needed anymore index and the system will clear its position in the bitmap.
+
+\subsubsection{\texttt{\/proc} filesystem}
+In order to respect the directive of the project, which is showing details about fibers under /proc/PID/fibers/fiber\_id, we had to find a way to hook the function that handles the data regarding each PID. We found out that the needed function is proc\_pident\_readdir that, by reading tgid\_base\_stuff, is able to expose to the user relevant data for each process. To be able to replace this function with one that could add other information, which regards fibers, we used ftrace, the framework for tracing kernel function. To get the address of the function we used kallsyms and the hooked function adds a new directory entry to the pid\_entry array and call the original function, passing the modified pid\_entry array as input.
+
+\subsection{Userspace Library}
+
+\subsubsection{Data Structures}
+The information needed for representing fibers in the library is less than the one needed in the kernel. Here we use the following attributes for handling them:
+\begin{itemize}
+  \item stack\_size: size of the stack that will be used by the execution flow of the fiber
+\item stack\_addr: the stack starting address allocated by the library
+\item function: the function pointer passed by the user, that will be the starting point of the fiber
+\item function\_args: arguments for the fiber function
+\end{itemize}
+
+The purpose of this data structure is to avoid to call the kernel module when is not needed, for example when switching to a fiber is useless to call the module if the requested fiber does not exists, indeed we first check if the fiber exists in our data structure and if not we avoid calling ioctl on the fiber device.
+
+\subsubsection{Workflows}
+The library acts as an intermediate between the user and the kernel, more precisely our module. The means of communication is offered by the ioctl function.
+
+\section{Implementation Details}
+\subsection{Worktrees}
+The kernel module worktree is made up the following source files in src/:
+\begin{itemize}
+	\item fiber.c
+	\item device.c
+	\item core.c
+	\item proc.c
+\end{itemize}
+In include/ We have an header file for every code file, except for:
+\begin{itemize}
+	\item utils.h
+	\item ioctlcmd.h
+	\item common.h
+\end{itemize}
+
+
+The library worktree is made up by:
+\begin{itemize}
+	\item core.c
+	\item fiber\_example.c
+\end{itemize}
+and as headers:
+\begin{itemize}
+	\item common.h
+	\item fiber.h
+	\item list.h
+	\item utils.h
+\end{itemize}
+
+
+\subsection{OS \& tools}
+To develop this project we used:
+\begin{itemize}
+\item Fedora, Arch Linux but module has also been tested with Debian and Ubuntu
+\item Linux Kernel (v. 4.14.38)
+\item gcc (v. 7.3.0/1)
+\item Visual Studio Code
+\end{itemize}
+
+\section{Benchmark assessment}
+
+\end{document}
