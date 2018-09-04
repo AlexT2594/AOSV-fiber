@@ -125,12 +125,12 @@ The function that makes a fiber running is \lstinline{SwitchToFiber}. Any fiber 
 \paragraph{The Fiber Local Storage (FLS)}
 To be able to use the Fiber Local Storage the user has to call \lstinline{FlsAlloc}. In this way the system will give, to the fiber which called the function, a way to access its requested space. In particular, \lstinline{FlsAlloc} returns the index of the first free slot of fiber space\footnote{The size of every slot is \lstinline{sizeof(unsigned long)}}. This index can be then used to store a value, by using the function \lstinline{FlsSetValue}, and also for retrieving it, through the function \lstinline{FlsGetValue}. To check if the index is a valid one, the kernel uses the functionalities offered by the bitmap. When the space associated with a certain index is no longer needed, it’s enough for the user to call \lstinline{FlsFree} and passing the not-needed-anymore index and the system will clear its position in the bitmap.
 
-\subsubsection{\texttt{\/proc} filesystem}
+\subsubsection{\texttt{\/proc} filesystem}\label{subsubsec:kern-procfs}
 The implementation of the \texttt{/proc} specification does not follow the canonical strategy that is requested for creating directory and files in the \texttt{procfs}. This because directories that can be found in \lstinline{/proc/<PID>} are not \textit{statically} created, on the contrary, they are generated ``on the fly'', only when they are requested, mainly due to optimization reasons\footnote{A process can, for example, live for only few milliseconds and as a consequence it would be not efficient to build an entire directory tree}. As a consequence, for achieveing the specification we needed to design a sort of ``hacking plan'' aimed to add the desired folder \lstinline{/proc/<PID>/fibers}.
 
 First of all, we must know that the set of files and directories that are displayed in \lstinline{/proc/<PID>} are described by an array of \lstinline{struct pid_entry}, called \lstinline{tgid_base_stuff}~\cite{kern_tgid_base_stuff}. This array has fixed size, and every entry is filled so we have not spare slots that can be filled, therefore the only way to add things to it is to create an ``hook'' towards that functions that use it. In particular, found that \lstinline{proc_pident_readdir} takes as input \lstinline{tgid_base_stuff} and it instantiates every entry in the array, thus allowing them to be accessed.
 
-A valid way for replacing the address of a function used by the kernel is using the \lstinline{ftrace} subsystem. So we created a customized version of the function \lstinline{proc_pident_readdir} that before calling the real function it simply adds one entry in the array of \lstinline{struct pid_entry} passed as parameter\footnote{Since the \lstinline{proc_pident_readdir} function is also called when accessing subfolders in \lstinline{/proc/<PID>} we firstly check if the name of the current directory is a PID, otherwise the fallback to the original version of the function}. This particular entry of array represents the \texttt{fibers} directory.
+A valid way for replacing the address of a function used by the kernel is using the \lstinline{ftrace} subsystem. So we created a customized version of the function \lstinline{proc_pident_readdir} that before calling the real function it simply adds one entry in the array of \lstinline{struct pid_entry} passed as parameter\footnote{Since the \lstinline{proc_pident_readdir} function is also called when accessing subfolders in \lstinline{/proc/<PID>} we firstly check if the name of the current directory is a PID, otherwise the fallback to the original version of the function} (obviously only if the process is \textit{fibered}). This particular entry of array represents the \texttt{fibers} directory.
 
 The next step of the implementation is aimed to allow the user to navigate the \texttt{fibers} folder, more specifically we wanted to have a file for every created fiber, like \lstinline{/proc/<PID>/fibers/<FID>} where \texttt{FID} is actually the fiber id. For implementing this, we must admit that \texttt{fibers} is, after all, a directory of the VFS, even if it is wrapped in a \lstinline{pid_entry} structure. Therefore we only needed to implement the standard functions:
 \begin{itemize}
@@ -153,47 +153,46 @@ The information needed for representing fibers in the library is less than the o
 
 The purpose of this data structure is to avoid to call the kernel module when is not needed, for example when switching to a fiber is useless to call the module if the requested fiber does not exists, indeed we first check if the fiber exists in our data structure and if not we avoid calling ioctl on the fiber device.
 
-\subsubsection{Workflows}
+\subsubsection{Workflows}\label{subsubsec:lib-works}
 The library acts as an intermediate between the user and the kernel, more precisely our module. The means of communication is offered by the ioctl function.
 
 \section{Implementation Details}
 \subsection{Worktrees}
-The kernel module worktree is made up the following source files in src/:
+The \textbf{kernel module} worktree is made up the following source files in src/:
 \begin{itemize}
-	\item \lstinline{fiber.c}
-	\item \lstinline{device.c}
-	\item \lstinline{core.c}
-	\item \lstinline{proc.c}
+	\item \lstinline{fiber.c} represents the module entry point, so its purpose is to initialize of the subparts, like the \lstinline{device} and the \lstinline{procfs};
+	\item \lstinline{device.c} it's focused on the creation and the management of the fiber device in \lstinline{/dev/fiber}, and as a consequence of all what regards the dispatch of the \lstinline{ioctl} commands;
+	\item \lstinline{proc.c} represents the \lstinline{procfs} part of the module, the one that gives life to \lstinline{/proc/<PID>/fibers} (see Section~\ref{subsubsec:kern-procfs});
+	\item \lstinline{core.c} implements all the services exposed by the module and also retains the main data structure used for storing all the fibers information.
 \end{itemize}
-In include/ We have an header file for every code file, except for:
+In the \lstinline{include} folder we have an header file for every code file, except for:
 \begin{itemize}
-	\item \lstinline{utils.h}
-	\item \lstinline{ioctlcmd.h}
-	\item \lstinline{common.h}
+	\item \lstinline{utils.h} contains mainly definition of macros that we use to scroll kernel linked lists and hash tables that we use as database of our module;
+	\item \lstinline{ioctlcmd.h} represent the interconnection point between the module and the library since this file is shared between them. Its purpose is to store information about \lstinline{ioctl} commands identifiers and common data structures, as the \lstinline{fiber_params_t}\footnote{Whose purpose is to tell the kernel, from the library, all the information about a new fiber as: stack address, entry point and so on.}
+	\item \lstinline{common.h} it's a general configuration file imported by all code files. It tells wether to use hash tables or linked list (for the fibered processes data structure), it specifies the dimension of the FLS storage and other parameters.
 \end{itemize}
 
-
-The library worktree is made up by:
+The \textbf{library} worktree is made up by:
 \begin{itemize}
-	\item \lstinline{core.c}
-	\item \lstinline{fiber_example.c}
+	\item \lstinline{core.c} implements all the set of userspace callable function, directly mapped to \lstinline{ioctl} commands (see Section~\ref{subsubsec:lib-works}) and the data structure that represents all the fibers managed by a process.
+	\item \lstinline{fiber_example.c} contains a little running example mainly used for testing the library and the module functionality.
 \end{itemize}
 and as headers:
 \begin{itemize}
-	\item \lstinline{common.h}
-	\item \lstinline{fiber.h}
-	\item \lstinline{list.h}
-	\item \lstinline{utils.h}
+  \item \lstinline{fiber.h} contains the prototype of all the set of the functions requested by the specification of the project, as: \lstinline{CreateFiber}, \lstinline{SwitchToFiber}, and so on;
+  \item \lstinline{list.h} contains the userspace implementation of the linked list data structures used in the kernel (it consists of only macros, all the architecture-dependent optimization has been removed~\cite{klists}).
+  \item \lstinline{utils.h} contains utilities for accessing linked lists, as in the kernel module;
+  \item \lstinline{common.h} general configuration file.
 \end{itemize}
 
 
 \subsection{OS \& tools}
-To develop this project we used:
+This project has been developed and tested to be working with the following environment parameters:
 \begin{itemize}
-	\item Fedora and Arch Linux but the project has also been tested with latest available versions of Debian and Ubuntu;
-	\item Linux Kernel (\lstinline{v4.14.38});
-	\item \lstinline{gcc} (\lstinline{v7.3.0/1});
-	\item Visual Studio Code.
+	\item \textbf{Linux Distros}: Fedora, Arch Linux, Debian 9 and Ubuntu 18.04;
+	\item \textbf{Linux Kernel}: \lstinline{v4.14.38};
+	\item \textbf{Compiling Suite}: \lstinline{gcc} (\lstinline{v7.3.0/1});
+	\item \textbf{IDE}: Visual Studio Code.
 \end{itemize}
 
 \section{Benchmark assessment}
@@ -218,7 +217,12 @@ To develop this project we used:
 	\bibitem{kern_inode_ops_lookup}
 	\lstinline{inode_operations::lookup}, \lstinline{/include/linux/fs.h#1734}, Linux Kernel v4.14.38.
 
-	\url{https://elixir.bootlin.com/linux/v4.14.38/source/include/linux/fs.h#L1734}
+  \url{https://elixir.bootlin.com/linux/v4.14.38/source/include/linux/fs.h#L1734}
+  
+  \bibitem{klists}
+  Linux Kernel Linked List Explained, NYU University.
+
+  \url{https://isis.poly.edu/kulesh/stuff/src/klist/}
 
 \end{thebibliography}
 
