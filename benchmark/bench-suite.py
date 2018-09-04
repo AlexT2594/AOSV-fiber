@@ -90,7 +90,7 @@ def run_suite(processes_from, processes_to, processes_step ,fibers_from, fibers_
     
     print_m(res_matrix)
 
-run_suite(1,9,2,3,5,2)    
+run_suite(1,9,2,5,7,2)    
 
 """
 if __name__ == "__main__":

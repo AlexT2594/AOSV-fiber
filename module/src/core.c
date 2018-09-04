@@ -232,16 +232,16 @@ int create_fiber(fiber_params_t *params) {
     // check if process if fiber enabled
     fibered_process_node = check_if_process_is_fibered(current->tgid);
     if (fibered_process_node == NULL) {
-        mutex_unlock(&fiber_lock);
-        return -ERR_NOT_FIBERED;
+        ret = -ERR_NOT_FIBERED;
+        goto err_precheck;
     }
 
     // check if the thread is a fiber
     fiber_node = check_if_this_thread_is_fiber(fibered_process_node);
     // if (fiber_node == NULL) printk(KERN_ALERT "Thread %d is not a fiber", current->pid);
     if (fiber_node == NULL) {
-        mutex_unlock(&fiber_lock);
-        return -ERR_NOT_FIBERED;
+        ret = -ERR_NOT_FIBERED;
+        goto err_precheck;
     }
     // add the node
     preempt_disable();
@@ -271,6 +271,7 @@ int create_fiber(fiber_params_t *params) {
     ret = fiber_node->id;
 
     preempt_enable();
+err_precheck:
     mutex_unlock(&fiber_lock);
     return ret;
 }
@@ -452,25 +453,26 @@ int fls_alloc() {
     // check if process is fiber enabled
     fibered_process_node = check_if_process_is_fibered(current->tgid);
     if (fibered_process_node == NULL) {
-        mutex_unlock(&fiber_lock);
-        return -ERR_NOT_FIBERED;
+        index = -ERR_NOT_FIBERED;
+        goto err_precheck;
     }
     // check if the thread is a fiber
     current_fiber_node = check_if_this_thread_is_fiber(fibered_process_node);
     if (current_fiber_node == NULL) {
-        mutex_unlock(&fiber_lock);
-        return -ERR_NOT_FIBERED;
+        index = -ERR_NOT_FIBERED;
+        goto err_precheck;
     }
 
     // find the first zero element in the bitmap
     index =
         bitmap_find_next_zero_area(current_fiber_node->local_storage.fls_bitmap, MAX_FLS, 0, 1, 0);
     if (index > MAX_FLS) {
-        mutex_unlock(&fiber_lock);
-        return -ERR_FLS_FULL;
+        index = -ERR_FLS_FULL;
+        goto err_precheck;
     }
     // otherwise the index is available
     bitmap_set(current_fiber_node->local_storage.fls_bitmap, index, 1);
+err_precheck:
     mutex_unlock(&fiber_lock);
     return (long)index;
 }
@@ -487,6 +489,7 @@ int fls_alloc() {
  * it is associated to an entry that is not allocated
  */
 int fls_free(long index) {
+    int ret = 0;
     fibered_process_node_t *fibered_process_node;
     fiber_node_t *current_fiber_node;
 
@@ -494,29 +497,30 @@ int fls_free(long index) {
     // check if process is fiber enabled
     fibered_process_node = check_if_process_is_fibered(current->tgid);
     if (fibered_process_node == NULL) {
-        mutex_unlock(&fiber_lock);
-        return -ERR_NOT_FIBERED;
+        ret = -ERR_NOT_FIBERED;
+        goto err_precheck;
     }
     // check if the thread is a fiber
     current_fiber_node = check_if_this_thread_is_fiber(fibered_process_node);
     if (current_fiber_node == NULL) {
-        mutex_unlock(&fiber_lock);
-        return -ERR_NOT_FIBERED;
+        ret = -ERR_NOT_FIBERED;
+        goto err_precheck;
     }
 
     // check if index is valid
     if (index >= MAX_FLS) {
-        mutex_unlock(&fiber_lock);
-        return -ERR_FLS_INVALID_INDEX;
+        ret = -ERR_FLS_INVALID_INDEX;
+        goto err_precheck;
     }
     if (!test_bit(index, current_fiber_node->local_storage.fls_bitmap)) {
-        mutex_unlock(&fiber_lock);
-        return -ERR_FLS_INVALID_INDEX;
+        ret = -ERR_FLS_INVALID_INDEX;
+        goto err_precheck;
     }
 
     bitmap_clear(current_fiber_node->local_storage.fls_bitmap, index, 1);
+err_precheck:
     mutex_unlock(&fiber_lock);
-    return 0;
+    return ret;
 }
 
 /**
@@ -549,42 +553,44 @@ long fls_get(fls_params_t *params) {
     mutex_lock(&fiber_lock);
     fibered_process_node = check_if_process_is_fibered(current->tgid);
     if (fibered_process_node == NULL) {
-        mutex_unlock(&fiber_lock);
-        return -ERR_NOT_FIBERED;
+        ret = -ERR_NOT_FIBERED;
+        goto err_precheck;
     }
     //  check if the thread is a fiber
     current_fiber_node = check_if_this_thread_is_fiber(fibered_process_node);
     if (current_fiber_node == NULL) {
-        mutex_unlock(&fiber_lock);
-        return -ERR_NOT_FIBERED;
+        ret = -ERR_NOT_FIBERED;
+        goto err_precheck;
     }
 
     ret = copy_from_user((void *)&k_params, (void *)params, sizeof(fls_params_t));
     if (ret != 0) {
         printk(KERN_ALERT MODULE_NAME CORE_LOG "fls_get() copy_from_user didn't copy %d bytes",
                ret);
-        mutex_unlock(&fiber_lock);
-        return -EFAULT;
+        ret = -EFAULT;
+        goto err_precheck;
     }
     // check if index is valid
     if (k_params.idx >= MAX_FLS) {
-        mutex_unlock(&fiber_lock);
-        return -ERR_FLS_INVALID_INDEX;
+        ret = -ERR_FLS_INVALID_INDEX;
+        goto err_precheck;
     }
     if (!test_bit(k_params.idx, current_fiber_node->local_storage.fls_bitmap)) {
-        mutex_unlock(&fiber_lock);
-        return -ERR_FLS_INVALID_INDEX;
+        ret = -ERR_FLS_INVALID_INDEX;
+        goto err_precheck;
     }
 
     k_params.value = current_fiber_node->local_storage.fls[k_params.idx];
     ret = copy_to_user((void *)params, (void *)&k_params, sizeof(fls_params_t));
     if (ret != 0) {
         printk(KERN_ALERT MODULE_NAME CORE_LOG "fls_get() copy_to_user didn't copy %d bytes", ret);
-        mutex_unlock(&fiber_lock);
-        return -EFAULT;
+        ret = -EFAULT;
+        goto err_precheck;
     }
+    ret = 0;
+err_precheck:
     mutex_unlock(&fiber_lock);
-    return 0;
+    return ret;
 }
 
 /**
@@ -613,35 +619,37 @@ int fls_set(fls_params_t *params) {
     if (ret != 0) {
         printk(KERN_ALERT MODULE_NAME CORE_LOG "fls_set() copy_from_user didn't copy %d bytes",
                ret);
-        mutex_unlock(&fiber_lock);
-        return -EFAULT;
+        ret = -EFAULT;
+        goto err_precheck;
     }
     // check if process is fiber enabled
     fibered_process_node = check_if_process_is_fibered(current->tgid);
     if (fibered_process_node == NULL) {
-        mutex_unlock(&fiber_lock);
-        return -ERR_NOT_FIBERED;
+        ret = -ERR_NOT_FIBERED;
+        goto err_precheck;
     }
     // check if the thread is a fiber
     current_fiber_node = check_if_this_thread_is_fiber(fibered_process_node);
     if (current_fiber_node == NULL) {
-        mutex_unlock(&fiber_lock);
-        return -ERR_NOT_FIBERED;
+        ret = -ERR_NOT_FIBERED;
+        goto err_precheck;
     }
 
     // check if index is valid
     if (params_kern.idx >= MAX_FLS) {
-        mutex_unlock(&fiber_lock);
-        return -ERR_FLS_INVALID_INDEX;
+        ret = -ERR_FLS_INVALID_INDEX;
+        goto err_precheck;
     }
     // index must be one that has been previously given to the fiber
     if (!test_bit(params_kern.idx, current_fiber_node->local_storage.fls_bitmap)) {
-        mutex_unlock(&fiber_lock);
-        return -ERR_FLS_INVALID_INDEX;
+        ret = -ERR_FLS_INVALID_INDEX;
+        goto err_precheck;
     }
     current_fiber_node->local_storage.fls[params_kern.idx] = params_kern.value;
+    ret = 0;
+err_precheck:
     mutex_unlock(&fiber_lock);
-    return 0;
+    return ret;
 }
 
 /*
