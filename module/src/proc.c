@@ -29,6 +29,10 @@
  */
 #include "proc.h"
 
+/*
+ * Pointers to kallsyms retrieved functions
+ */
+
 typedef asmlinkage struct dentry *(*original_proc_pident_lookup_t)(struct inode *, struct dentry *,
                                                                    const struct pid_entry *,
                                                                    unsigned int);
@@ -83,12 +87,6 @@ static struct file_operations fiber_proc_file_ops = {
 };
 // clang-format on
 
-/*
-static const struct pid_entry fibers_dir_stuff[] = {
-    REG("hello1", S_IRUGO | S_IWUGO, fiber_proc_file_ops),
-    REG("hello2", S_IRUGO | S_IWUGO, fiber_proc_file_ops)};
-*/
-
 static struct ftrace_hook hooked_functions[] = {
     HOOK("proc_pident_readdir", fiber_proc_pident_readdir, &original_proc_pident_readdir)};
 
@@ -99,6 +97,11 @@ static struct ftrace_hook hooked_functions[] = {
 /**
  * @brief Init here all the proc files for the module
  * Inspired by https://static.lwn.net/images/pdf/LDD3/ch04.pdf and updated to new standard
+ *
+ * # Implementation
+ * The init function of the proc module firstly retrieve all functions needed to be called and that
+ * are not accessible with the kernel headers, then it installs the ftrace hook. All begin from this.
+ *
  * @return int
  */
 int init_proc() {
@@ -133,7 +136,7 @@ out:
 }
 
 /**
- * @brief Destroy all the proc files
+ * @brief Destroy all the proc module
  *
  */
 void destroy_proc() {
@@ -141,6 +144,19 @@ void destroy_proc() {
     printk(KERN_DEBUG MODULE_NAME PROC_LOG "/proc/" PROC_ENTRY " destroyed");
 }
 
+/**
+ * @brief Customized version of @c proc_pident_readdir
+ *
+ * The purpose of this hacked function is to add our `fibers` entry in the directories that are
+ * displayed inside /proc/<PID> and the call the original function. We only do this if we are in
+ * the <PID> directory, otherwise we immediately fallback to the original function
+ *
+ * @param file
+ * @param ctx
+ * @param ents
+ * @param nents
+ * @return int
+ */
 static int fiber_proc_pident_readdir(struct file *file, struct dir_context *ctx,
                                      const struct pid_entry *ents, unsigned int nents) {
     int res;
@@ -172,11 +188,22 @@ original:
 out:
     return res;
 }
+
 /*
  * Ftrace area
  * @see https://www.apriorit.com/dev-blog/546-hooking-linux-functions-2
  */
 
+/**
+ * @brief Actual implementation of the hook
+ *
+ * @see https://www.apriorit.com/dev-blog/546-hooking-linux-functions-2
+ *
+ * @param ip
+ * @param parent_ip
+ * @param ops
+ * @param regs
+ */
 static void notrace fh_ftrace_thunk(unsigned long ip, unsigned long parent_ip,
                                     struct ftrace_ops *ops, struct pt_regs *regs) {
     struct ftrace_hook *hook = container_of(ops, struct ftrace_hook, ops);
@@ -194,6 +221,14 @@ static int resolve_hook_address(struct ftrace_hook *hook) {
     return 0;
 }
 
+/**
+ * @brief Install an ftrace hook
+ *
+ * @see https://www.apriorit.com/dev-blog/546-hooking-linux-functions-2
+ *
+ * @param hook
+ * @return int
+ */
 int fh_install_hook(struct ftrace_hook *hook) {
     int err;
     err = resolve_hook_address(hook);
@@ -221,6 +256,13 @@ int fh_install_hook(struct ftrace_hook *hook) {
     return 0;
 }
 
+/**
+ * @brief Removes an ftrace hook
+ *
+ * @see https://www.apriorit.com/dev-blog/546-hooking-linux-functions-2
+ *
+ * @param hook
+ */
 void fh_remove_hook(struct ftrace_hook *hook) {
     int err;
 
@@ -236,12 +278,13 @@ void fh_remove_hook(struct ftrace_hook *hook) {
  */
 
 /**
- * @brief
+ * @brief Dynamically generate an array of @c pid_entry in which every entry is a regular
+ * file that represents a fiber.
  *
  * Caller needs to free memory!
  *
- * @param pid
- * @return struct pid_entry*
+ * @param pid The pid string
+ * @return struct pid_entry** Here the function will put the allocated array
  */
 static int generate_fibers_dir_stuff(char *pid_str, struct pid_entry **to_out) {
     fibered_process_node_t *fibered_process_node;
@@ -292,6 +335,8 @@ out:
 
 /**
  * @brief Destroy fibers dir stuff
+ *
+ * Completely deallocate the array of pid_entry dynamically generated for a process
  *
  * @param fibers_stuff
  * @param nents
@@ -381,6 +426,7 @@ err:
 out:
     return ret;
 }
+
 /**
  * @brief Show the true data at itearator position
  *

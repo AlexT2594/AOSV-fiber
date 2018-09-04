@@ -3,13 +3,39 @@
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage{enumitem} % enum styles
+\usepackage{color}
+\usepackage{hyperref}
+
+\setitemize{itemsep=1pt,parsep=2pt,topsep=8pt,partopsep=0pt, label=-}
+\setenumerate{itemsep=1pt,parsep=2pt,topsep=2pt,partopsep=0pt}
+
 \usepackage{listings}
-\setitemize{itemsep=0pt,parsep=2pt,topsep=2pt,partopsep=0pt}
-\setenumerate{itemsep=0pt,parsep=2pt,topsep=2pt,partopsep=0pt}
+\lstset{language=C}
+
+%\lstMakeShortInline[columns=fixed]|
+
+
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.07,0.31,0.35}
+
+\lstset{
+    frameround=fttt,
+    language=C,
+    numbers=left,
+    breaklines=true,
+    basicstyle=\ttfamily\color{black},
+    keywordstyle=\color{mymauve}\bfseries, 
+    numberstyle=\color{black},
+    stringstyle=\color{orange},
+    commentstyle=\color{grey},
+    identifierstyle=\color{black}
+}
 
 \usepackage{paratype}
 \renewcommand*\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
 \usepackage[T1]{fontenc}
+\renewcommand{\baselinestretch}{1.12} 
 
 \title{
   \huge \textbf{Fibers} \\
@@ -35,7 +61,7 @@ Fibers are the Windows kernel-level implementation of User-Level Threads. To per
 In order to make the programs using threads faster, they should be implemented at user level, where User-Level Threads are managed entirely by the user-level library. This results in the kernel knowing nothing about user-level threads and it will manage them as if they were single-threaded processes. In this way, each user-level thread is represented by its set of registers and stack. This methodology allows for offering threads to an Operating System that could not support threads and don’t require the modification of the OS for supporting them; has simple representation and management and can be considered fast and efficient since thread switching is not much more expensive than a procedure call.
 
 With this project we try to implement User-Level Threads through the use of the kernel. As a guide we have used the information provided by Windows, which states that a fiber is a unit of execution that must be manually scheduled by the application. This means that a fiber is not preemptively scheduled, but one schedules a fiber by switching to it from another fiber. This doesn’t mean or imply that one application using fibers doesn’t make use of normal threads. When using fibers, the fiber assumes the identity of the thread that runs it, implying that if a thread running fibers is preempted, its currently running fiber is preempted but remains selected. This grants the possibility for handling concurrency in a much more fine-grained manner since the user can establish the schedule of the fibers by himself and not assign this task to a system that does this in a non-deterministic fashion.
-In order to start using fibers and make a thread fiber-enabled, it must call the ConvertThreadToFiber function which:
+In order to start using fibers and make a thread fiber-enabled, it must call the \lstinline{ConvertThreadToFiber} function which:
 \begin{itemize}
 	\item makes the thread into a fiber
 	\item gives this fiber the capability of creating other fibers
@@ -48,7 +74,7 @@ To create a new fiber from an existing one, the CreateFiber function is to be us
 \end{itemize}
 
 Once a fiber has been newly created, the user can switch to it by using the SwitchToFiber function.
-To store information related to a precise fiber, the user can use the Fiber Local Storage which, through the use of the FLS functions (FlsAlloc, FlsFree, FlsGetValue, FlsSetValue), allows for the manipulation of values associated to single fibers.
+To store information related to a precise fiber, the user can use the Fiber Local Storage which, through the use of the FLS functions (\lstinline{FlsAlloc}, \lstinline{FlsFree}, \lstinline{FlsGetValue}, \lstinline{FlsSetValue}), allows for the manipulation of values associated to single fibers.
 
 \section{Design Choices}
 The project consists of two sides: the kernel module that represents the kernel side (that we will call \textit{fiber module}) and the library (that we will call \texttt{fiber library}) that represents the userspace side of the framework. This kind of approach is the simplest one for implementing system calls: the module exposes a device in /dev/fiber and whenever the library needs to call a function exposed by the module it uses the system call ioctl, that given the fiber device file and a function integer id, it performs the call as it was a standard system call.
@@ -56,25 +82,25 @@ The project consists of two sides: the kernel module that represents the kernel 
 This is the general approach that we used for implementing the fiber logic. Obviously the library and module needs different kind of data to be stored and they have different workflows, for this reason in the following sections we will see them in detail.
 
 \subsection{Kernel Module}
-\subsubsection{Data Structures}
+\subsubsection{Data Structures}\label{subsubsec:kern-datas}
 We chose to represent a fiber with the following attributes:
 \begin{itemize}
-	\item id: unique for each fiber, that we’ll reference also as fid (fiber id)
-	\item registers: snapshot of the CPU registers.The internal state of a fiber is represented through the content in the registers. To change the execution flow, thus changing from one fiber to another, we swap the registers. The most important ones here are the instruction pointer (IP) and stack pointer (SP)
-	\item state: RUNNING/IDLE
-	\item entry point: starting function of the fiber
-	\item created\_by: pid of the thread that created the fiber
-	\item run\_by: pid of the thread that is currently running this fiber. If no thread is running it, we recur to the default value of -1.
+	\item \lstinline{int id}: unique for each fiber, that we’ll reference also as fid (fiber id)
+	\item \lstinline{struct pt_regs registers}: snapshot of the CPU registers. The internal state of a fiber is represented through the content in the registers. To change the execution flow, thus changing from one fiber to another, we swap the registers. The most important ones here are the instruction pointer (\texttt{IP}) and stack pointer (\texttt{SP})
+	\item \lstinline{fiber_state_t state}: RUNNING/IDLE
+	\item \lstinline{unsigned long entry point}: starting function of the fiber
+	\item \lstinline{unsigned created_by}: pid of the thread that created the fiber
+	\item \lstinline{unsigned run_by}: pid of the thread that is currently running this fiber. If no thread is running it, we recur to the default value of -1.
 	      success/failed activations
-	\item total\_time: total running time of the fiber
-	\item time\_last\_switch: time of when the last switch from one fiber to another occurred
-	\item local\_storage: fiber local storage
+	\item \lstinline{unsigned long total_time}: total running time of the fiber
+	\item \lstinline{struct timespec time_last_switch}: time of when the last switch from one fiber to another occurred
+	\item \lstinline{fiber_fls_t local_storage}: fiber local storage
 \end{itemize}
 
 To correctly access and handle fibers, we use two lists:
 \begin{itemize}
-	\item fibered\_processes\_list: a list of processes which are fiber-enabled. Each fibered\_process is identified by its tgid and contains a list of fibers
-	\item fibers\_list: a list of fibers for each fibered\_process
+	\item \lstinline{fibered_processes_list}: a list of processes which are fiber-enabled. Each fibered\_process is identified by its tgid and contains a list of fibers
+	\item \lstinline{fibers_list}: a list of fibers for each fibered\_process
 \end{itemize}
 
 To manage the fiber local storage, for each fiber we declare:
@@ -84,26 +110,42 @@ To manage the fiber local storage, for each fiber we declare:
 \end{itemize}
 
 \subsubsection{Workflows}
-The first function that need to be called for starting using fibers is ConvertThreadToFiber, since only a thread that is a fiber can create other fibers and switch to them. When a thread of a process calls for the first time ConvertThreadToFiber we say that the process becomes fiber-enabled or fibered, meaning that we have added it our list of fibered processes (fibered\_processes\_list\_t). Therefore ConvertThreadToFiber needs to add the process to the list and then create an entry in the fibers list of the same process, representing the thread that has been converted to a fiber.
+\paragraph{Converting a standard thread to a fiber}
+The first function that need to be called for starting using fibers is \lstinline{ConvertThreadToFiber}, since only a thread that is a fiber can create other fibers and switch to them. When a thread of a process calls for the first time \lstinline{ConvertThreadToFiber} we say that the process becomes \textit{fiber-enabled} or \textit{fibered}, meaning that we have added it our list of fibered processes (\lstinline{fibered_processes_list_t}). Therefore \lstinline{ConvertThreadToFiber} needs to add the process to the list and then create an entry in the fibers list of the same process, representing the thread that has been converted to a fiber.
 
-At this point the thread can call any other function offered by the module. The function CreateFiber creates a brand new fiber node to the list of fiber of the current process. The kernel module expects the library to pass a series of parameters for the fiber, as the memory address of the stack, the starting function of the fiber and also a pointer to its arguments. These parameters are used for configuring the registers that will be restored in the cpu when some thread will switch to that fiber. In particular we set SP and BP to the memory address of the stack passed by the library, IP to the address of the starting function of the fiber and DI to arguments’ memory address. Every other parameter is then initialized, as the activation count, the total time, the state, the id and so on.
+\paragraph{Creating fibers}
+At this point the thread can call any other function offered by the module. The function \lstinline{CreateFiber} creates a brand new fiber node to the list of fibers of the current process. The kernel module expects the library to pass a series of parameters for the fiber, as the \textbf{memory address} of the stack, the address of the \textbf{starting function} of the fiber and also a pointer to its \textbf{arguments}. These parameters are used for configuring the registers that will be restored in the CPU when some thread will switch to that fiber. In particular we set Stack Pointer (\texttt{SP}) and the Stack Base Pointer (\texttt{BP}) to the memory address of the stack passed by the library, Intruction Pointer (\texttt{IP}) to the address of the starting function of the fiber and Destrination Index (\texttt{DI}) to arguments’ memory address. Every other parameter is then initialized, as the activation count, the total time, the state, the id and so on (see Section~\ref{subsubsec:kern-datas}).
 
-The function that makes a fiber running is SwitchToFiber. Any fiber can switch to any other non-running fiber. This function is achieved by actually realizing a context switch between fibers. The current state of the cpu of the current fiber is saved in the fiber data structure, and then we restore the cpu state (including the fpu registers) of the requested fibers thus changing the flow of the execution of the current thread. In this moment also other metadata are set: the current fiber state is set to IDLE, while the requested fiber state is set to RUNNING and updated with the pid of the current thread, then we also update the total running time of the left fiber.
+\paragraph{Switching to a fiber}
+The function that makes a fiber running is \lstinline{SwitchToFiber}. Any fiber can switch to any other non-running fiber\footnote{If a currently running fiber tries to switch to a running fiber the \lstinline{failed_activation} counter is incremented for the requested fiber}. This function is achieved by actually realizing a context switch between fibers. The current state of the CPU of the current fiber is saved in the fiber data structure (describe in Section~\ref{subsubsec:kern-datas}), and then we restore the CPU state (including the fpu registers) of the requested fiber thus changing the flow of the execution of the current thread. In this moment also other metadata are set: the current fiber \lstinline{state} is set to \texttt{IDLE}, while the requested fiber state is set to \texttt{RUNNING} and updated with the \texttt{pid} of the current thread, then we also update the total running time of the left fiber.
 
-To be able to use the Fiber Local Storage the user has to call FlsAlloc. In this way the system will give to the user a way to access its requested space, which is done through the returned index, retrieved through the use of the bitmap. This index is used to store a value inside the FLS, by using the function FlsSetValue, and to retrieve it through the function FlsGetValue. To check if the index is a valid one, the kernel uses the functionalities offered by the bitmap. When the space associated with a certain index is no longer needed, it’s enough for the user to call FlsFree and passing the not needed anymore index and the system will clear its position in the bitmap.
+\paragraph{The Fiber Local Storage (FLS)}
+To be able to use the Fiber Local Storage the user has to call \lstinline{FlsAlloc}. In this way the system will give, to the fiber which called the function, a way to access its requested space. In particular, \lstinline{FlsAlloc} returns the index of the first free slot of fiber space\footnote{The size of every slot is \lstinline{sizeof(unsigned long)}}. This index can be then used to store a value, by using the function \lstinline{FlsSetValue}, and also for retrieving it, through the function \lstinline{FlsGetValue}. To check if the index is a valid one, the kernel uses the functionalities offered by the bitmap. When the space associated with a certain index is no longer needed, it’s enough for the user to call \lstinline{FlsFree} and passing the not-needed-anymore index and the system will clear its position in the bitmap.
 
 \subsubsection{\texttt{\/proc} filesystem}
-In order to respect the directive of the project, which is showing details about fibers under /proc/PID/fibers/fiber\_id, we had to find a way to hook the function that handles the data regarding each PID. We found out that the needed function is proc\_pident\_readdir that, by reading tgid\_base\_stuff, is able to expose to the user relevant data for each process. To be able to replace this function with one that could add other information, which regards fibers, we used ftrace, the framework for tracing kernel function. To get the address of the function we used kallsyms and the hooked function adds a new directory entry to the pid\_entry array and call the original function, passing the modified pid\_entry array as input.
+The implementation of the \texttt{/proc} specification does not follow the canonical strategy that is requested for creating directory and files in the \texttt{procfs}. This because directories that can be found in \lstinline{/proc/<PID>} are not \textit{statically} created, on the contrary, they are generated ``on the fly'', only when they are requested, mainly due to optimization reasons\footnote{A process can, for example, live for only few milliseconds and as a consequence it would be not efficient to build an entire directory tree}. As a consequence, for achieveing the specification we needed to design a sort of ``hacking plan'' aimed to add the desired folder \lstinline{/proc/<PID>/fibers}.
+
+First of all, we must know that the set of files and directories that are displayed in \lstinline{/proc/<PID>} are described by an array of \lstinline{struct pid_entry}, called \lstinline{tgid_base_stuff}~\cite{kern_tgid_base_stuff}. This array has fixed size, and every entry is filled so we have not spare slots that can be filled, therefore the only way to add things to it is to create an ``hook'' towards that functions that use it. In particular, found that \lstinline{proc_pident_readdir} takes as input \lstinline{tgid_base_stuff} and it instantiates every entry in the array, thus allowing them to be accessed. 
+
+A valid way for replacing the address of a function used by the kernel is using the \lstinline{ftrace} subsystem. So we created a customized version of the function \lstinline{proc_pident_readdir} that before calling the real function it simply adds one entry in the array of \lstinline{struct pid_entry} passed as parameter\footnote{Since the \lstinline{proc_pident_readdir} function is also called when accessing subfolders in \lstinline{/proc/<PID>} we firstly check if the name of the current directory is a PID, otherwise the fallback to the original version of the function}. This particular entry of array represents the \texttt{fibers} directory.
+
+The next step of the implementation is aimed to allow the user to navigate the \texttt{fibers} folder, more specifically we wanted to have a file for every created fiber, like \lstinline{/proc/<PID>/fibers/<FID>} where \texttt{FID} is actually the fiber id. For implementing this, we must admit that \texttt{fibers} is, after all, a directory of the VFS, even if it is wrapped in a \lstinline{pid_entry} structure. Therefore we only needed to implement the standard functions: 
+\begin{itemize}
+  \item \lstinline{iterate_shared()} in the \lstinline{struct file_operations}, whose purpose is to instantiate the actual items of a directory. We mapped it to our custom function \lstinline{proc_fibers_dir_readdir()};
+  \item \lstinline{lookup()} in the \lstinline{struct inode_operations} whose purpose is to retrieve the desired item inside a directory. We mapped it to our custom function \lstinline{proc_fibers_dir_lookup()}.
+\end{itemize}
+Both \lstinline{proc_fibers_dir_readdir()} and \lstinline{proc_fibers_dir_lookup()} takes as input an array of \lstinline{struct pid_entry} (like \lstinline{tgid_base_stuff}) but now this array will be requested to have an entry, representing a regular file, for each created fiber. So we implemented a function for this purpose, \lstinline{generate_fibers_dir_stuff} that given the directory automatically generates an array of \lstinline{pid_entry} in which every file has as name the id of the fiber and its \lstinline{read()} function is associated to the one that prints all the needed information\footnote{This last part is the only one that is compliant to the standard strategy of creating regular files in \texttt{procfs}}.
+
 
 \subsection{Userspace Library}
 
 \subsubsection{Data Structures}
 The information needed for representing fibers in the library is less than the one needed in the kernel. Here we use the following attributes for handling them:
 \begin{itemize}
-	\item stack\_size: size of the stack that will be used by the execution flow of the fiber
-	\item stack\_addr: the stack starting address allocated by the library
-	\item function: the function pointer passed by the user, that will be the starting point of the fiber
-	\item function\_args: arguments for the fiber function
+	\item \lstinline{stack_size}: size of the stack that will be used by the execution flow of the fiber
+	\item \lstinline{stack_addr}: the stack starting address allocated by the library
+	\item \lstinline[language={}]{function}: the function pointer passed by the user, that will be the starting point of the fiber
+	\item \lstinline{function_args}: arguments for the fiber function
 \end{itemize}
 
 The purpose of this data structure is to avoid to call the kernel module when is not needed, for example when switching to a fiber is useless to call the module if the requested fiber does not exists, indeed we first check if the fiber exists in our data structure and if not we avoid calling ioctl on the fiber device.
@@ -115,42 +157,56 @@ The library acts as an intermediate between the user and the kernel, more precis
 \subsection{Worktrees}
 The kernel module worktree is made up the following source files in src/:
 \begin{itemize}
-	\item fiber.c
-	\item device.c
-	\item core.c
-	\item proc.c
+	\item \lstinline{fiber.c}
+	\item \lstinline{device.c}
+	\item \lstinline{core.c}
+	\item \lstinline{proc.c}
 \end{itemize}
 In include/ We have an header file for every code file, except for:
 \begin{itemize}
-	\item utils.h
-	\item ioctlcmd.h
-	\item common.h
+	\item \lstinline{utils.h}
+	\item \lstinline{ioctlcmd.h}
+	\item \lstinline{common.h}
 \end{itemize}
 
 
 The library worktree is made up by:
 \begin{itemize}
-	\item core.c
-	\item fiber\_example.c
+	\item \lstinline{core.c}
+	\item \lstinline{fiber_example.c}
 \end{itemize}
 and as headers:
 \begin{itemize}
-	\item common.h
-	\item fiber.h
-	\item list.h
-	\item utils.h
+	\item \lstinline{common.h}
+	\item \lstinline{fiber.h}
+	\item \lstinline{list.h}
+	\item \lstinline{utils.h}
 \end{itemize}
 
 
 \subsection{OS \& tools}
 To develop this project we used:
 \begin{itemize}
-	\item Fedora, Arch Linux but module has also been tested with Debian and Ubuntu
-	\item Linux Kernel (v. 4.14.38)
-	\item gcc (v. 7.3.0/1)
-	\item Visual Studio Code
+	\item Fedora and Arch Linux but the project has also been tested with latest available versions of Debian and Ubuntu;
+	\item Linux Kernel (\lstinline{v4.14.38});
+	\item \lstinline{gcc} (\lstinline{v7.3.0/1});
+	\item Visual Studio Code.
 \end{itemize}
 
 \section{Benchmark assessment}
+
+\begin{thebibliography}{9}
+  
+  \bibitem{kern_tgid_base_stuff}
+  \lstinline{tgid_base_stuff}, \lstinline{/fs/proc/base.c#2921}, Linux Kernel v4.14.38.
+
+  \url{https://elixir.bootlin.com/linux/v4.14.38/source/fs/proc/base.c#L2921}
+
+  \bibitem{kern_proc_pident_readdir}
+  \lstinline{proc_pident_readdir}, \lstinline{/fs/proc/base.c#2489}, Linux Kernel v4.14.38.
+
+  \url{https://elixir.bootlin.com/linux/v4.14.38/source/fs/proc/base.c#L2489}
+
+\end{thebibliography}
 
 \end{document}
