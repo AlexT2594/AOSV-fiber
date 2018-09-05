@@ -104,8 +104,6 @@ void destroy_device(void) {
  * Implementation of static functions
  */
 
-static DEFINE_SPINLOCK(fiber_spinlock);
-
 /**
  * @brief The main ioctl function, dispatcher of all the exposed capabilities of the module - aka
  * syscalls.

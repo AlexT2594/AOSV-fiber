@@ -33,7 +33,6 @@
 #define __CORE_H
 
 #include "common.h"
-#include "device.h"
 #include "ioctlcmd.h"
 #include "utils.h"
 

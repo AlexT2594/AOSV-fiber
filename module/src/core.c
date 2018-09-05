@@ -39,7 +39,7 @@ static struct kprobe kp;
  * @brief The variable of the core part that will contain the **fiber-enabled** processes
  */
 // clang-format off
-static fibered_processes_list_t fibered_processes_list = {
+fibered_processes_list_t fibered_processes_list = {
 #ifdef USE_HASH_TABLE
     .hash_table = {[0 ...((1 << (HASH_KEY_SIZE)) - 1)] = HLIST_HEAD_INIT},
 #else
@@ -48,7 +48,8 @@ static fibered_processes_list_t fibered_processes_list = {
     .processes_count = 0
 };
 // clang-format on
-EXPORT_SYMBOL(fibered_processes_list);
+
+DEFINE_SPINLOCK(fiber_spinlock);
 
 /*
  * Kprobe implementation
@@ -369,16 +370,20 @@ err_precheck:
  * @return int 0 if everything OK, otherwise @red ERR_NOT_FIBERED if the process is not a fiber
  */
 int exit_fibered() {
+    int ret = 0;
     fibered_process_node_t *curr_process = NULL;
     fiber_node_t *curr_fiber = NULL;
     fiber_node_t *temp_fiber = NULL;
 
-    // only the main thread can enter here
-    if (current->tgid != current->pid) return 0;
+    spin_lock(&fiber_spinlock);
 
+    // only the main thread can enter here
+    if (current->tgid != current->pid) ret = -ERR_NOT_FIBERED;
+    if (ret < 0) goto out;
     // get the process node
     curr_process = check_if_process_is_fibered(current->tgid);
-    if (curr_process == NULL) return -ERR_NOT_FIBERED;
+    if (curr_process == NULL) ret = -ERR_NOT_FIBERED;
+    if (ret < 0) goto out;
 
 #ifdef DEBUG
     printk(KERN_DEBUG MODULE_NAME CORE_LOG "Process pid %d request exit_fibered (tid#%d)",
@@ -408,8 +413,9 @@ int exit_fibered() {
     printk(KERN_DEBUG MODULE_NAME CORE_LOG "Process pid %d exited gracefully for ending thread %d",
            current->tgid, current->pid);
 #endif
-
-    return 0;
+out:
+    spin_unlock(&fiber_spinlock);
+    return ret;
 }
 
 /**

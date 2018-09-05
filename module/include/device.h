@@ -75,4 +75,6 @@ typedef struct fiber_dev {
     struct miscdevice device;
 } fiber_dev_t;
 
+extern spinlock_t fiber_spinlock;
+
 #endif
