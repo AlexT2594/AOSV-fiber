@@ -21,7 +21,7 @@ SRCDIR := src
 INCDIR := include
 BUILDDIR := build
 DOCDIR := doxy
-CFLAGS := -std=gnu11 -Wall -g
+CFLAGS := -std=gnu11 -Wall -O3 #-g
 LIBS := -pthread
 INC := -Iinclude
 

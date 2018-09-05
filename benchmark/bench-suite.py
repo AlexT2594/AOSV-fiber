@@ -93,14 +93,12 @@ def run_suite(processes_from, processes_to, processes_step ,fibers_from, fibers_
             j =+1
         i+=1
     
-    print_m(res_matrix)
+    print_m(res_matrix)  
 
-run_suite(1,9,2,5,7,2)    
-
-"""
 if __name__ == "__main__":
-    if len(sys.argv) == 3:
-        do_bench(int(sys.argv[1]), int(sys.argv[2]), False)
+    if len(sys.argv) == 7:
+        # for a single bench
+        #do_bench(int(sys.argv[1]), int(sys.argv[2]), False)
+        run_suite(int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]), int(sys.argv[5]), int(sys.argv[6])) 
     else:
-        print("Usage: python bench-suite.py <num_processes> <num_fibers>")
-"""
+        print("Usage: python bench-suite.py <num_processes_from> <num_processes_to> <processes_step> <num_fibers_from> <num_fibers_to> <fibers_step>")

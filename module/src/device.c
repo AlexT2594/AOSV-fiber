@@ -104,7 +104,7 @@ void destroy_device(void) {
  * Implementation of static functions
  */
 
-static DEFINE_MUTEX(fiber_lock);
+static DEFINE_SPINLOCK(fiber_spinlock);
 
 /**
  * @brief The main ioctl function, dispatcher of all the exposed capabilities of the module - aka
@@ -118,7 +118,7 @@ static DEFINE_MUTEX(fiber_lock);
  */
 static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
     int err = 0, retval = 0;
-// mutex_lock(&fiber_lock);
+    spin_lock(&fiber_spinlock);
 #ifdef DEBUG
     printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "IOCTL %s from pid %d, tgid %d", cmds[_IOC_NR(cmd)],
            current->pid, current->tgid);
@@ -166,11 +166,11 @@ static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) 
     default:
         break;
     }
-    // mutex_unlock(&fiber_lock);
 #ifdef DEBUG
     printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "IOCTL %s from pid %d, tgid %d => Retvalue: %d",
            cmds[_IOC_NR(cmd)], current->pid, current->tgid, retval);
 #endif
+    spin_unlock(&fiber_spinlock);
     return retval;
 }
 

@@ -176,7 +176,7 @@ The \textbf{kernel module} worktree is made up the following source files in src
 In the \lstinline{include} folder we have an header file for every code file, except for:
 \begin{itemize}
 	\item \lstinline{utils.h} contains mainly definition of macros that we use to scroll kernel linked lists and hash tables that we use as database of our module;
-	\item \lstinline{ioctlcmd.h} represent the interconnection point between the module and the library since this file is shared between them. Its purpose is to store information about \lstinline{ioctl} commands identifiers and common data structures, as the \lstinline{fiber_params_t}\footnote{Whose purpose is to tell the kernel, from the library, all the information about a new fiber as: stack address, entry point and so on.}
+	\item \lstinline{ioctlcmd.h} represent the interconnection point between the module and the library since this file is shared between them. Its purpose is to store information about \lstinline{ioctl} commands identifiers and common data structures, as the \lstinline{fiber_params_t}\footnote{Whose purpose is to tell the kernel, from the library, all the information about a new fiber as: stack address, entry point and so on.}.
 	\item \lstinline{common.h} it's a general configuration file imported by all code files. It tells wether to use hash tables or linked list (for the fibered processes data structure), it specifies the dimension of the FLS storage and other parameters.
 \end{itemize}
 
