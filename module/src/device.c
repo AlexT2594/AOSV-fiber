@@ -116,7 +116,7 @@ void destroy_device(void) {
  */
 static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
     int err = 0, retval = 0;
-    spin_lock(&fiber_spinlock);
+    spin_lock_irqsave(&fiber_spinlock,irq_flags);
 #ifdef DEBUG
     printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "IOCTL %s from pid %d, tgid %d", cmds[_IOC_NR(cmd)],
            current->pid, current->tgid);
@@ -178,7 +178,7 @@ static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) 
            cmds[_IOC_NR(cmd)], current->pid, current->tgid, retval);
 #endif
 out:
-    spin_unlock(&fiber_spinlock);
+    spin_unlock_irqrestore(&fiber_spinlock,irq_flags);
     return retval;
 }
 

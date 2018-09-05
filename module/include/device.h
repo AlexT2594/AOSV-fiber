@@ -76,5 +76,6 @@ typedef struct fiber_dev {
 } fiber_dev_t;
 
 extern spinlock_t fiber_spinlock;
+extern unsigned long irq_flags;
 
 #endif

@@ -50,6 +50,7 @@ fibered_processes_list_t fibered_processes_list = {
 // clang-format on
 
 DEFINE_SPINLOCK(fiber_spinlock);
+unsigned long irq_flags;
 
 /*
  * Kprobe implementation
@@ -375,7 +376,7 @@ int exit_fibered() {
     fiber_node_t *curr_fiber = NULL;
     fiber_node_t *temp_fiber = NULL;
 
-    spin_lock(&fiber_spinlock);
+    spin_lock_irqsave(&fiber_spinlock, irq_flags);
 
     // only the main thread can enter here
     if (current->tgid != current->pid) ret = -ERR_NOT_FIBERED;
@@ -414,7 +415,7 @@ int exit_fibered() {
            current->tgid, current->pid);
 #endif
 out:
-    spin_unlock(&fiber_spinlock);
+    spin_unlock_irqrestore(&fiber_spinlock, irq_flags);
     return ret;
 }
 
