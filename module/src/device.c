@@ -122,14 +122,23 @@ static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) 
            current->pid, current->tgid);
 #endif
     // check correctness of type and command number
-    if (_IOC_TYPE(cmd) != FIBER_IOC_MAGIC) return -ENOTTY;
-    if (_IOC_NR(cmd) > FIBER_IOC_MAXNR) return -ENOTTY;
+    if (_IOC_TYPE(cmd) != FIBER_IOC_MAGIC) retval = -ENOTTY;
+    if (retval < 0) goto out;
+    if (_IOC_NR(cmd) > FIBER_IOC_MAXNR) retval = -ENOTTY;
+    if (retval < 0) goto out;
     // check addresses before performing operations
     if (_IOC_DIR(cmd) & _IOC_READ)
         err = !access_ok(VERIFY_WRITE, (void __user *)arg, _IOC_SIZE(cmd));
+    if (err) {
+        retval = -EFAULT;
+        goto out;
+    }
     if (_IOC_DIR(cmd) & _IOC_WRITE)
         err = !access_ok(VERIFY_READ, (void __user *)arg, _IOC_SIZE(cmd));
-    if (err) return -EFAULT;
+    if (err) {
+        retval = -EFAULT;
+        goto out;
+    }
 
 #ifdef DEBUG
     printk(KERN_CONT "...mem ok!");
@@ -168,6 +177,7 @@ static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) 
     printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "IOCTL %s from pid %d, tgid %d => Retvalue: %d",
            cmds[_IOC_NR(cmd)], current->pid, current->tgid, retval);
 #endif
+out:
     spin_unlock(&fiber_spinlock);
     return retval;
 }
