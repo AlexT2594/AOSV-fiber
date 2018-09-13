@@ -8,6 +8,7 @@
 \usepackage{subfig}
 \usepackage{booktabs}
 \usepackage{multirow}
+\usepackage[section]{placeins} % place figures in correct section
 
 \setitemize{itemsep=1pt,parsep=2pt,topsep=8pt,partopsep=0pt, label=-}
 \setenumerate{itemsep=1pt,parsep=2pt,topsep=2pt,partopsep=0pt}
@@ -21,6 +22,7 @@
 \definecolor{mygreen}{rgb}{0,0.6,0}
 \definecolor{mygray}{rgb}{0.5,0.5,0.5}
 \definecolor{mymauve}{rgb}{0.07,0.31,0.35}
+\definecolor{coolgrey}{rgb}{0.55, 0.57, 0.67}
 
 \lstset{
   frameround=fttt,
@@ -32,7 +34,7 @@
   keywordstyle=\color{mymauve}\bfseries,
   numberstyle=\color{black},
   stringstyle=\color{orange},
-  commentstyle=\color{grey},
+  commentstyle=\color{coolgrey},
   identifierstyle=\color{black},
   postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
   literate={\_}{}{0\discretionary{\_}{}{\_}}%
@@ -66,7 +68,8 @@
 \begin{document}
 \maketitle
 
-%\tableofcontents
+\tableofcontents
+\newpage
 
 \section{Introduction}
  Fibers are the Windows kernel-level implementation of User-Level Threads. To perfectly understand them, let’s see the difference with kernel level threads. Kernel-Level Threads are implemented when the Operating System manages the execution aspect of a process, which is separated into threads. These threads managed by the OS are called kernel-level threads or lightweight processes. The advantages here are that the kernel has full knowledge of all threads, meaning that it can optimize them, for example by assigning more time to a process having a large number of threads rather than a process with a small number of threads. On the other side, kernel-level threads are slow and inefficient, requiring an additional data structure (Thread Control Block) for each thread to maintain information about them. This results in a significant overhead.
@@ -113,8 +116,22 @@
 
   To correctly access and handle fibers, we use two lists:
   \begin{itemize}
-    \item \lstinline{fibered_processes_list_t fibered_processes_list}: a list of processes which are fiber-enabled. Each fibered\_process is identified by its tgid and contains a list of fibers
-    \item \lstinline{fibers_list_t fibers_list}: a list of fibers for each fibered\_process
+    \item \lstinline{fibered_processes_list_t fibered_processes_list}: a list of processes which are fiber-enabled. Each fibered\_process is identified by its \lstinline{tgid} and contains a list of fibers. This variable is located in the \lstinline{core.c} module (see Section~\ref{subsec:worktrees}) and its definition type is the following:
+
+    \begin{lstlisting}
+typedef struct fibered_processes_list {
+#ifdef USE_HASH_LIST
+    DECLARE_HASHTABLE(hash_table, HASH_KEY_SIZE);
+#else
+    struct list_head list;
+#endif
+    unsigned processes_count;
+} fibered_processes_list_t;
+    \end{lstlisting}
+    
+    As we can see, we decided to implement the list of fibered processes list both as a linked list and as a hash table, this because the process look up is very frequent and if we have a lot of processes then the hash table could be a better implementation. However the particular kind of data structure that is used by is defined by the macro \lstinline{USE_HASH_LIST}\footnote{Obviously the macro also switch all the operation made on the type \lstinline{fibered_processes_list} for example for checking if process is fibered, adding and removing processes and so on.}. 
+
+    \item \lstinline{fibers_list_t fibers_list}: a list of fibers for each fibered\_process. It is a field inside the representation of fibered processes, and it is representing the head of a linked list.
   \end{itemize}
 
   To manage the fiber local storage, for each fiber we declare:
@@ -136,6 +153,9 @@
   \paragraph{The Fiber Local Storage (FLS)}
     To be able to use the Fiber Local Storage the user has to call \lstinline{FlsAlloc}. In this way the system will give, to the fiber which called the function, a way to access its requested space. In particular, \lstinline{FlsAlloc} returns the index of the first free slot of fiber space\footnote{The size of every slot is \lstinline{sizeof(unsigned long)}}. This index can be then used to store a value, by using the function \lstinline{FlsSetValue}, and also for retrieving it, through the function \lstinline{FlsGetValue}. To check if the index is a valid one, the kernel uses the functionalities offered by the bitmap. When the space associated with a certain index is no longer needed, it’s enough for the user to call \lstinline{FlsFree} and passing the not-needed-anymore index and the system will clear its position in the bitmap.
 
+  \paragraph{Termination} 
+    As far as regards the termination of a fibered process, every 
+
 \subsubsection{\texttt{\/proc} filesystem}\label{subsubsec:kern-procfs}
   The implementation of the \texttt{/proc} specification does not follow the canonical strategy that is requested for creating directory and files in the \texttt{procfs}. This because directories that can be found in \lstinline{/proc/<PID>} are not \textit{statically} created, on the contrary, they are generated ``on the fly'', only when they are requested, mainly due to optimization reasons\footnote{A process can, for example, live for only few milliseconds and as a consequence it would be not efficient to build an entire directory tree}. As a consequence, for achieveing the specification we needed to design a sort of ``hacking plan'' aimed to add the desired folder \lstinline{/proc/<PID>/fibers}.
 
@@ -146,7 +166,7 @@
   The next step of the implementation is aimed to allow the user to navigate the \texttt{fibers} folder, more specifically we wanted to have a file for every created fiber, like \lstinline{/proc/<PID>/fibers/<FID>} where \texttt{FID} is actually the fiber id. For implementing this, we must admit that \texttt{fibers} is, after all, a directory of the VFS, even if it is wrapped in a \lstinline{pid_entry} structure. Therefore we only needed to implement the standard functions:
   \begin{itemize}
     \item \lstinline{iterate_shared()}~\cite{kern_file_ops_iterate} in the \lstinline{struct file_operations}, whose purpose is to instantiate the actual items of a directory. We mapped it to our custom function \lstinline{proc_fibers_dir_readdir()};
-    \item \lstinline{lookup()}~\cite{kern_inode_ops_lookup} in the \lstinline{struct inode_operations} whose purpose is to retrieve the desired item inside a directory. We mapped it to our custom function \lstinline{proc_fibers_dir_lookup()}.
+    \item \lstinline{lookup()}~\cite{kern_inode_ops_lookup} in the \lstinline{struct inode_operations} whose purpose is to look up another inode on the same filesystem. We mapped it to our custom function \lstinline{proc_fibers_dir_lookup()}.
   \end{itemize}
   Both \lstinline{proc_fibers_dir_readdir()} and \lstinline{proc_fibers_dir_lookup()} takes as input an array of \lstinline{pid_entry} (like \lstinline{tgid_base_stuff}) but now this array will be requested to have an entry, representing a regular file, for each created fiber. So we implemented a function for this purpose, \lstinline{generate_fibers_dir_stuff()}, that given the directory automatically generates an array of \lstinline{pid_entry} in which every file has as name the id of the fiber and its \lstinline{read()} function is associated to the one that prints all the needed information\footnote{This last part is the only one that is compliant to the standard strategy of creating regular files in \texttt{procfs}}.
 
@@ -167,9 +187,12 @@
 \subsubsection{Workflows}\label{subsubsec:lib-works}
   The library acts as an intermediate between the user and the kernel, more precisely our module. The means of communication is offered by the ioctl function.
 
+\subsection{Common}
+
+
 \section{Implementation Details}
 
-\begin{figure}[ht!]
+\begin{figure}[htb!]
   \centering
     \centering
     \includegraphics[height=12cm]{imgs/tree}
@@ -177,10 +200,10 @@
     \label{fig:2figsA}
 \end{figure}
 
-\subsection{Worktrees}
+\subsection{Worktrees}\label{subsec:worktrees}
   The \textbf{kernel module} worktree is made up the following source files in src/:
   \begin{itemize}
-    \item \lstinline{fiber.c} represents the module entry point, so its purpose is to initialize of the subparts, like the \lstinline{device} and the \lstinline{procfs};
+    \item \lstinline{fiber.c} represents the module entry point, so its purpose is to initialize the subparts, like the \lstinline{device} and the \lstinline{procfs};
     \item \lstinline{device.c} it's focused on the creation and the management of the fiber device in \lstinline{/dev/fiber}, and as a consequence of all what regards the dispatch of the \lstinline{ioctl} commands;
     \item \lstinline{proc.c} represents the \lstinline{procfs} part of the module, the one that gives life to \lstinline{/proc/<PID>/fibers} (see Section~\ref{subsubsec:kern-procfs});
     \item \lstinline{core.c} implements all the services exposed by the module and also retains the main data structure used for storing all the fibers information.
@@ -216,9 +239,14 @@
   \end{itemize}
 
 \section{Benchmark assessment}
+Benchmark of the final version of the project has been done by using a Python script, whose purpose is to implement a completely autonomous benchmark suite. The script runs the given benchmark test not only by trying different number of fibers but also by spawning different processes\footnote{This has been done by using threads and the \lstinline{subprocess} library.}. By passing as parameters the starting and the ending number of fibers and the starting and the ending number of processes, the script in the end output a matrix with the mean fibers execution time within all the processes that it spawned\footnote{The mean time is computed by picking the fiber execution time from the standard output of every spawned process and computing the average.}.
+
+The benchmark suite has been run on two virtual machines, the first with 2-cores assigned and the second with 4-cores assigned. Moreover for every machine we benchmarked the project when it was using a linked list and a hash table (see Section \ref{subsubsec:kern-datas}) for representing the \lstinline{fibered_processes_list_t}.
 
 \subsection{2 cores virtual machine}
- \begin{table}[ht!]
+The 2-cores virtual machine run Arch Linux on a Mac by using VMware Fusion. We tested from 1 to 17 processes and from 3 to 19 fibers both by step of 2. Table~\ref{tab:2cores-hashes} show the mean fiber execution time by using hash table and Table~\ref{tab:2cores-linked} shows the mean fiber execution time by using linked list.
+
+ \begin{table}[htb!]
   \centering
   \begin{tabular}{@{}lllllllllll@{}}
   \toprule
@@ -238,7 +266,7 @@
   \label{tab:2cores-hashes}
 \end{table}
 
- \begin{table}[ht!]
+ \begin{table}[htb!]
   \centering
   \begin{tabular}{@{}lllllllllll@{}}
   \toprule
@@ -258,7 +286,7 @@
   \label{tab:2cores-linked}
   \end{table}
 
- \begin{figure}[ht!]
+ \begin{figure}[htb!]
    \centering
    \begin{minipage}{0.45\textwidth}%
      \centering
@@ -278,8 +306,9 @@
 
 
  \subsection{4 cores virtual machine}
+ The 4-cores virtual machine run Fedora on a Mac by using VMware Fusion. We tested from 1 to 17 processes and from 5 to 17 fibers both by step of 2. Table~\ref{tab:4cores-hashes} show the mean fiber execution time by using hash table and Table~\ref{tab:4cores-linked} shows the mean fiber execution time by using linked list.
 
- \begin{table}[ht!]
+ \begin{table}[htb!]
   \centering
   \begin{tabular}{@{}lllllllll@{}}
   \toprule
@@ -296,10 +325,10 @@
    & \textbf{17} & 9.273 & 9.922 & 10.868 & 12.939 & 10.201 & 9.865 & 10.699 \\ \bottomrule
   \end{tabular}
   \caption{Mean fiber execution time (in seconds) in a machine with 4 cores by using hash table}
-  \label{tab:4cores-hash}
+  \label{tab:4cores-hashes}
   \end{table}
 
-\begin{table}[ht!]
+\begin{table}[htb!]
   \centering
   \begin{tabular}{@{}lllllllll@{}}
   \toprule
@@ -319,7 +348,7 @@
   \label{tab:4cores-linked}
   \end{table}
 
- \begin{figure}[ht!]
+ \begin{figure}[htb!]
    \centering
    \begin{minipage}{0.45\textwidth}%
      \centering
