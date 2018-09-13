@@ -57,8 +57,6 @@
 
 int init_device(void);
 void destroy_device(void);
-// utils
-int close_device_descriptor(void);
 
 /*
  * Definitions

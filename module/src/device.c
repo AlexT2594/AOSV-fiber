@@ -116,7 +116,7 @@ void destroy_device(void) {
  */
 static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
     int err = 0, retval = 0;
-    spin_lock_irqsave(&fiber_spinlock,irq_flags);
+    spin_lock_irqsave(&fiber_spinlock, irq_flags);
 #ifdef DEBUG
     printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "IOCTL %s from pid %d, tgid %d", cmds[_IOC_NR(cmd)],
            current->pid, current->tgid);
@@ -178,7 +178,7 @@ static long fiber_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) 
            cmds[_IOC_NR(cmd)], current->pid, current->tgid, retval);
 #endif
 out:
-    spin_unlock_irqrestore(&fiber_spinlock,irq_flags);
+    spin_unlock_irqrestore(&fiber_spinlock, irq_flags);
     return retval;
 }
 
@@ -218,40 +218,4 @@ static ssize_t device_read(struct file *filp, /* see include/linux/fs.h   */
  */
 static ssize_t device_write(struct file *filp, const char *buf, size_t len, loff_t *off) {
     return 0;
-}
-
-/*
- * Utils
- */
-
-/**
- * @brief Force close the device descriptor opened by the current process
- *
- * # Implementation
- * The function searches in the file descriptor array of the current process if there is a file
- * descriptor that is associated with a file object whose inode has as real device `i_rdev` a device
- * with the same minor of our device. Since our device is a `miscdevice` the minor number of its
- * `dev_t` will identify it uniquely in the system
- *
- * @return int The result of the called `sys_close` on that file descriptor
- */
-int close_device_descriptor() {
-    struct file **fd_array;
-    struct fdtable *fd_table;
-    unsigned fd = 0;
-    int ret = 0;
-
-    fd_table = files_fdtable(current->files);
-    fd_array = fd_table->fd;
-    for (fd = 0; fd < fd_table->max_fds; fd++)
-        // check for an open fd with the same minor of the fiber device and if found close it
-        if (fd_is_open(fd, fd_table) && fd_array[fd] &&
-            MAJOR(fiber_dev.device.this_device->devt) == MAJOR(fd_array[fd]->f_inode->i_rdev) &&
-            fiber_dev.device.minor == MINOR(fd_array[fd]->f_inode->i_rdev)) {
-            ret = sys_close(fd);
-            break;
-        }
-
-    if (ret < 0) printk(KERN_DEBUG MODULE_NAME DEVICE_LOG "Error while closing the fd");
-    return ret;
 }
