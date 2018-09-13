@@ -208,12 +208,12 @@ typedef struct fibered_processes_list {
   \begin{itemize}
     \item \lstinline{utils.h} contains mainly definition of macros that we use to scroll kernel linked lists and hash tables that we use as database of our module;
     \item \lstinline{ioctlcmd.h} represent the interconnection point between the module and the library since this file is shared between them. Its purpose is to store information about \lstinline{ioctl} commands identifiers and common data structures, as the \lstinline{fiber_params_t}\footnote{Whose purpose is to tell the kernel, from the library, all the information about a new fiber as: stack address, entry point and so on.}.
-    \item \lstinline{common.h} it's a general configuration file imported by all code files. It tells wether to use hash tables or linked list (for the fibered processes data structure), it specifies the dimension of the FLS storage and other parameters.
+    \item \lstinline{common.h} it's a general configuration file imported by all code files. It tells whether to use hash tables or linked list (for the fibered processes data structure), it specifies the dimension of the FLS storage and other parameters.
   \end{itemize}
 
   The \textbf{library} worktree is made up by:
   \begin{itemize}
-    \item \lstinline{core.c} implements all the set of userspace callable function, directly mapped to \lstinline{ioctl} commands (see Section~\ref{subsubsec:lib-works}) and the data structure that represents all the fibers managed by a process.
+    \item \lstinline{core.c} implements all the set of userspace callable functions, directly mapped to \lstinline{ioctl} commands (see Section~\ref{subsubsec:lib-works}) and the data structure that represents all the fibers managed by a process.
     \item \lstinline{fiber_example.c} contains a little running example mainly used for testing the library and the module functionality.
   \end{itemize}
   and as headers:
@@ -228,14 +228,14 @@ typedef struct fibered_processes_list {
 \subsection{OS \& tools}
   This project has been developed and tested to be working with the following environment parameters:
   \begin{itemize}
-    \item \textbf{Linux Distros}: Fedora, Arch Linux, Debian 9 and Ubuntu 18.04;
+    \item \textbf{Linux Distros}: Fedora 28, Arch Linux, Debian 9 and Ubuntu 18.04;
     \item \textbf{Linux Kernel}: \lstinline{v4.14.38};
     \item \textbf{Compiling Suite}: \lstinline{gcc} (\lstinline{v7.3.0/1});
     \item \textbf{IDE}: Visual Studio Code.
   \end{itemize}
 
 \section{Benchmark assessment}
-Benchmark of the final version of the project has been done by using a Python script, whose purpose is to implement a completely autonomous benchmark suite. The script runs the given benchmark test not only by trying different number of fibers but also by spawning different processes\footnote{This has been done by using threads and the \lstinline{subprocess} library.}. By passing as parameters the starting and the ending number of fibers and the starting and the ending number of processes, the script in the end output a matrix with the mean fibers execution time within all the processes that it spawned\footnote{The mean time is computed by picking the fiber execution time from the standard output of every spawned process and computing the average.}.
+Benchmark of the final version of the project has been done by using a Python script, whose purpose is to implement a completely autonomous benchmark suite. The script runs the given benchmark test not only by trying different number of fibers, but also by spawning different processes\footnote{This has been done by using threads and the \lstinline{subprocess} library.}. By passing as parameters the starting and the ending number of fibers and the starting and the ending number of processes, the script in the end outputs a matrix with the mean fibers execution time within all the processes that it spawned\footnote{The mean time is computed by picking the fiber execution time from the standard output of every spawned process and computing the average.}.
 
 The benchmark suite has been run on two virtual machines, the first with 2-cores assigned and the second with 4-cores assigned. Moreover for every machine we benchmarked the project when it was using a linked list and a hash table (see Section \ref{subsubsec:kern-datas}) for representing the \lstinline{fibered_processes_list_t}.
 
