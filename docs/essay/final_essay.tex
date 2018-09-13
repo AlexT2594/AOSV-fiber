@@ -37,7 +37,9 @@
   commentstyle=\color{coolgrey},
   identifierstyle=\color{black},
   postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
-  literate={\_}{}{0\discretionary{\_}{}{\_}}%
+  literate={\_}{}{0\discretionary{\_}{}{\_}},
+  aboveskip=0em,
+  belowskip=1.2em
 }
 
 \usepackage{paratype}
@@ -118,7 +120,7 @@
   \begin{itemize}
     \item \lstinline{fibered_processes_list_t fibered_processes_list}: a list of processes which are fiber-enabled. Each fibered\_process is identified by its \lstinline{tgid} and contains a list of fibers. This variable is located in the \lstinline{core.c} module (see Section~\ref{subsec:worktrees}) and its definition type is the following:
 
-    \begin{lstlisting}
+    \begin{lstlisting}[frame=trBL]
 typedef struct fibered_processes_list {
 #ifdef USE_HASH_LIST
     DECLARE_HASHTABLE(hash_table, HASH_KEY_SIZE);
@@ -186,9 +188,6 @@ typedef struct fibered_processes_list {
 
 \subsubsection{Workflows}\label{subsubsec:lib-works}
   The library acts as an intermediate between the user and the kernel, more precisely our module. The means of communication is offered by the ioctl function.
-
-\subsection{Common}
-
 
 \section{Implementation Details}
 
