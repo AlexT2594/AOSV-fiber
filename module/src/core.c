@@ -40,7 +40,7 @@ static struct kprobe kp;
  */
 // clang-format off
 fibered_processes_list_t fibered_processes_list = {
-#ifdef USE_HASH_TABLE
+#ifdef USE_HASH_LIST
     .hash_table = {[0 ...((1 << (HASH_KEY_SIZE)) - 1)] = HLIST_HEAD_INIT},
 #else
     .list = LIST_HEAD_INIT(fibered_processes_list.list),
@@ -643,7 +643,7 @@ err_precheck:
  * # Implementation
  * For checking if the process is a fiber we need to find in the the @fibered_processes_list data
  * structure. This module implements the list of fibered process both as a linked structure than an
- * hash table. If `#define USE_HASH_TABLE` is present the hash table is used for checking if the
+ * hash table. If `#define USE_HASH_LIST` is present the hash table is used for checking if the
  * process is fibered, this means that the macro @ref check_if_exists_hash (that relies on kernel
  * built-in function `hash_for_each_possible_safe`) is used, otherwise we loop in a the linked list
  * of fibered processes by using the macro @ref check_if_exists (that relies on
