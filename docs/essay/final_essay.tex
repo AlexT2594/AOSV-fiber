@@ -239,6 +239,7 @@ Benchmark of the final version of the project has been done by using a Python sc
 
 The benchmark suite has been run on two virtual machines, the first with 2-cores assigned and the second with 4-cores assigned. Moreover for every machine we benchmarked the project when it was using a linked list and a hash table (see Section \ref{subsubsec:kern-datas}) for representing the \lstinline{fibered_processes_list_t}.
 
+By comparing the kernel-level fibers with respect to User Level Threads implemented in userspace, we can conclude that in our case there is no particular speed up.
 \subsection{2 cores virtual machine}
 The 2-cores virtual machine run Arch Linux on a Mac by using VMware Fusion. We tested from 1 to 17 processes and from 3 to 19 fibers both by step of 2. Table~\ref{tab:2cores-hashes} show the mean fiber execution time by using hash table and Table~\ref{tab:2cores-linked} shows the mean fiber execution time by using linked list.
 
@@ -302,7 +303,7 @@ The 2-cores virtual machine run Arch Linux on a Mac by using VMware Fusion. We t
 
 
  \subsection{4 cores virtual machine}
- The 4-cores virtual machine run Fedora on a Mac by using VMware Fusion. We tested from 1 to 17 processes and from 5 to 17 fibers both by step of 2. Table~\ref{tab:4cores-hashes} show the mean fiber execution time by using hash table and Table~\ref{tab:4cores-linked} shows the mean fiber execution time by using linked list.
+ The 4-cores virtual machine run Fedora on a Mac by using VMware Fusion. We tested from 1 to 17 processes and from 5 to 17 fibers both by step of 2. Table~\ref{tab:4cores-hashes} show the mean fiber execution time by using hash table and Table~\ref{tab:4cores-linked} shows the mean fiber execution time by using linked list. Table~\ref{tab:4cores-ULT} shows the mean fiber execution time by implementing fibers with User Level Threads in userspace.
 
  \begin{table}[htb!]
   \centering
@@ -343,6 +344,26 @@ The 2-cores virtual machine run Arch Linux on a Mac by using VMware Fusion. We t
   \caption{Mean fiber execution time (in seconds) in a machine with 4 cores by using linked list}
   \label{tab:4cores-linked}
   \end{table}
+
+  \begin{table}[htb!]
+    \centering
+    \begin{tabular}{@{}lllllllll@{}}
+    \toprule
+      &  & \multicolumn{7}{c}{\textit{\textbf{Number of Fibers}}} \\ \midrule
+      &  & \textbf{5} & \textbf{7} & \textbf{9} & \textbf{11} & \textbf{13} & \textbf{15} & \textbf{17} \\
+    \multirow{9}{*}{\rotatebox[origin=c]{90}{\textit{\textbf{Number of processes}}}} & \textbf{1} & 0.323 &	0.312 &	0.321 &	0.361 &	0.295 &	0.314 &	0.36 \\
+      & \textbf{3} & 1.048 &	1.073 &	0.976 &	0.684 &	0.613 &	1.106 &	0.639 \\
+      & \textbf{5} & 1.269 &	2.045 &	1.393 &	2.098 &	1.316 &	1.841 &	1.525 \\
+      & \textbf{7} & 2.09 &	1.92 &	2.21 &	2.418 &	2.01 &	2.177 &	2.473 \\
+      & \textbf{9} & 2.712 &	2.705 &	2.924 &	3.06 &	2.702 &	2.885 &	2.827 \\
+      & \textbf{11} & 3.387 &	3.05 &	4.858 &	3.675 &	3.406 &	3.905 &	3.763 \\
+      & \textbf{13} & 3.961 &	5.468 &	3.728 &	5.479 &	4.056 &	5.023 &	5.12 \\
+      & \textbf{15} & 3.943 &	4.579 &	6.387 &	7.012 &	6.823 &	10.589 &	10.431 \\
+      & \textbf{17} & 5.935 &	5.838 &	6.506 &	8.364 &	9.682 &	8.087 &	9.411 \\ \bottomrule
+    \end{tabular}
+    \caption{Mean fiber execution time (in seconds) in a machine with 4 cores by implementing fibers with User Level Threads in userspace}
+    \label{tab:4cores-ULT}
+    \end{table}
 
  \begin{figure}[htb!]
    \centering
