@@ -174,8 +174,11 @@ typedef struct fibered_process {
     pid_t pid; /**< the pid of the main thread, so the tgid of every thread of the process */
     fibers_list_t fibers_list; /**< A list of fibers created in the process environment (so by any
                                   thread in it) */
-    struct hlist_node hlist;   /**< Hashlist implementation structure */
-    struct list_head list;     /**< List implementation structure */
+#ifdef USE_HASH_LIST
+    struct hlist_node hlist; /**< Hashlist implementation structure */
+#else
+    struct list_head list; /**< List implementation structure */
+#endif
 } fibered_process_node_t;
 
 /**
@@ -186,8 +189,11 @@ typedef struct fibered_process {
  *
  */
 typedef struct fibered_processes_list {
+#ifdef USE_HASH_LIST
     DECLARE_HASHTABLE(hash_table, HASH_KEY_SIZE);
+#else
     struct list_head list;
+#endif
     unsigned processes_count; /**< The number of elements in the list */
 } fibered_processes_list_t;
 
