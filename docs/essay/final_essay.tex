@@ -155,15 +155,12 @@ typedef struct fibered_processes_list {
   \paragraph{The Fiber Local Storage (FLS)}
     To be able to use the Fiber Local Storage the user has to call \lstinline{FlsAlloc}. In this way the system will give, to the fiber which called the function, a way to access its requested space. In particular, \lstinline{FlsAlloc} returns the index of the first free slot of fiber space\footnote{The size of every slot is \lstinline{sizeof(unsigned long)}}. This index can be then used to store a value, by using the function \lstinline{FlsSetValue}, and also for retrieving it, through the function \lstinline{FlsGetValue}. To check if the index is a valid one, the kernel uses the functionalities offered by the bitmap. When the space associated with a certain index is no longer needed, it’s enough for the user to call \lstinline{FlsFree} and passing the not-needed-anymore index and the system will clear its position in the bitmap.
 
-  \paragraph{Termination} 
-    As far as regards the termination of a fibered process, every 
-
 \subsubsection{\texttt{\/proc} filesystem}\label{subsubsec:kern-procfs}
   The implementation of the \texttt{/proc} specification does not follow the canonical strategy that is requested for creating directory and files in the \texttt{procfs}. This because directories that can be found in \lstinline{/proc/<PID>} are not \textit{statically} created, on the contrary, they are generated ``on the fly'', only when they are requested, mainly due to optimization reasons\footnote{A process can, for example, live for only few milliseconds and as a consequence it would be not efficient to build an entire directory tree}. As a consequence, for achieveing the specification we needed to design a sort of ``hacking plan'' aimed to add the desired folder \lstinline{/proc/<PID>/fibers}.
 
-  First of all, we must know that the set of files and directories that are displayed in \lstinline{/proc/<PID>} are described by an array of \lstinline{struct pid_entry}, called \lstinline{tgid_base_stuff}~\cite{kern_tgid_base_stuff}. This array has fixed size, and every entry is filled so we have not spare slots that can be filled, therefore the only way to add things to it is to create an ``hook'' towards that functions that use it. In particular, found that \lstinline{proc_pident_readdir} takes as input \lstinline{tgid_base_stuff} and it instantiates every entry in the array, thus allowing them to be accessed.
+  First of all, we must know that the set of files and directories that are displayed in \lstinline{/proc/<PID>} are described by an array of \lstinline{struct pid_entry}, called \lstinline{tgid_base_stuff}~\cite{kern_tgid_base_stuff}. This array has fixed size, and every entry is filled so we have not spare slots that can be filled, therefore the only way to add things to it is to create an ``hook'' towards that functions that use it. In particular, we found that \lstinline{proc_pident_readdir} takes as input \lstinline{tgid_base_stuff} and it instantiates every entry in the array, thus allowing them to be accessed.
 
-  A valid way for replacing the address of a function used by the kernel is using the \lstinline{ftrace} subsystem. So we created a customized version of the function \lstinline{proc_pident_readdir} that before calling the real function it simply adds one entry in the array of \lstinline{struct pid_entry} passed as parameter\footnote{Since the \lstinline{proc_pident_readdir} function is also called when accessing subfolders in \lstinline{/proc/<PID>} we firstly check if the name of the current directory is a PID, otherwise the fallback to the original version of the function} (obviously only if the process is \textit{fibered}). This particular entry of array represents the \texttt{fibers} directory.
+  A valid way for hooking into this function is by using the \lstinline{ftrace} subsystem. So we created a customized version of the function \lstinline{proc_pident_readdir} that before calling the real function it simply adds one entry in the array of \lstinline{struct pid_entry} passed as parameter\footnote{Since the \lstinline{proc_pident_readdir} function is also called when accessing subfolders in \lstinline{/proc/<PID>} we firstly check if the name of the current directory is a PID, otherwise the fallback to the original version of the function} (obviously only if the process is \textit{fibered}). This particular entry of array represents the \texttt{fibers} directory.
 
   The next step of the implementation is aimed to allow the user to navigate the \texttt{fibers} folder, more specifically we wanted to have a file for every created fiber, like \lstinline{/proc/<PID>/fibers/<FID>} where \texttt{FID} is actually the fiber id. For implementing this, we must admit that \texttt{fibers} is, after all, a directory of the VFS, even if it is wrapped in a \lstinline{pid_entry} structure. Therefore we only needed to implement the standard functions:
   \begin{itemize}
@@ -211,12 +208,12 @@ typedef struct fibered_processes_list {
   \begin{itemize}
     \item \lstinline{utils.h} contains mainly definition of macros that we use to scroll kernel linked lists and hash tables that we use as database of our module;
     \item \lstinline{ioctlcmd.h} represent the interconnection point between the module and the library since this file is shared between them. Its purpose is to store information about \lstinline{ioctl} commands identifiers and common data structures, as the \lstinline{fiber_params_t}\footnote{Whose purpose is to tell the kernel, from the library, all the information about a new fiber as: stack address, entry point and so on.}.
-    \item \lstinline{common.h} it's a general configuration file imported by all code files. It tells wether to use hash tables or linked list (for the fibered processes data structure), it specifies the dimension of the FLS storage and other parameters.
+    \item \lstinline{common.h} it's a general configuration file imported by all code files. It tells whether to use hash tables or linked list (for the fibered processes data structure), it specifies the dimension of the FLS storage and other parameters.
   \end{itemize}
 
   The \textbf{library} worktree is made up by:
   \begin{itemize}
-    \item \lstinline{core.c} implements all the set of userspace callable function, directly mapped to \lstinline{ioctl} commands (see Section~\ref{subsubsec:lib-works}) and the data structure that represents all the fibers managed by a process.
+    \item \lstinline{core.c} implements all the set of userspace callable functions, directly mapped to \lstinline{ioctl} commands (see Section~\ref{subsubsec:lib-works}) and the data structure that represents all the fibers managed by a process.
     \item \lstinline{fiber_example.c} contains a little running example mainly used for testing the library and the module functionality.
   \end{itemize}
   and as headers:
@@ -231,14 +228,14 @@ typedef struct fibered_processes_list {
 \subsection{OS \& tools}
   This project has been developed and tested to be working with the following environment parameters:
   \begin{itemize}
-    \item \textbf{Linux Distros}: Fedora, Arch Linux, Debian 9 and Ubuntu 18.04;
+    \item \textbf{Linux Distros}: Fedora 28, Arch Linux, Debian 9 and Ubuntu 18.04;
     \item \textbf{Linux Kernel}: \lstinline{v4.14.38};
     \item \textbf{Compiling Suite}: \lstinline{gcc} (\lstinline{v7.3.0/1});
     \item \textbf{IDE}: Visual Studio Code.
   \end{itemize}
 
 \section{Benchmark assessment}
-Benchmark of the final version of the project has been done by using a Python script, whose purpose is to implement a completely autonomous benchmark suite. The script runs the given benchmark test not only by trying different number of fibers but also by spawning different processes\footnote{This has been done by using threads and the \lstinline{subprocess} library.}. By passing as parameters the starting and the ending number of fibers and the starting and the ending number of processes, the script in the end output a matrix with the mean fibers execution time within all the processes that it spawned\footnote{The mean time is computed by picking the fiber execution time from the standard output of every spawned process and computing the average.}.
+Benchmark of the final version of the project has been done by using a Python script, whose purpose is to implement a completely autonomous benchmark suite. The script runs the given benchmark test not only by trying different number of fibers, but also by spawning different processes\footnote{This has been done by using threads and the \lstinline{subprocess} library.}. By passing as parameters the starting and the ending number of fibers and the starting and the ending number of processes, the script in the end outputs a matrix with the mean fibers execution time within all the processes that it spawned\footnote{The mean time is computed by picking the fiber execution time from the standard output of every spawned process and computing the average.}.
 
 The benchmark suite has been run on two virtual machines, the first with 2-cores assigned and the second with 4-cores assigned. Moreover for every machine we benchmarked the project when it was using a linked list and a hash table (see Section \ref{subsubsec:kern-datas}) for representing the \lstinline{fibered_processes_list_t}.
 
