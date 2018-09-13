@@ -120,7 +120,7 @@
   \begin{itemize}
     \item \lstinline{fibered_processes_list_t fibered_processes_list}: a list of processes which are fiber-enabled. Each fibered\_process is identified by its \lstinline{tgid} and contains a list of fibers. This variable is located in the \lstinline{core.c} module (see Section~\ref{subsec:worktrees}) and its definition type is the following:
 
-    \begin{lstlisting}[frame=trBL]
+          \begin{lstlisting}[frame=trBL]
 typedef struct fibered_processes_list {
 #ifdef USE_HASH_LIST
     DECLARE_HASHTABLE(hash_table, HASH_KEY_SIZE);
@@ -130,8 +130,8 @@ typedef struct fibered_processes_list {
     unsigned processes_count;
 } fibered_processes_list_t;
     \end{lstlisting}
-    
-    As we can see, we decided to implement the list of fibered processes list both as a linked list and as a hash table, this because the process look up is very frequent and if we have a lot of processes then the hash table could be a better implementation. However the particular kind of data structure that is used by is defined by the macro \lstinline{USE_HASH_LIST}\footnote{Obviously the macro also switch all the operation made on the type \lstinline{fibered_processes_list} for example for checking if process is fibered, adding and removing processes and so on.}. 
+
+          As we can see, we decided to implement the list of fibered processes list both as a linked list and as a hash table, this because the process look up is very frequent and if we have a lot of processes then the hash table could be a better implementation. However the particular kind of data structure that is used by is defined by the macro \lstinline{USE_HASH_LIST}\footnote{Obviously the macro also switch all the operation made on the type \lstinline{fibered_processes_list} for example for checking if process is fibered, adding and removing processes and so on.}.
 
     \item \lstinline{fibers_list_t fibers_list}: a list of fibers for each fibered\_process. It is a field inside the representation of fibered processes, and it is representing the head of a linked list.
   \end{itemize}
@@ -188,13 +188,13 @@ typedef struct fibered_processes_list {
 
 \section{Implementation Details}
 
-\begin{figure}[htb!]
-  \centering
-    \centering
-    \includegraphics[height=12cm]{imgs/tree}
-    \caption{The worktree of the project (excluding the benchmark suite)}
-    \label{fig:2figsA}
-\end{figure}
+ \begin{figure}[htb!]
+   \centering
+   \centering
+   \includegraphics[height=12cm]{imgs/tree}
+   \caption{The worktree of the project (excluding the benchmark suite)}
+   \label{fig:2figsA}
+ \end{figure}
 
 \subsection{Worktrees}\label{subsec:worktrees}
   The \textbf{kernel module} worktree is made up the following source files in src/:
@@ -235,15 +235,16 @@ typedef struct fibered_processes_list {
   \end{itemize}
 
 \section{Benchmark assessment}
-Benchmark of the final version of the project has been done by using a Python script, whose purpose is to implement a completely autonomous benchmark suite. The script runs the given benchmark test not only by trying different number of fibers, but also by spawning different processes\footnote{This has been done by using threads and the \lstinline{subprocess} library.}. By passing as parameters the starting and the ending number of fibers and the starting and the ending number of processes, the script in the end outputs a matrix with the mean fibers execution time within all the processes that it spawned\footnote{The mean time is computed by picking the fiber execution time from the standard output of every spawned process and computing the average.}.
+ Benchmark of the final version of the project has been done by using a Python script, whose purpose is to implement a completely autonomous benchmark suite. The script runs the given benchmark test not only by trying different number of fibers, but also by spawning different processes\footnote{This has been done by using threads and the \lstinline{subprocess} library.}. By passing as parameters the starting and the ending number of fibers and the starting and the ending number of processes, the script in the end outputs a matrix with the mean fibers execution time within all the processes that it spawned\footnote{The mean time is computed by picking the fiber execution time from the standard output of every spawned process and computing the average.}.
 
-The benchmark suite has been run on two virtual machines, the first with 2-cores assigned and the second with 4-cores assigned. Moreover for every machine we benchmarked the project when it was using a linked list and a hash table (see Section \ref{subsubsec:kern-datas}) for representing the \lstinline{fibered_processes_list_t}.
+ The benchmark suite has been run on two virtual machines, the first with 2-cores assigned and the second with 4-cores assigned. Moreover for every machine we benchmarked the project when it was using a linked list and a hash table (see Section \ref{subsubsec:kern-datas}) for representing the \lstinline{fibered_processes_list_t}.
 
-By comparing the kernel-level fibers with respect to User Level Threads implemented in userspace, we can conclude that in our case there is no particular speed up.
+ By comparing the kernel-level fibers with respect to User Level Threads implemented in userspace, we can conclude that in our case there is no particular speed up.
+
 \subsection{2 cores virtual machine}
-The 2-cores virtual machine run Arch Linux on a Mac by using VMware Fusion. We tested from 1 to 17 processes and from 3 to 19 fibers both by step of 2. Table~\ref{tab:2cores-hashes} show the mean fiber execution time by using hash table and Table~\ref{tab:2cores-linked} shows the mean fiber execution time by using linked list.
+  The 2-cores virtual machine run Arch Linux on a Mac by using VMware Fusion. We tested from 1 to 17 processes and from 3 to 19 fibers both by step of 2. Table~\ref{tab:2cores-hashes} show the mean fiber execution time by using hash table and Table~\ref{tab:2cores-linked} shows the mean fiber execution time by using linked list. Table~\ref{tab:2cores-ult} shows the mean fiber execution time by implementing fibers with User Level Threads in userspace.
 
- \begin{table}[htb!]
+  \begin{table}[htb!]
   \centering
   \begin{tabular}{@{}lllllllllll@{}}
   \toprule
@@ -263,7 +264,7 @@ The 2-cores virtual machine run Arch Linux on a Mac by using VMware Fusion. We t
   \label{tab:2cores-hashes}
 \end{table}
 
- \begin{table}[htb!]
+  \begin{table}[htb!]
   \centering
   \begin{tabular}{@{}lllllllllll@{}}
   \toprule
@@ -283,29 +284,56 @@ The 2-cores virtual machine run Arch Linux on a Mac by using VMware Fusion. We t
   \label{tab:2cores-linked}
   \end{table}
 
- \begin{figure}[htb!]
-   \centering
-   \begin{minipage}{0.45\textwidth}%
-     \centering
-     \includegraphics[width=\textwidth]{imgs/bench-2cores-hash}
-     \caption{Fiber modules using hash table}
-     \label{fig:2figsA}
-   \end{minipage}%
-   \qquad
-   \begin{minipage}{0.45\textwidth}%
-     \centering
-     \includegraphics[width=\textwidth]{imgs/bench-2cores-hash}
-     \caption{Fiber modules using linked list}
-     \label{fig:2figsB}%
-   \end{minipage}%
-   \caption{Plot of mean fiber execution times on a machine with 2 cores}
- \end{figure}
+  \begin{table}[htb!]
+  \centering
+  \begin{tabular}{@{}lllllllllll@{}}
+  \toprule
+    &  & \multicolumn{9}{c}{\textit{\textbf{Number of fibers}}} \\ \midrule
+    &  & \textbf{3} & \textbf{5} & \textbf{7} & \textbf{9} & \textbf{11} & \textbf{13} & \textbf{15} & \textbf{17} & \textbf{19} \\
+    \multirow{9}{*}{\rotatebox[origin=c]{90}{\textit{\textbf{Number of processes}}}} & \textbf{1} & 0.285 & 0.3 & 0.325 & 0.302 & 0.392 & 0.298 & 0.306 & 0.291 & 0.29 \\
+    & \textbf{3} & 0.894 & 0.904 & 0.957 & 0.899 & 0.882 & 0.889 & 0.883 & 0.875 & 1.133 \\
+    & \textbf{5} & 1.613 & 1.549 & 1.888 & 1.892 & 2.332 & 2.862 & 2.358 & 1.724 & 1.696 \\
+    & \textbf{7} & 2.89 & 2.68 & 3.007 & 4.11 & 3.711 & 3.955 & 3.729 & 4.301 & 4.134 \\
+    & \textbf{9} & 2.864 & 3.555 & 4.113 & 3.376 & 5.87 & 4.976 & 5.207 & 4.258 & 3.766 \\
+    & \textbf{11} & 3.831 & 4.001 & 3.252 & 4.377 & 5.19 & 4.922 & 4.361 & 4.708 & 5.329 \\
+    & \textbf{13} & 3.358 & 4.304 & 5.51 & 5.473 & 5.903 & 5.71 & 6.157 & 6.524 & 6.403 \\
+    & \textbf{15} & 4.043 & 6.996 & 5.681 & 6.862 & 7.408 & 7.272 & 7.557 & 7.459 & 6.261 \\
+    & \textbf{17} & 5.955 & 6.57 & 7.786 & 6.178 & 8.035 & 7.897 & 8.219 & 8.322 & 10.201 \\ \bottomrule
+  \end{tabular}
+  \caption{Mean fiber execution time (in seconds) in a machine with 4 cores by implementing fibers with User Level Threads in userspace}
+  \label{tab:2cores-ult}
+  \end{table}
+
+  \begin{figure}[htb!]
+    \centering
+    \begin{minipage}{0.45\textwidth}%
+      \centering
+      \includegraphics[width=\textwidth]{imgs/bench-2cores-hash}
+      \caption{Fiber modules using hash table}
+      \label{fig:bench-2cores-hash}
+    \end{minipage}%
+    \qquad
+    \begin{minipage}{0.45\textwidth}%
+      \centering
+      \includegraphics[width=\textwidth]{imgs/bench-2cores-linked}
+      \caption{Fiber modules using linked list}
+      \label{fig:bench-2cores-linked}%
+    \end{minipage}%
+    \caption{Plot of mean fiber execution times on a machine with 2 cores with the Kernel Level implementation}
+  \end{figure}
+
+  \begin{figure}[htb!]
+    \centering
+    \includegraphics[width=0.5\textwidth]{imgs/bench-2cores-ult}
+    \caption{Plot of mean fiber execution times on a machine with 2 cores with the User Level implementation}
+    \label{fig:bench-2cores-ult}
+  \end{figure}
 
 
- \subsection{4 cores virtual machine}
- The 4-cores virtual machine run Fedora on a Mac by using VMware Fusion. We tested from 1 to 17 processes and from 5 to 17 fibers both by step of 2. Table~\ref{tab:4cores-hashes} show the mean fiber execution time by using hash table and Table~\ref{tab:4cores-linked} shows the mean fiber execution time by using linked list. Table~\ref{tab:4cores-ULT} shows the mean fiber execution time by implementing fibers with User Level Threads in userspace.
+\subsection{4 cores virtual machine}
+  The 4-cores virtual machine run Fedora on a Mac by using VMware Fusion. We tested from 1 to 17 processes and from 5 to 17 fibers both by step of 2. Table~\ref{tab:4cores-hashes} show the mean fiber execution time by using hash table and Table~\ref{tab:4cores-linked} shows the mean fiber execution time by using linked list. Table~\ref{tab:4cores-ULT} shows the mean fiber execution time by implementing fibers with User Level Threads in userspace.
 
- \begin{table}[htb!]
+  \begin{table}[htb!]
   \centering
   \begin{tabular}{@{}lllllllll@{}}
   \toprule
@@ -325,7 +353,7 @@ The 2-cores virtual machine run Arch Linux on a Mac by using VMware Fusion. We t
   \label{tab:4cores-hashes}
   \end{table}
 
-\begin{table}[htb!]
+  \begin{table}[htb!]
   \centering
   \begin{tabular}{@{}lllllllll@{}}
   \toprule
@@ -365,51 +393,58 @@ The 2-cores virtual machine run Arch Linux on a Mac by using VMware Fusion. We t
     \label{tab:4cores-ULT}
     \end{table}
 
- \begin{figure}[htb!]
-   \centering
-   \begin{minipage}{0.45\textwidth}%
-     \centering
-     \includegraphics[width=\textwidth]{imgs/bench-4cores-hash}
-     \caption{Fiber modules using hash lists}
-     \label{fig:2figsA}
-   \end{minipage}%
-   \qquad
-   \begin{minipage}{0.45\textwidth}%
-     \centering
-     \includegraphics[width=\textwidth]{imgs/bench-4cores-hash}
-     \caption{Fiber modules using linked lists}
-     \label{fig:2figsB}%
-   \end{minipage}%
-   \caption{Plot of mean fiber execution times on a machine with 4 cores}
- \end{figure}
+  \begin{figure}[htb!]
+    \centering
+    \begin{minipage}{0.45\textwidth}%
+      \centering
+      \includegraphics[width=\textwidth]{imgs/bench-4cores-hash}
+      \caption{Fiber modules using hash lists}
+      \label{fig:bench-4cores-hash}
+    \end{minipage}%
+    \qquad
+    \begin{minipage}{0.45\textwidth}%
+      \centering
+      \includegraphics[width=\textwidth]{imgs/bench-4cores-linked}
+      \caption{Fiber modules using linked lists}
+      \label{fig:bench-4cores-linked}%
+    \end{minipage}%
+    \caption{Plot of mean fiber execution times on a machine with 4 cores with the Kernel Level implementation}
+  \end{figure}
 
- \begin{thebibliography}{9}
+  \begin{figure}[htb!]
+    \centering
+    \includegraphics[width=0.5\textwidth]{imgs/bench-4cores-ult}
+    \caption{Plot of mean fiber execution times on a machine with 4 cores with the User Level implementation}
+    \label{fig:bench-4cores-ult}
+  \end{figure}
 
-   \bibitem{kern_tgid_base_stuff}
-   \lstinline{tgid_base_stuff}, \lstinline{/fs/proc/base.c#2921}, Linux Kernel v4.14.38.
+  \begin{thebibliography}{9}
 
-   \url{https://elixir.bootlin.com/linux/v4.14.38/source/fs/proc/base.c#L2921}
+    \bibitem{kern_tgid_base_stuff}
+    \lstinline{tgid_base_stuff}, \lstinline{/fs/proc/base.c#2921}, Linux Kernel v4.14.38.
 
-   \bibitem{kern_proc_pident_readdir}
-   \lstinline{proc_pident_readdir}, \lstinline{/fs/proc/base.c#2489}, Linux Kernel v4.14.38.
+    \url{https://elixir.bootlin.com/linux/v4.14.38/source/fs/proc/base.c#L2921}
 
-   \url{https://elixir.bootlin.com/linux/v4.14.38/source/fs/proc/base.c#L2489}
+    \bibitem{kern_proc_pident_readdir}
+    \lstinline{proc_pident_readdir}, \lstinline{/fs/proc/base.c#2489}, Linux Kernel v4.14.38.
 
-   \bibitem{kern_file_ops_iterate}
-   \lstinline{file_operations::iterate_shared}, \lstinline{/include/linux/fs.h#1701}, Linux Kernel v4.14.38.
+    \url{https://elixir.bootlin.com/linux/v4.14.38/source/fs/proc/base.c#L2489}
 
-   \url{https://elixir.bootlin.com/linux/v4.14.38/source/include/linux/fs.h#L1701}
+    \bibitem{kern_file_ops_iterate}
+    \lstinline{file_operations::iterate_shared}, \lstinline{/include/linux/fs.h#1701}, Linux Kernel v4.14.38.
 
-   \bibitem{kern_inode_ops_lookup}
-   \lstinline{inode_operations::lookup}, \lstinline{/include/linux/fs.h#1734}, Linux Kernel v4.14.38.
+    \url{https://elixir.bootlin.com/linux/v4.14.38/source/include/linux/fs.h#L1701}
 
-   \url{https://elixir.bootlin.com/linux/v4.14.38/source/include/linux/fs.h#L1734}
+    \bibitem{kern_inode_ops_lookup}
+    \lstinline{inode_operations::lookup}, \lstinline{/include/linux/fs.h#1734}, Linux Kernel v4.14.38.
 
-   \bibitem{klists}
-   Linux Kernel Linked List Explained, NYU University.
+    \url{https://elixir.bootlin.com/linux/v4.14.38/source/include/linux/fs.h#L1734}
 
-   \url{https://isis.poly.edu/kulesh/stuff/src/klist/}
+    \bibitem{klists}
+    Linux Kernel Linked List Explained, NYU University.
 
- \end{thebibliography}
+    \url{https://isis.poly.edu/kulesh/stuff/src/klist/}
+
+  \end{thebibliography}
 
 \end{document}
