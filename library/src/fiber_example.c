@@ -34,6 +34,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#define STACK_SIZE 2048 * 8
+
 void fnA(void *args);
 void fnB(void *args);
 void fnC(void *args);
