@@ -3,6 +3,7 @@ from threading import Thread
 import re
 import sys
 
+# open each process within a gdb shell
 use_xterm = False
 
 def do_bench(num_process, num_fibers, silent=True):
@@ -14,7 +15,7 @@ def do_bench(num_process, num_fibers, silent=True):
 
     def threaded_fun(tid, process):
         out, err = process.communicate()
-        # run time
+        # parse run time
         run_time_regex = r"Time to run do the work \(per-fiber\):[0-9 ^\.]*\.[0-9]*"
         run_time_found = re.search(run_time_regex, str(out))
         if run_time_found != None:
@@ -24,7 +25,7 @@ def do_bench(num_process, num_fibers, silent=True):
             run_timings[tid] = run_time
         else:
             print("Process#%d has no run time line!" % tid)
-        # Init time
+        # parse init time
         init_time_regex = r"Time to initialize fibers:[0-9 ^\.]*\.[0-9]*"
         init_time_found = re.search(init_time_regex, str(out))
         if init_time_found != None:
@@ -49,11 +50,15 @@ def do_bench(num_process, num_fibers, silent=True):
         
 
     for i in range(num_process):
-        simple_args = ["./test", str(num_fibers)]
-        xterm_arg = "gdb -ex=r --args ./test " + str(num_fibers)
-        xterm_params = ["xterm", "-e", xterm_arg]
-        processes.append(subprocess.Popen(xterm_params if(use_xterm) else simple_args, stdout=subprocess.PIPE))
+        if(use_xterm):
+            xterm_arg = "gdb -ex=r --args ./test " + str(num_fibers)
+            xterm_params = ["xterm", "-e", xterm_arg]
+            processes.append(subprocess.Popen(xterm_params, stdout=subprocess.PIPE))
+        else:
+            simple_args = "./test " + str(num_fibers)
+            processes.append(subprocess.Popen(simple_args, stdout=subprocess.PIPE, shell=True))
         threads.append(Thread(target=threaded_fun, args=[i, processes[i]]))
+
     for i in range(num_process):
         threads[i].start()
     for i in range(num_process):
@@ -97,8 +102,19 @@ def run_suite(processes_from, processes_to, processes_step ,fibers_from, fibers_
 
 if __name__ == "__main__":
     if len(sys.argv) == 7:
-        # for a single bench
-        #do_bench(int(sys.argv[1]), int(sys.argv[2]), False)
-        run_suite(int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4]), int(sys.argv[5]), int(sys.argv[6])) 
+        num_processes_from = int(sys.argv[1])
+        num_processes_to = int(sys.argv[2])
+        processes_step = int(sys.argv[3])
+        num_fibers_from = int(sys.argv[4])
+        num_fibers_to = int(sys.argv[5])
+        fibers_step = int(sys.argv[6])
+        if(num_processes_from == num_processes_to and num_fibers_from == num_fibers_to):
+            # for a single bench
+            do_bench(num_processes_from, num_fibers_from, False)
+        else:
+            run_suite(num_processes_from, num_processes_to, processes_step, num_fibers_from, num_fibers_to, fibers_step) 
+    elif len(sys.argv) == 3:
+         do_bench(int(sys.argv[1]), int(sys.argv[2]), False)
     else:
+        print("Usage: python bench-suite.py <num_processes> <num_fibers>")
         print("Usage: python bench-suite.py <num_processes_from> <num_processes_to> <processes_step> <num_fibers_from> <num_fibers_to> <fibers_step>")
