@@ -10,32 +10,16 @@
   "C_Cpp.errorSquiggles": "Disabled",
   "C_Cpp.clang_format_path": "/usr/bin/clang-format",
   "C_Cpp.clang_format_style": "file",
-  "files.associations": {
-    "param.h": "c",
-    "module.h": "c",
-    "kernel.h": "c",
-    "thread": "cpp",
-    "device.h": "c",
-    "hashtable.h": "c",
-    "current.h": "c",
-    "ptrace.h": "c",
-    "array": "c",
-    "string_view": "c",
-    "istream": "c",
-    "ostream": "c",
-    "type_traits": "c",
-    "utility": "c",
-    "system_error": "cpp",
-    "typeinfo": "cpp",
-    "functional": "cpp",
-    "tuple": "cpp",
-    "hash_map": "c",
-    "hash_set": "c",
-    "initializer_list": "c",
-    "semaphore.h": "c"
-  },
   "doxdocgen.generic.authorTag": "@author Gabriele Proietti Mattia <gabry.gabry@hotmail.it>\n * @author Alexandru Daniel Tufa <alex.tufa94@gmail.com>",
   "licenser.author": "Gabriele Proietti Mattia <gabry.gabry@hotmail.it> & Alexandru Daniel Tufa <alex.tufa94@gmail.com>",
   "licenser.projectName": "Fibers (Kernel Module)",
-  "licenser.license": "GPLv3"
+  "licenser.license": "GPLv3",
+  "recommendations": [
+    "ms-vscode.cpptools",
+    "streetsidesoftware.code-spell-checker",
+    "cschlosser.doxdocgen",
+    "EditorConfig.editorconfig",
+    "eamodio.gitlens",
+    "tomconte.kickassembler"
+  ]
 }
